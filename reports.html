@@ -113,12 +113,9 @@
 
     .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
       .row2{grid-template-columns:repeat(1,1fr);}
-      .row3{grid-template-columns:repeat(1,1fr);}
     }
     @media (max-width:720px){
       .topbar{flex-direction:column;align-items:stretch}
@@ -208,13 +205,17 @@
     .chartTitle{font-weight:1000}
     .chartNote{font-size:12px;color:var(--muted);font-weight:900}
 
-    /* ✅ FIX: ممنوع height:auto !important — ده اللي كان بيبوّظ الموبايل */
+    /* ✅ FIX: منع تمدد الصفحة بسبب canvas */
     canvas{
-      width:100%;
+      width:100% !important;
       display:block;
       max-width:100%;
-      touch-action: pan-y;
+      height: 420px !important;
+      max-height: 520px !important;
+      min-height: 240px !important;
     }
+    #lineCanvas{ height: 360px !important; }
+    #barCanvas, #pieCanvas{ height: 420px !important; }
 
     .table-wrap{
       overflow:auto;
@@ -353,7 +354,7 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">التقارير (Reports) — رسوم بيانية + تحليل أصناف</div>
+        <div class="brandSub">التقارير (Reports) — يومي/أسبوعي/شهري + تحليل أصناف</div>
       </div>
     </div>
 
@@ -436,8 +437,8 @@
       <div class="pill"><span class="muted">مصدر المشتريات:</span> <b id="srcPurch">—</b></div>
     </div>
 
-    <div id="itemsNotice" class="muted" style="margin-top:10px;line-height:1.8;display:none">
-      ⚠️ تحليل الأصناف يحتاج تفاصيل الأصناف داخل سجل المبيعات (items/items_list/lines). حاليًا البيانات المتاحة لا تحتوي تفاصيل كافية.
+    <div class="muted" style="margin-top:10px;line-height:1.8">
+      ✅ حاليًا كل القيم = 0 لحد ما تربطها بجوجل شيت. (الواجهة جاهزة)
     </div>
   </div>
 
@@ -474,30 +475,30 @@
         <div class="chartHead">
           <div>
             <div class="chartTitle">مبيعات / مشتريات / مصروفات (حسب التجميع)</div>
-            <div class="chartNote">Bar Chart — يومي/أسبوعي/شهري</div>
+            <div class="chartNote">رسم بسيط — يومي/أسبوعي/شهري</div>
           </div>
         </div>
-        <canvas id="barCanvas" height="420" aria-label="Bar chart"></canvas>
+        <canvas id="barCanvas" width="1200" height="420" aria-label="Bar chart"></canvas>
       </div>
 
       <div class="chartBox">
         <div class="chartHead">
           <div>
             <div class="chartTitle">توزيع المصروفات حسب النوع</div>
-            <div class="chartNote">Doughnut — Top 6 + أخرى</div>
+            <div class="chartNote">Pie بسيط (قائمًا على البيانات لاحقًا)</div>
           </div>
         </div>
-        <canvas id="pieCanvas" height="420" aria-label="Pie chart"></canvas>
+        <canvas id="pieCanvas" width="800" height="420" aria-label="Pie chart"></canvas>
       </div>
 
       <div class="chartBox" style="grid-column:1/-1">
         <div class="chartHead">
           <div>
             <div class="chartTitle">صافي الفترة (تقديري)</div>
-            <div class="chartNote">Line Chart — مبيعات - مشتريات - مصروفات</div>
+            <div class="chartNote">Line بسيط</div>
           </div>
         </div>
-        <canvas id="lineCanvas" height="360" aria-label="Line chart"></canvas>
+        <canvas id="lineCanvas" width="1200" height="360" aria-label="Line chart"></canvas>
       </div>
     </div>
   </div>
@@ -510,7 +511,7 @@
         <div class="chartHead" style="padding:0 0 10px">
           <div>
             <div class="chartTitle">الأصناف الأكثر مبيعًا</div>
-            <div class="chartNote">حسب الكمية (مع إجمالي قيمة تقديري لو متوفر)</div>
+            <div class="chartNote">هيتم تغذيتها من Google Sheet لاحقًا</div>
           </div>
           <div class="tag ok">Top</div>
         </div>
@@ -522,15 +523,15 @@
                 <th style="width:60px">#</th>
                 <th style="min-width:240px">الصنف</th>
                 <th style="min-width:160px">الكمية</th>
-                <th style="min-width:190px">إجمالي (تقديري)</th>
+                <th style="min-width:190px">إجمالي</th>
               </tr>
             </thead>
             <tbody id="topItemsBody"></tbody>
           </table>
         </div>
 
-        <div id="topEmpty" class="empty" style="display:none;margin-top:10px">
-          لا توجد بيانات أصناف كافية.
+        <div id="topEmpty" class="empty" style="margin-top:10px">
+          لا توجد بيانات بعد — (كل القيم 0 حاليًا).
         </div>
       </div>
 
@@ -538,7 +539,7 @@
         <div class="chartHead" style="padding:0 0 10px">
           <div>
             <div class="chartTitle">أصناف غير متحركة</div>
-            <div class="chartNote">موجودة بالمخزون ولم تُبع خلال الفترة</div>
+            <div class="chartNote">هيتم تغذيتها من Google Sheet لاحقًا</div>
           </div>
           <div class="tag bad">Slow</div>
         </div>
@@ -549,21 +550,17 @@
               <tr>
                 <th style="width:60px">#</th>
                 <th style="min-width:260px">الصنف</th>
-                <th style="min-width:160px">المتاح (لو موجود)</th>
+                <th style="min-width:160px">المتاح</th>
               </tr>
             </thead>
             <tbody id="deadItemsBody"></tbody>
           </table>
         </div>
 
-        <div id="deadEmpty" class="empty" style="display:none;margin-top:10px">
-          لا توجد بيانات مخزون كافية (أو كل الأصناف اتحركت).
+        <div id="deadEmpty" class="empty" style="margin-top:10px">
+          لا توجد بيانات بعد — (كل القيم 0 حاليًا).
         </div>
       </div>
-    </div>
-
-    <div class="muted" style="margin-top:10px;line-height:1.8">
-      ملاحظة: "غير متحرك" يعتمد على وجود قائمة مخزون/منتجات محفوظة في LocalStorage.
     </div>
   </div>
 
@@ -619,64 +616,13 @@ function showToast(msg){
   toast.textContent = msg;
   toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1700);
 }
-
-/* ================= Tooltip (Pro) ================= */
-const tip = document.createElement("div");
-tip.style.cssText = `
-  position:fixed; inset:auto auto 0 0;
-  transform: translate(-9999px,-9999px);
-  background: rgba(15,23,42,.94);
-  color:#fff;
-  padding:10px 12px;
-  border-radius:14px;
-  box-shadow: 0 18px 50px rgba(2,6,23,.22);
-  font-weight:1000;
-  font-size:12px;
-  line-height:1.6;
-  z-index: 10000;
-  pointer-events:none;
-  white-space:pre-line;
-`;
-document.body.appendChild(tip);
-function showTip(x,y,text){
-  tip.textContent = text;
-  const pad = 12;
-  const w = tip.offsetWidth || 240;
-  const h = tip.offsetHeight || 60;
-  let left = x + 12;
-  let top  = y + 12;
-  if(left + w + pad > window.innerWidth) left = x - w - 12;
-  if(top + h + pad > window.innerHeight) top = y - h - 12;
-  tip.style.transform = `translate(${Math.max(pad,left)}px,${Math.max(pad,top)}px)`;
-}
-function hideTip(){ tip.style.transform = "translate(-9999px,-9999px)"; }
 
 /* ================= Helpers ================= */
 function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
 function esc(s){
   return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-function toISODateMaybe(val){
-  const s = String(val||"").trim();
-  if(!s) return "";
-  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
-  if(m){
-    const dd = String(m[1]).padStart(2,"0");
-    const mm = String(m[2]).padStart(2,"0");
-    const yy = String(m[3]);
-    return `${yy}-${mm}-${dd}`;
-  }
-  const d = new Date(s);
-  if(!isNaN(d.getTime())){
-    const y = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${y}-${mm}-${dd}`;
-  }
-  return "";
 }
 function fmt(n){ return money(n).toFixed(2); }
 function fmtEGP(n){ return fmt(n) + " جنيه"; }
@@ -711,164 +657,6 @@ function setLastSync(){
   document.getElementById("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
 }
 
-/* ================= Load Storage Sources ================= */
-function safeParseAny(key){
-  try{
-    const raw = localStorage.getItem(key);
-    if(!raw) return null;
-    const j = JSON.parse(raw);
-    return j;
-  }catch(e){ return null; }
-}
-function safeParseArray(key){
-  const j = safeParseAny(key);
-  return Array.isArray(j) ? j : null;
-}
-
-function loadSalesRaw(){
-  let src = "—";
-  let list = safeParseArray("AX_SALES_LOG_CACHE_V1");
-  if(list && list.length){ src = "AX_SALES_LOG_CACHE_V1"; }
-  else{
-    list = safeParseArray("AX_SALES_LOG_LOCAL_V1");
-    if(list && list.length) src = "AX_SALES_LOG_LOCAL_V1";
-    else list = [];
-  }
-  document.getElementById("srcSales").textContent = src;
-  return list;
-}
-function loadExpensesRaw(){
-  let src = "—";
-  let list = safeParseArray("AX_EXPENSES_LOCAL_V1");
-  if(list && list.length) src = "AX_EXPENSES_LOCAL_V1";
-  else list = [];
-  document.getElementById("srcExp").textContent = src;
-  return list;
-}
-function loadPurchasesRaw(){
-  let src = "—";
-  let list = safeParseArray("AX_PURCHASES_LOG_CACHE_V1");
-  if(list && list.length) src = "AX_PURCHASES_LOG_CACHE_V1";
-  else{
-    list = safeParseArray("AX_PURCHASES");
-    if(list && list.length) src = "AX_PURCHASES";
-    else list = [];
-  }
-  document.getElementById("srcPurch").textContent = src;
-  return list;
-}
-
-/* ================= Inventory / Products (best-effort) ================= */
-function guessInventoryArrays(){
-  const candidates = [
-    "AX_INVENTORY_LOCAL_V1",
-    "AX_INVENTORY",
-    "AX_PRODUCTS_LOCAL_V1",
-    "AX_PRODUCTS",
-    "PRODUCTS",
-    "INVENTORY",
-    "AX_INV",
-    "AX_PROD"
-  ];
-
-  for(let i=0;i<localStorage.length;i++){
-    const k = localStorage.key(i);
-    if(!k) continue;
-    const ku = k.toUpperCase();
-    if(ku.includes("PRODUCT") || ku.includes("INV") || ku.includes("STOCK")){
-      if(!candidates.includes(k)) candidates.push(k);
-    }
-  }
-
-  const arrays = [];
-  candidates.forEach(k=>{
-    const arr = safeParseArray(k);
-    if(arr && arr.length) arrays.push({key:k, arr});
-  });
-
-  arrays.sort((a,b)=> (b.arr.length - a.arr.length));
-  return arrays[0] || null;
-}
-
-function normInvRow(r){
-  const name = String(r.name ?? r.productName ?? r.itemName ?? r.title ?? "").trim();
-  const sku = String(r.sku ?? r.SKU ?? r.code ?? r.id ?? r.barcode ?? "").trim();
-  const qty = money(r.stock_qty ?? r.stock ?? r.qty ?? r.quantity ?? r.onHand ?? r.available ?? "");
-  return { name: name || (sku ? `SKU: ${sku}` : "—"), sku, qty };
-}
-
-/* ================= Normalize ================= */
-function normSalesForSums(r){
-  return {
-    date: toISODateMaybe(r.date || r.invDate || r.day || ""),
-    val: money(r.finalTotal ?? r.total ?? r.amount ?? 0),
-  };
-}
-function normPurchForSums(r){
-  return {
-    date: toISODateMaybe(r.date || r.invDate || r.day || ""),
-    val: money(r.finalTotal ?? r.total ?? r.amount ?? 0),
-  };
-}
-function normExpForSums(r){
-  const cat = String(r.cat ?? r.category ?? r.type ?? "أخرى").trim() || "أخرى";
-  return {
-    date: toISODateMaybe(r.date || r.day || ""),
-    val: money(r.amount ?? r.total ?? r.value ?? 0),
-    cat
-  };
-}
-
-/* ================= Items parsing (sales lines) ================= */
-function pickItemsArray(saleRow){
-  const cands = [
-    saleRow.items,
-    saleRow.items_list,
-    saleRow.lines,
-    saleRow.products,
-    saleRow.cart,
-    saleRow.list,
-    saleRow.invoiceItems
-  ];
-  for(const x of cands){
-    if(Array.isArray(x) && x.length) return x;
-  }
-  const sCands = [saleRow.items, saleRow.items_list, saleRow.lines].filter(v=> typeof v === "string");
-  for(const s of sCands){
-    try{
-      const j = JSON.parse(s);
-      if(Array.isArray(j) && j.length) return j;
-    }catch(e){}
-  }
-  return null;
-}
-function normItemRow(it){
-  const name = String(it.name ?? it.product ?? it.item ?? it.title ?? it.productName ?? "").trim();
-  const sku  = String(it.sku ?? it.SKU ?? it.code ?? it.barcode ?? it.id ?? "").trim();
-  const qty  = money(it.qty ?? it.quantity ?? it.count ?? it.q ?? 0);
-  const price = money(it.price ?? it.unitPrice ?? it.sale_price ?? it.unit_price ?? it.p ?? 0);
-  const total = money(it.total ?? it.lineTotal ?? (qty*price) ?? 0);
-  return {
-    key: (sku || name || "—").trim(),
-    name: name || (sku ? `SKU: ${sku}` : "—"),
-    sku,
-    qty,
-    total
-  };
-}
-
-/* ================= State ================= */
-let SALES_SUM = [];
-let PURCH_SUM = [];
-let EXPS_SUM  = [];
-
-let DAILY = [];
-let GROUP = [];
-let PIE   = [];
-
-let TOP_ITEMS = [];
-let DEAD_ITEMS = [];
-
 /* ================= Filter ================= */
 function getFilterRange(){
   const preset = document.getElementById("preset").value;
@@ -889,68 +677,19 @@ function getFilterRange(){
 
   document.getElementById("printFrom").textContent = from;
   document.getElementById("printTo").textContent = to;
-  document.getElementById("printPreset").textContent = document.getElementById("preset").selectedOptions[0]?.textContent || "—";
-  document.getElementById("printMeta").textContent = `الفترة: ${from} → ${to} | التجميع: ${document.getElementById("aggMode").selectedOptions[0]?.textContent || "—"}`;
+  document.getElementById("printPreset").textContent =
+    document.getElementById("preset").selectedOptions[0]?.textContent || "—";
+
+  const aggTxt = document.getElementById("aggMode").selectedOptions[0]?.textContent || "—";
+  document.getElementById("printMeta").textContent = `الفترة: ${from} → ${to} | التجميع: ${aggTxt}`;
 
   return {from, to};
 }
-function inRange(d, from, to){
-  if(!d) return false;
-  if(from && d < from) return false;
-  if(to && d > to) return false;
-  return true;
-}
 
-/* ================= Build Daily base ================= */
-function buildDailyBase(from, to){
-  const map = new Map();
-  let cur = from;
-  while(cur <= to){
-    map.set(cur, {key:cur, label:cur, date:cur, sales:0, purch:0, exp:0, net:0});
-    cur = addDays(cur, 1);
-  }
-
-  SALES_SUM.forEach(x=>{
-    if(inRange(x.date, from, to)){
-      const row = map.get(x.date); if(row) row.sales += x.val;
-    }
-  });
-  PURCH_SUM.forEach(x=>{
-    if(inRange(x.date, from, to)){
-      const row = map.get(x.date); if(row) row.purch += x.val;
-    }
-  });
-  EXPS_SUM.forEach(x=>{
-    if(inRange(x.date, from, to)){
-      const row = map.get(x.date); if(row) row.exp += x.val;
-    }
-  });
-
-  DAILY = Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
-  DAILY.forEach(r=> r.net = r.sales - r.purch - r.exp);
-}
-
-/* ================= Pie ================= */
-function buildPie(from, to){
-  const catMap = new Map();
-  EXPS_SUM.forEach(x=>{
-    if(inRange(x.date, from, to)){
-      const k = x.cat || "أخرى";
-      catMap.set(k, (catMap.get(k)||0) + x.val);
-    }
-  });
-  const arr = Array.from(catMap.entries()).map(([cat,val])=>({cat,val}));
-  arr.sort((a,b)=> b.val - a.val);
-  const top = arr.slice(0,6);
-  const rest = arr.slice(6).reduce((s,x)=> s + x.val, 0);
-  if(rest > 0) top.push({cat:"أخرى", val:rest});
-  PIE = top;
-}
-
-/* ================= Aggregation ================= */
+/* ================= Aggregation keys (display) ================= */
 function weekKeyFromISO(iso){
   const d = new Date(iso+"T00:00:00");
-  const day = (d.getDay()+6)%7;
+  const day = (d.getDay()+6)%7; // Monday=0
   d.setDate(d.getDate()-day);
   const y = d.getFullYear();
   const m = String(d.getMonth()+1).padStart(2,"0");
@@ -962,34 +701,42 @@ function monthKeyFromISO(iso){
   return {key: iso.slice(0,7), label: iso.slice(0,7)};
 }
 
-function aggregate(mode){
-  if(mode === "daily"){
-    GROUP = DAILY.map(r=>({ ...r, key:r.date, label:r.date }));
-    return;
+/* ================= Data (NOW ALL ZERO) =================
+   ✅ هنا هنربط Google Sheet بعدين
+*/
+function buildZeroDaily(from, to){
+  const out = [];
+  let cur = from;
+  while(cur <= to){
+    out.push({date:cur, sales:0, purch:0, exp:0, net:0});
+    cur = addDays(cur, 1);
   }
-
+  return out;
+}
+function aggregate(mode, daily){
+  if(mode === "daily"){
+    return daily.map(r=>({label:r.date, key:r.date, ...r}));
+  }
   const map = new Map();
-  DAILY.forEach(r=>{
-    let k = r.date, label = r.date;
+  daily.forEach(r=>{
+    let k=r.date, label=r.date;
     if(mode === "weekly"){
       const wk = weekKeyFromISO(r.date);
-      k = wk.key; label = wk.label;
+      k=wk.key; label=wk.label;
     }
     if(mode === "monthly"){
       const mk = monthKeyFromISO(r.date);
-      k = mk.key; label = mk.label;
+      k=mk.key; label=mk.label;
     }
-    if(!map.has(k)){
-      map.set(k, {key:k, label:label, sales:0, purch:0, exp:0, net:0});
-    }
+    if(!map.has(k)) map.set(k, {key:k,label:label,sales:0,purch:0,exp:0,net:0});
     const row = map.get(k);
     row.sales += r.sales;
     row.purch += r.purch;
     row.exp   += r.exp;
   });
-
-  GROUP = Array.from(map.values()).sort((a,b)=> a.key.localeCompare(b.key));
-  GROUP.forEach(r=> r.net = r.sales - r.purch - r.exp);
+  const arr = Array.from(map.values()).sort((a,b)=>a.key.localeCompare(b.key));
+  arr.forEach(r=> r.net = r.sales - r.purch - r.exp);
+  return arr;
 }
 
 /* ================= KPI ================= */
@@ -1001,20 +748,25 @@ function setKpi(id, n, cls){
   el.textContent = fmtEGP(n);
 }
 
-/* ================= Canvas engine (fixed) ================= */
+/* ================= Canvas engine (SAFE) ================= */
 function setupCanvas(canvas){
   const ctx = canvas.getContext("2d");
   const dpr = Math.max(1, window.devicePixelRatio || 1);
 
   const cssW = canvas.getBoundingClientRect().width || canvas.clientWidth || 600;
-  const cssH = Number(canvas.getAttribute("height") || 360);
 
-  canvas.style.height = cssH + "px"; // ✅ فعّال دلوقتي لأننا شلنا height:auto !important
+  let cssH = Number(canvas.getAttribute("height") || 360);
+  if(!isFinite(cssH) || cssH <= 0) cssH = 360;
+  cssH = Math.min(520, Math.max(240, cssH)); // ✅ clamp ضد التمدد
+
+  canvas.style.width  = "100%";
+  canvas.style.height = cssH + "px";
+
   canvas.width  = Math.round(cssW * dpr);
   canvas.height = Math.round(cssH * dpr);
   ctx.setTransform(dpr,0,0,dpr,0,0);
 
-  return {ctx, w: cssW, h: cssH, dpr};
+  return {ctx, w: cssW, h: cssH};
 }
 function roundRect(ctx, x,y,w,h,r){
   const rr = Math.min(r, w/2, h/2);
@@ -1048,71 +800,11 @@ function drawYGrid(ctx,w,h,pad,yTicks){
   }
 }
 
-/* ================= Hit maps for tooltips ================= */
-const HIT = { bar: [], line: [], pie: [] };
-function pointInRect(px,py,x,y,w,h){ return px>=x && px<=x+w && py>=y && py<=y+h; }
-function hitBar(px,py){
-  for(const b of HIT.bar){
-    if(pointInRect(px,py,b.x,b.y,b.w,b.h)) return b;
-  }
-  return null;
-}
-function hitLine(px,py){
-  let best=null, bestD=1e9;
-  for(const p of HIT.line){
-    const dx=px-p.x, dy=py-p.y;
-    const d = dx*dx+dy*dy;
-    if(d < bestD){ bestD=d; best=p; }
-  }
-  if(best && bestD <= 18*18) return best;
-  return null;
-}
-function hitPie(px,py){
-  for(const s of HIT.pie){
-    const dx = px - s.cx;
-    const dy = py - s.cy;
-    const r = Math.sqrt(dx*dx+dy*dy);
-    if(r < s.r1 || r > s.r2) continue;
-    let a = Math.atan2(dy, dx);
-    if(a < -Math.PI/2) a += Math.PI*2;
-    if(a >= s.a1 && a <= s.a2) return s;
-  }
-  return null;
-}
-function bindTooltip(canvas, type){
-  const move = (ev)=>{
-    const rect = canvas.getBoundingClientRect();
-    const cx = (ev.touches? ev.touches[0].clientX : ev.clientX);
-    const cy = (ev.touches? ev.touches[0].clientY : ev.clientY);
-    const x = cx - rect.left;
-    const y = cy - rect.top;
-
-    let hit = null;
-    if(type==="bar") hit = hitBar(x,y);
-    if(type==="line") hit = hitLine(x,y);
-    if(type==="pie") hit = hitPie(x,y);
-
-    if(!hit){ hideTip(); return; }
-
-    if(type==="bar")  showTip(cx, cy, `${hit.seriesName}\n${hit.label}\n${fmtEGP(hit.value)}`);
-    if(type==="line") showTip(cx, cy, `صافي\n${hit.label}\n${fmtEGP(hit.value)}`);
-    if(type==="pie")  showTip(cx, cy, `${hit.label}\n${fmtEGP(hit.value)}`);
-  };
-
-  canvas.addEventListener("mousemove", move);
-  canvas.addEventListener("mouseleave", hideTip);
-  canvas.addEventListener("touchstart", move, {passive:true});
-  canvas.addEventListener("touchmove", move, {passive:true});
-  canvas.addEventListener("touchend", hideTip);
-}
-
-/* ================= Charts ================= */
+/* ================= Simple Charts ================= */
 function drawBarChart(canvasId, labels, series){
   const canvas = document.getElementById(canvasId);
   if(!canvas) return;
   const {ctx,w,h} = setupCanvas(canvas);
-
-  HIT.bar = [];
 
   const pad = {top:22, right:16, bottom:46, left:58};
   const yTicks = 4;
@@ -1122,6 +814,7 @@ function drawBarChart(canvasId, labels, series){
   drawPanelBg(ctx,w,h);
   drawYGrid(ctx,w,h,pad,yTicks);
 
+  // y labels
   ctx.fillStyle = "rgba(100,116,139,1)";
   ctx.font = "12px system-ui";
   ctx.textAlign = "left";
@@ -1139,13 +832,14 @@ function drawBarChart(canvasId, labels, series){
   const barW = Math.max(6, (groupW * 0.66) / series.length);
   const gap = groupW * 0.34;
 
+  // x labels
   ctx.textAlign="center";
   ctx.textBaseline="top";
-  const step = Math.ceil(n / 8);
+  const step = Math.max(1, Math.ceil(n / 8));
   for(let i=0;i<n;i+=step){
     const x = pad.left + i*groupW + groupW/2;
     const t = labels[i];
-    ctx.fillText(t.length>14 ? t.slice(0,14) : t, x, h - pad.bottom + 10);
+    ctx.fillText(t.length>12 ? t.slice(0,12) : t, x, h - pad.bottom + 10);
   }
 
   series.forEach((s, si)=>{
@@ -1155,22 +849,16 @@ function drawBarChart(canvasId, labels, series){
       const x0 = pad.left + i*groupW + gap/2 + si*barW;
       const y0 = pad.top + (plotH - bh);
 
-      const grd = ctx.createLinearGradient(0,y0,0,y0+bh);
-      grd.addColorStop(0, s.fill);
-      grd.addColorStop(1, "rgba(255,255,255,.20)");
-
-      ctx.fillStyle = grd;
+      ctx.fillStyle = s.fill;
       ctx.strokeStyle = s.stroke;
       ctx.lineWidth = 1;
-
-      roundRect(ctx, x0, y0, Math.max(2,barW-2), bh, 9);
+      roundRect(ctx, x0, y0, barW-2, bh, 9);
       ctx.fill();
       ctx.stroke();
-
-      HIT.bar.push({x:x0,y:y0,w:Math.max(2,barW-2),h:bh,label:labels[i],seriesName:s.name,value:v});
     }
   });
 
+  // legend
   let lx = pad.left;
   const ly = 12;
   ctx.textAlign="left";
@@ -1190,8 +878,6 @@ function drawLineChart(canvasId, labels, values){
   if(!canvas) return;
   const {ctx,w,h} = setupCanvas(canvas);
 
-  HIT.line = [];
-
   const pad = {top:22, right:16, bottom:46, left:58};
   const yTicks = 4;
 
@@ -1204,6 +890,7 @@ function drawLineChart(canvasId, labels, values){
   const plotH = h - pad.top - pad.bottom;
   const yMap = (v)=> pad.top + ((maxAbs - v) / (2*maxAbs)) * plotH;
 
+  // y labels
   ctx.fillStyle = "rgba(100,116,139,1)";
   ctx.font = "12px system-ui";
   ctx.textAlign="left";
@@ -1213,6 +900,7 @@ function drawLineChart(canvasId, labels, values){
     ctx.fillText(Math.round(v), 10, yMap(v));
   }
 
+  // zero line
   ctx.strokeStyle = "rgba(15,23,42,.10)";
   ctx.setLineDash([6,6]);
   ctx.beginPath();
@@ -1224,22 +912,7 @@ function drawLineChart(canvasId, labels, values){
   const n = labels.length;
   const stepX = plotW / Math.max(1,n-1);
 
-  ctx.beginPath();
-  values.forEach((v,i)=>{
-    const x = pad.left + i*stepX;
-    const y = yMap(v);
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  });
-  ctx.lineTo(pad.left + (n-1)*stepX, yMap(0));
-  ctx.lineTo(pad.left, yMap(0));
-  ctx.closePath();
-
-  const g = ctx.createLinearGradient(0,pad.top,0,h-pad.bottom);
-  g.addColorStop(0,"rgba(176,141,87,.26)");
-  g.addColorStop(1,"rgba(176,141,87,0)");
-  ctx.fillStyle = g;
-  ctx.fill();
-
+  // line
   ctx.strokeStyle = "rgba(184,134,11,.95)";
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -1250,287 +923,122 @@ function drawLineChart(canvasId, labels, values){
   });
   ctx.stroke();
 
-  const pointEvery = Math.ceil(n/10);
-  values.forEach((v,i)=>{
-    if(i % pointEvery !== 0 && i !== n-1) return;
-    const x = pad.left + i*stepX;
-    const y = yMap(v);
-    ctx.fillStyle = "rgba(15,23,42,.85)";
-    ctx.beginPath(); ctx.arc(x,y,3.6,0,Math.PI*2); ctx.fill();
-    HIT.line.push({x,y,label:labels[i],value:v});
-  });
-
+  // x labels
   ctx.fillStyle = "rgba(100,116,139,1)";
   ctx.textAlign="center";
   ctx.textBaseline="top";
-  const stepLbl = Math.ceil(n/8);
+  const stepLbl = Math.max(1, Math.ceil(n/8));
   for(let i=0;i<n;i+=stepLbl){
     const x = pad.left + i*stepX;
     const t = labels[i];
-    ctx.fillText(t.length>14 ? t.slice(0,14) : t, x, h - pad.bottom + 10);
+    ctx.fillText(t.length>12 ? t.slice(0,12) : t, x, h - pad.bottom + 10);
   }
 }
 
-function drawDoughnut(canvasId, items){
+function drawPie(canvasId, items){
   const canvas = document.getElementById(canvasId);
   if(!canvas) return;
   const {ctx,w,h} = setupCanvas(canvas);
 
-  HIT.pie = [];
-
   ctx.clearRect(0,0,w,h);
   drawPanelBg(ctx,w,h);
 
-  const total = items.reduce((s,x)=> s + money(x.val), 0) || 1;
-  const cx = w/2;
-  const cy = h/2 + 18;
-  const rOuter = Math.min(w,h)*0.34;
-  const rInner = rOuter*0.62;
+  // حاليا 0 => ارسم "لا بيانات"
+  const total = items.reduce((s,x)=> s + money(x.val), 0);
+  if(!total){
+    ctx.fillStyle = "rgba(100,116,139,1)";
+    ctx.font = "1000 14px system-ui";
+    ctx.textAlign="center";
+    ctx.textBaseline="middle";
+    ctx.fillText("لا توجد بيانات بعد", w/2, h/2);
+    return;
+  }
 
-  const colors = [
-    ["rgba(184,134,11,.95)","rgba(176,141,87,.25)"],
-    ["rgba(15,23,42,.88)","rgba(15,23,42,.18)"],
-    ["rgba(176,141,87,.95)","rgba(176,141,87,.25)"],
-    ["rgba(2,6,23,.75)","rgba(2,6,23,.14)"],
-    ["rgba(215,185,122,.95)","rgba(215,185,122,.25)"],
-    ["rgba(51,65,85,.85)","rgba(51,65,85,.18)"],
-    ["rgba(148,163,184,.95)","rgba(148,163,184,.25)"],
-  ];
+  const cx = w/2;
+  const cy = h/2 + 10;
+  const r = Math.min(w,h)*0.32;
+
+  const palette = ["rgba(184,134,11,.95)","rgba(15,23,42,.85)","rgba(176,141,87,.95)","rgba(51,65,85,.85)","rgba(215,185,122,.95)","rgba(148,163,184,.95)"];
 
   let ang = -Math.PI/2;
-  items.forEach((it, i)=>{
+  items.forEach((it,i)=>{
     const frac = money(it.val)/total;
     const a2 = ang + frac*2*Math.PI;
-    const [stroke, fill] = colors[i % colors.length];
-
     ctx.beginPath();
     ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,rOuter,ang,a2);
+    ctx.arc(cx,cy,r,ang,a2);
     ctx.closePath();
-    ctx.fillStyle = fill;
+    ctx.fillStyle = palette[i % palette.length];
     ctx.fill();
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    HIT.pie.push({cx,cy,r1:rInner,r2:rOuter,a1:ang,a2,label:it.cat,value:it.val,stroke});
     ang = a2;
   });
-
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.beginPath(); ctx.arc(cx,cy,rInner,0,Math.PI*2); ctx.fill();
-  ctx.globalCompositeOperation = "source-over";
-
-  ctx.fillStyle = "rgba(15,23,42,.88)";
-  ctx.font = "1000 14px system-ui";
-  ctx.textAlign="center";
-  ctx.textBaseline="middle";
-  ctx.fillText("إجمالي المصروفات", cx, cy-10);
-  ctx.font = "1000 18px system-ui";
-  ctx.fillText(fmtEGP(total), cx, cy+14);
-
-  let y = 18;
-  ctx.textAlign="right";
-  ctx.textBaseline="middle";
-  ctx.font = "900 12px system-ui";
-  items.forEach((it, i)=>{
-    const col = colors[i % colors.length][0];
-    ctx.fillStyle = col;
-    ctx.beginPath(); ctx.arc(w-16, y, 5, 0, Math.PI*2); ctx.fill();
-    ctx.fillStyle = "rgba(15,23,42,.85)";
-    const pct = total ? Math.round((money(it.val)/total)*100) : 0;
-    ctx.fillText(`${it.cat} — ${pct}%`, w-28, y);
-    y += 18;
-  });
 }
 
-/* ================= Items Analytics ================= */
-function buildItemsAnalytics(from, to, salesRaw){
-  const soldMap = new Map();
-  let hasItems = false;
-
-  salesRaw.forEach(s=>{
-    const d = toISODateMaybe(s.date || s.invDate || s.day || "");
-    if(!inRange(d, from, to)) return;
-
-    const items = pickItemsArray(s);
-    if(!items) return;
-
-    hasItems = true;
-    items.forEach(it=>{
-      const x = normItemRow(it);
-      if(!x.key || x.key === "—") return;
-      const cur = soldMap.get(x.key) || {name:x.name, qty:0, total:0};
-      cur.name = cur.name || x.name;
-      cur.qty += money(x.qty);
-      cur.total += money(x.total || (x.qty * (it.price||it.unitPrice||0)));
-      soldMap.set(x.key, cur);
-    });
-  });
-
-  const arr = Array.from(soldMap.values()).sort((a,b)=> (b.qty - a.qty));
-  const topN = Number(document.getElementById("topN").value || 10);
-  TOP_ITEMS = arr.slice(0, topN);
-
-  const invPack = guessInventoryArrays();
-  let inventory = [];
-  if(invPack && invPack.arr && invPack.arr.length){
-    inventory = invPack.arr.map(normInvRow).filter(x=>x.name && x.name !== "—");
-  }
-
-  const soldNames = new Set(arr.map(x=> x.name.trim()));
-  const dead = [];
-  if(inventory.length){
-    inventory.forEach(p=>{
-      const name = (p.name || "").trim();
-      if(!name) return;
-      if(!soldNames.has(name)){
-        dead.push({name, qty: p.qty});
-      }
-    });
-  }
-
-  DEAD_ITEMS = dead.slice(0, topN);
-
-  const notice = document.getElementById("itemsNotice");
-  notice.style.display = hasItems ? "none" : "block";
-}
-
-function renderItemsTables(){
-  const topBody = document.getElementById("topItemsBody");
-  const deadBody = document.getElementById("deadItemsBody");
-  const topEmpty = document.getElementById("topEmpty");
-  const deadEmpty = document.getElementById("deadEmpty");
-
-  topBody.innerHTML = "";
-  deadBody.innerHTML = "";
-
-  if(!TOP_ITEMS.length){
-    topEmpty.style.display = "block";
-  }else{
-    topEmpty.style.display = "none";
-    TOP_ITEMS.forEach((x,i)=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td data-label="#" class="center" style="font-weight:1000">${i+1}</td>
-        <td data-label="الصنف" class="left">${esc(x.name)}</td>
-        <td data-label="الكمية" class="center"><span class="tag ok">${money(x.qty)}</span></td>
-        <td data-label="الإجمالي" class="center"><span class="tag">${fmtEGP(x.total)}</span></td>
-      `;
-      topBody.appendChild(tr);
-    });
-  }
-
-  if(!DEAD_ITEMS.length){
-    deadEmpty.style.display = "block";
-  }else{
-    deadEmpty.style.display = "none";
-    DEAD_ITEMS.forEach((x,i)=>{
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td data-label="#" class="center" style="font-weight:1000">${i+1}</td>
-        <td data-label="الصنف" class="left">${esc(x.name)}</td>
-        <td data-label="المتاح" class="center">${(x.qty || x.qty===0) ? `<span class="tag bad">${money(x.qty)}</span>` : `<span class="tag">—</span>`}</td>
-      `;
-      deadBody.appendChild(tr);
-    });
-  }
-}
-
-/* ================= Main Compute ================= */
-function computeAndRender(silent=false){
+/* ================= Render all (ALL ZERO) ================= */
+function renderAll(silent=false){
   setLastSync();
   const {from, to} = getFilterRange();
 
-  const salesRaw = loadSalesRaw();
-  const expRaw   = loadExpensesRaw();
-  const purchRaw = loadPurchasesRaw();
+  // sources text (placeholder)
+  document.getElementById("srcSales").textContent = "Google Sheet (قريبًا)";
+  document.getElementById("srcExp").textContent  = "Google Sheet (قريبًا)";
+  document.getElementById("srcPurch").textContent= "Google Sheet (قريبًا)";
 
-  SALES_SUM = salesRaw.map(normSalesForSums).filter(x=>x.date);
-  EXPS_SUM  = expRaw.map(normExpForSums).filter(x=>x.date);
-  PURCH_SUM = purchRaw.map(normPurchForSums).filter(x=>x.date);
+  // build daily zeros
+  const daily = buildZeroDaily(from, to);
 
-  buildDailyBase(from, to);
-  buildPie(from, to);
-
+  // agg
   const mode = document.getElementById("aggMode").value;
-  aggregate(mode);
+  const group = aggregate(mode, daily);
 
-  const salesSum = DAILY.reduce((s,r)=> s + money(r.sales), 0);
-  const purchSum = DAILY.reduce((s,r)=> s + money(r.purch), 0);
-  const expSum   = DAILY.reduce((s,r)=> s + money(r.exp), 0);
-  const netSum   = DAILY.reduce((s,r)=> s + money(r.net), 0);
+  // KPI zeros
+  setKpi("kpiSales", 0);
+  setKpi("kpiPurch", 0);
+  setKpi("kpiExp", 0);
+  setKpi("kpiNet", 0, "ok");
 
-  setKpi("kpiSales", salesSum);
-  setKpi("kpiPurch", purchSum);
-  setKpi("kpiExp", expSum);
-  setKpi("kpiNet", netSum, netSum>=0 ? "ok":"bad");
-
+  // table (show periods with zeros)
   const tbody = document.getElementById("tbody");
-  const empty = document.getElementById("emptyBox");
   tbody.innerHTML = "";
+  group.slice().reverse().forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="الفترة" class="center">${esc(r.label)}</td>
+      <td data-label="مبيعات" class="center">${fmtEGP(r.sales)}</td>
+      <td data-label="مشتريات" class="center">${fmtEGP(r.purch)}</td>
+      <td data-label="مصروفات" class="center">${fmtEGP(r.exp)}</td>
+      <td data-label="صافي" class="center"><b>${fmtEGP(r.net)}</b></td>
+    `;
+    tbody.appendChild(tr);
+  });
+  document.getElementById("emptyBox").style.display = "none";
 
-  const hasAny = DAILY.some(r=> r.sales||r.purch||r.exp||r.net);
-  empty.style.display = hasAny ? "none" : "block";
-
-  if(hasAny){
-    GROUP.slice().reverse().forEach(r=>{
-      if(!(r.sales||r.purch||r.exp||r.net)) return;
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td data-label="الفترة" class="center">${esc(r.label)}</td>
-        <td data-label="مبيعات" class="center">${fmtEGP(r.sales)}</td>
-        <td data-label="مشتريات" class="center">${fmtEGP(r.purch)}</td>
-        <td data-label="مصروفات" class="center">${fmtEGP(r.exp)}</td>
-        <td data-label="صافي" class="center"><b>${fmtEGP(r.net)}</b></td>
-      `;
-      tbody.appendChild(tr);
-    });
-  }
-
-  const labels = GROUP.map(r=> r.label);
+  // charts
+  const labels = group.map(r=>r.label);
   drawBarChart("barCanvas", labels, [
-    {name:"مبيعات", values: GROUP.map(r=> r.sales), fill:"rgba(176,141,87,.35)", stroke:"rgba(184,134,11,.95)"},
-    {name:"مشتريات", values: GROUP.map(r=> r.purch), fill:"rgba(15,23,42,.16)", stroke:"rgba(15,23,42,.88)"},
-    {name:"مصروفات", values: GROUP.map(r=> r.exp), fill:"rgba(215,185,122,.30)", stroke:"rgba(176,141,87,.95)"},
+    {name:"مبيعات",   values: group.map(r=>r.sales), fill:"rgba(176,141,87,.30)", stroke:"rgba(184,134,11,.95)"},
+    {name:"مشتريات",  values: group.map(r=>r.purch), fill:"rgba(15,23,42,.14)",   stroke:"rgba(15,23,42,.85)"},
+    {name:"مصروفات",  values: group.map(r=>r.exp),   fill:"rgba(215,185,122,.28)",stroke:"rgba(176,141,87,.95)"},
   ]);
-  drawLineChart("lineCanvas", labels, GROUP.map(r=> r.net));
-  drawDoughnut("pieCanvas", PIE);
+  drawLineChart("lineCanvas", labels, group.map(r=>r.net));
+  drawPie("pieCanvas", []); // zeros
 
-  if(!computeAndRender._ttBound){
-    bindTooltip(document.getElementById("barCanvas"), "bar");
-    bindTooltip(document.getElementById("lineCanvas"), "line");
-    bindTooltip(document.getElementById("pieCanvas"), "pie");
-    computeAndRender._ttBound = true;
-  }
+  // items tables -> empty
+  document.getElementById("topItemsBody").innerHTML = "";
+  document.getElementById("deadItemsBody").innerHTML = "";
+  document.getElementById("topEmpty").style.display = "block";
+  document.getElementById("deadEmpty").style.display = "block";
 
-  buildItemsAnalytics(from, to, salesRaw);
-  renderItemsTables();
-
-  if(!silent) showToast("✅ تم تحديث التقارير");
+  if(!silent) showToast("✅ تم تحديث التقارير (قيم صفرية)");
 }
 
-/* ================= Export CSV ================= */
+/* ================= CSV ================= */
 function exportCSV(){
-  const header = ["period","sales","purchases","expenses","net","agg_mode"];
+  showToast("⚠️ CSV حاليًا هيصدر قيم صفرية (لحد الربط).");
   const mode = document.getElementById("aggMode").value;
-  const rows = GROUP.map(r => ({
-    period: r.label,
-    sales: fmt(r.sales),
-    purchases: fmt(r.purch),
-    expenses: fmt(r.exp),
-    net: fmt(r.net),
-    agg_mode: mode
-  }));
-  const csv = [
-    header.join(","),
-    ...rows.map(o => header.map(k => {
-      const v = String(o[k] ?? "");
-      if(/[",\n]/.test(v)) return `"${v.replace(/"/g,'""')}"`;
-      return v;
-    }).join(","))
-  ].join("\n");
-
+  const header = ["period","sales","purchases","expenses","net","agg_mode"];
+  const rows = []; // صفرية
+  const csv = [header.join(","), ...rows].join("\n");
   const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -1540,10 +1048,9 @@ function exportCSV(){
   a.click();
   a.remove();
   URL.revokeObjectURL(url);
-  showToast("✅ تم تصدير CSV");
 }
 
-/* ================= PDF (Print) ================= */
+/* ================= PDF ================= */
 function exportPDF(){
   getFilterRange();
   showToast("🧾 افتح نافذة الطباعة…\nاختَر Save as PDF");
@@ -1551,7 +1058,7 @@ function exportPDF(){
 }
 
 /* ================= UI ================= */
-document.getElementById("refreshBtn").addEventListener("click", ()=> computeAndRender(false));
+document.getElementById("refreshBtn").addEventListener("click", ()=> renderAll(false));
 document.getElementById("exportBtn").addEventListener("click", exportCSV);
 document.getElementById("pdfBtn").addEventListener("click", exportPDF);
 
@@ -1560,16 +1067,15 @@ document.getElementById("preset").addEventListener("change", ()=>{
   const isCustom = (p === "custom");
   document.getElementById("fromDate").disabled = !isCustom;
   document.getElementById("toDate").disabled = !isCustom;
-  computeAndRender(true);
+  renderAll(true);
 });
 ["fromDate","toDate"].forEach(id=>{
   document.getElementById(id).addEventListener("change", ()=>{
-    if(document.getElementById("preset").value === "custom") computeAndRender(true);
+    if(document.getElementById("preset").value === "custom") renderAll(true);
   });
 });
-
-document.getElementById("aggMode").addEventListener("change", ()=> computeAndRender(true));
-document.getElementById("topN").addEventListener("change", ()=> computeAndRender(true));
+document.getElementById("aggMode").addEventListener("change", ()=> renderAll(true));
+document.getElementById("topN").addEventListener("change", ()=> renderAll(true));
 
 /* ================= BOOT ================= */
 (function boot(){
@@ -1578,14 +1084,14 @@ document.getElementById("topN").addEventListener("change", ()=> computeAndRender
   document.getElementById("fromDate").value = addDays(to, -29);
   document.getElementById("fromDate").disabled = true;
   document.getElementById("toDate").disabled = true;
-  computeAndRender(true);
+  renderAll(true);
 })();
 
 /* redraw on resize (debounced) */
 let rzT=null;
 window.addEventListener("resize", ()=>{
   clearTimeout(rzT);
-  rzT = setTimeout(()=> computeAndRender(true), 180);
+  rzT = setTimeout(()=> renderAll(true), 180);
 });
 </script>
 </body>
