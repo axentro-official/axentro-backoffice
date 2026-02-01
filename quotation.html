@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>عرض سعر — B.S Medical &amp; Aesthetic</title>
 
   <style>
@@ -31,6 +31,7 @@
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
       padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
       min-height:100vh;
       display:flex;
       flex-direction:column;
@@ -61,6 +62,8 @@
     .brandTitle{font-weight:900}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px}
 
+    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
     .card{
       background:rgba(255,255,255,.92);
       border:1px solid var(--stroke);
@@ -90,6 +93,11 @@
 
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
+    }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
@@ -125,6 +133,7 @@
       color:var(--text);
       font-weight:900;
       cursor:pointer;
+      touch-action: manipulation;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn.secondary{
@@ -223,6 +232,30 @@
       tbody input{ width:100%; font-size:16px; text-align:center; font-weight:900; }
       .delBtn{ width:100%; }
     }
+
+    :focus{ outline:3px solid rgba(176,141,87,.25); outline-offset:3px; }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 900;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(520px, 92vw);
+      text-align:center;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
   </style>
 </head>
 
@@ -239,13 +272,14 @@
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div class="topActions">
       <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
   <div class="card">
-    <h2 id="pageTitle">عرض سعر  B.S</h2>
+    <h2 id="pageTitle">عرض سعر — B.S</h2>
 
     <div class="row" role="region" aria-label="معلومات العرض">
       <div>
@@ -305,7 +339,7 @@
     </div>
 
     <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
-      <button class="btn" id="addRowBtn">+ إضافة صنف</button>
+      <button class="btn" id="addRowBtn" type="button">+ إضافة صنف</button>
     </div>
 
     <div class="extraBox">
@@ -330,8 +364,8 @@
 
   <div class="card" id="actionsCard">
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn" id="printA4Btn" style="flex:1">🖨️ طباعة A4</button>
-      <button class="btn" id="saveQuotePdfBtn" style="flex:1">📄 حفظ PDF (عرض سعر)</button>
+      <button class="btn" id="printA4Btn" type="button" style="flex:1">🖨️ طباعة A4</button>
+      <button class="btn" id="saveQuotePdfBtn" type="button" style="flex:1">📄 حفظ PDF (عرض سعر)</button>
     </div>
   </div>
 </div>
@@ -341,18 +375,37 @@
   <div class="line2">By Ahmed Hamouda</div>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
 <script>
-/* ================= AUTH GATE ================= */
+/* ================= AUTH GATE (FIXED) ================= */
+const OK_KEY = "AX_BO_OK";
 function requireAuth(){
-  if(sessionStorage.getItem("BS_ADMIN_OK") !== "1"){
+  if(sessionStorage.getItem(OK_KEY) !== "1"){
     location.replace("login.html");
     return false;
   }
   return true;
 }
 if(!requireAuth()) throw new Error("Not authenticated");
+
+/* ================= Toast ================= */
+const toast = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
+}
+
+/* ================= Logout ================= */
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  sessionStorage.removeItem(OK_KEY);
+  location.replace("login.html");
+});
 
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec";
@@ -375,7 +428,7 @@ function generateQuoteNo(){
   const m = String(d.getMonth()+1).padStart(2,"0");
   const day = String(d.getDate()).padStart(2,"0");
   const seq = String(Math.floor(Math.random()*900)+100);
-  return `QUO-BS-${y}${m}${day}-${seq}`;
+  return `QUOTE-BS-${y}${m}${day}-${seq}`;  // ✅ أوضح إنها Quote
 }
 function initQuote(){
   const now = new Date();
@@ -424,6 +477,7 @@ async function loadProductsSmart(){
       syncRowsWithProducts();
     }catch(e){
       console.warn("فشل تحميل الكتالوج", e);
+      showToast("⚠️ فشل تحميل الكتالوج");
     }
   };
 
@@ -704,7 +758,7 @@ function getData(){
 
 function openPrintWindow(html, title){
   const w = window.open("", "_blank");
-  if(!w){ alert("Pop-up blocked. اسمح بفتح النوافذ المنبثقة."); return; }
+  if(!w){ showToast("فعّل السماح للنوافذ المنبثقة (Pop-up)"); return; }
   w.document.open(); w.document.write(html); w.document.close();
   try{ w.document.title = title || "عرض سعر"; }catch(e){}
   w.onload = function(){ w.focus(); setTimeout(()=> w.print(), 250); };
@@ -928,9 +982,10 @@ async function savePdfQuote(){
 
   try{
     await html2pdf().set(opt).from(holder).save();
+    showToast("✅ تم حفظ PDF");
   }catch(e){
     console.error(e);
-    alert("فشل حفظ PDF");
+    showToast("❌ فشل حفظ PDF");
   }finally{
     holder.remove();
   }
