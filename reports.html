@@ -12,7 +12,7 @@
       --text:#0f172a;
       --muted:#64748b;
       --stroke:rgba(15,23,42,.10);
-      --shadow:0 18px 50px rgba(2,6,23,.12);
+      --shadow: 0 18px 50px rgba(2,6,23,.12);
       --radius:18px;
 
       --gold:#b08d57;
@@ -22,267 +22,1123 @@
       --warn:#f59e0b;
       --bad:#dc2626;
 
-      --max:1100px;
+      --container-max:1100px;
     }
 
     *{box-sizing:border-box}
-    html,body{margin:0;padding:0}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
     body{
-      font-family:system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
-        linear-gradient(180deg,#fff,var(--bg));
-      color:var(--text);
+        radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
+        linear-gradient(180deg, #ffffff, var(--bg));
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
     }
 
     .wrap{
-      max-width:var(--max);
-      margin:auto;
+      max-width:var(--container-max);
+      margin:0 auto;
+      width:100%;
+      flex:1;
       padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
     }
 
     .topbar{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      padding:14px;
-      background:#fff;
-      border-radius:18px;
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid var(--stroke);
+      border-radius:18px;background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
       flex-wrap:wrap;
-    }
-
-    h1{margin:0;font-size:20px;font-weight:1000}
-    .sub{font-size:12px;color:var(--muted);font-weight:900}
-
-    .btn{
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid rgba(176,141,87,.35);
-      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
-      font-weight:1000;
-      cursor:pointer;
-    }
-    .btn.secondary{
-      background:#fff;
-      border-color:var(--stroke);
-    }
-
-    .filters{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
       margin-bottom:16px;
     }
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .logo{
+      width:44px;height:44px;border-radius:999px;
+      display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
+      border:1px solid rgba(176,141,87,.35);
+      box-shadow: 0 10px 24px rgba(2,6,23,.10);
+      overflow:hidden;
+      padding:6px;
+      flex:0 0 auto;
+    }
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    .brandTitle{font-weight:1000}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
 
-    select,input{
+    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+      max-width:100%;
+    }
+
+    h2{margin:0 0 10px;font-weight:1000}
+    label{font-size:12px;color:var(--muted);font-weight:1000}
+    input, select{
       width:100%;
       padding:10px;
       border-radius:12px;
-      border:1px solid var(--stroke);
-      font-size:14px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+      max-width:100%;
+    }
+    input:focus, select:focus{
+      border-color: rgba(176,141,87,.55);
+      box-shadow:0 10px 22px rgba(176,141,87,.14);
     }
 
-    @media(max-width:800px){
-      .filters{grid-template-columns:repeat(2,1fr)}
+    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
+    @media (max-width:920px){
+      .row{grid-template-columns:repeat(2,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
     }
-    @media(max-width:480px){
-      .filters{grid-template-columns:1fr}
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
+    }
+    @media (max-width:520px){
+      .row{grid-template-columns:repeat(1,1fr);}
+      input, select{ font-size:16px; }
     }
 
-    .cards{
+    .btn{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(176,141,87,.35);
+      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
+      color:var(--text);
+      font-weight:1000;
+      cursor:pointer;
+      touch-action: manipulation;
+      user-select:none;
+      max-width:100%;
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      border-color: rgba(15,23,42,.14);
+      background:#fff;
+      opacity:.95;
+    }
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;border-radius:999px;
+      padding:8px 10px;font-weight:1000;
+      color:#334155;
+      white-space:nowrap;
+      max-width:100%;
+    }
+    .pill b{color:var(--text)}
+    .muted{color:var(--muted);font-weight:900}
+
+    .grid4{
       display:grid;
       grid-template-columns:repeat(4,1fr);
-      gap:14px;
-      margin-bottom:20px;
+      gap:12px;
+      margin-top:10px;
     }
+    @media (max-width:1000px){ .grid4{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){ .grid4{grid-template-columns:1fr} }
 
-    .card{
+    .kpi{
+      border:1px solid rgba(15,23,42,.10);
       background:#fff;
-      border-radius:18px;
-      padding:16px;
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow);
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 10px 28px rgba(2,6,23,.06);
     }
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
+    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
+    .kpi .v.ok{color:#166534}
+    .kpi .v.bad{color:#991b1b}
 
-    .card h3{
-      margin:0;
-      font-size:13px;
-      color:var(--muted);
-      font-weight:900;
+    .chartGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:12px;
+      align-items:stretch;
     }
-    .card .num{
-      margin-top:6px;
-      font-size:22px;
-      font-weight:1000;
-    }
+    @media (max-width:980px){ .chartGrid{grid-template-columns:1fr;} }
 
-    @media(max-width:900px){
-      .cards{grid-template-columns:repeat(2,1fr)}
-    }
-    @media(max-width:480px){
-      .cards{grid-template-columns:1fr}
-    }
-
-    .section{
+    .chartBox{
       background:#fff;
-      border-radius:18px;
-      padding:16px;
-      border:1px solid var(--stroke);
-      box-shadow:var(--shadow);
-      margin-bottom:16px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:16px;
+      padding:12px;
+      box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      overflow:hidden;
+    }
+    .chartHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:4px 6px 10px;
+    }
+    .chartTitle{font-weight:1000}
+    .chartNote{font-size:12px;color:var(--muted);font-weight:900}
+    canvas{
+      width:100% !important;
+      height:auto !important;
+      display:block;
     }
 
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
     table{
       width:100%;
       border-collapse:collapse;
       font-size:13px;
+      min-width:980px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      max-width:100%;
     }
-    th,td{
+    th, td{
+      border:1px solid rgba(15,23,42,.10);
       padding:8px;
-      border-bottom:1px solid var(--stroke);
       text-align:center;
+      vertical-align:middle;
+      word-break:break-word;
     }
     th{
-      background:rgba(176,141,87,.08);
+      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
       font-weight:1000;
     }
+    td.left{text-align:right}
 
-    footer{
-      text-align:center;
-      margin:24px 0;
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
+    @media (max-width: 820px){
+      .table-wrap{ overflow:visible; }
+      table{ min-width:0; }
+      table, thead, tbody, th, td, tr{ display:block; width:100%; }
+      thead{ display:none; }
+      tbody tr{
+        border:1px solid rgba(15,23,42,.12);
+        background:#fff;
+        border-radius:16px;
+        padding:10px;
+        margin-bottom:10px;
+        box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      }
+      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
+      tbody td[data-label]::before{
+        content: attr(data-label);
+        display:block;
+        font-size:12px;color: var(--muted);
+        font-weight:1000;margin-bottom:6px;
+      }
     }
+
+    .site-footer{
+      margin-top:auto;
+      padding:16px 16px 22px;
+      text-align:center;
+      color:var(--muted);
+      border-top:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+    }
+    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 1000;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(680px, 92vw);
+      text-align:center;
+      line-height:1.7;
+      white-space:pre-line;
+    }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-4px); }
   </style>
 </head>
 
 <body>
-
-<div class="wrap">
-
-  <!-- Topbar -->
+<div class="wrap" id="app">
   <div class="topbar">
-    <div>
-      <h1>📊 التقارير</h1>
-      <div class="sub">نظرة شاملة على أداء النشاط</div>
+    <div class="brand">
+      <div class="logo">
+        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">التقارير (Reports) — رسوم بيانية</div>
+      </div>
     </div>
-    <a href="dashboard.html" class="btn secondary">⬅ رجوع للداش بورد</a>
-  </div>
 
-  <!-- Filters -->
-  <div class="filters">
-    <select id="type">
-      <option value="all">كل التقارير</option>
-      <option value="sales">مبيعات</option>
-      <option value="purchases">مشتريات</option>
-      <option value="expenses">مصروفات</option>
-      <option value="inventory">مخزون</option>
-    </select>
-
-    <input type="date" id="from">
-    <input type="date" id="to">
-
-    <button class="btn" onclick="loadReports()">تحديث التقرير</button>
-  </div>
-
-  <!-- Summary Cards -->
-  <div class="cards">
-    <div class="card">
-      <h3>إجمالي المبيعات</h3>
-      <div class="num" id="salesTotal">0</div>
-    </div>
-    <div class="card">
-      <h3>إجمالي المشتريات</h3>
-      <div class="num" id="purchasesTotal">0</div>
-    </div>
-    <div class="card">
-      <h3>إجمالي المصروفات</h3>
-      <div class="num" id="expensesTotal">0</div>
-    </div>
-    <div class="card">
-      <h3>صافي الربح (تقديري)</h3>
-      <div class="num" id="profitTotal">0</div>
+    <div class="topActions">
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
-  <!-- Details -->
-  <div class="section">
-    <h3>تفاصيل مختصرة</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>النوع</th>
-          <th>عدد العمليات</th>
-          <th>الإجمالي</th>
-        </tr>
-      </thead>
-      <tbody id="detailsTable">
-        <tr>
-          <td colspan="3">لا توجد بيانات</td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="card">
+    <h2>فلترة الفترة</h2>
+    <div class="row" role="region" aria-label="فلترة">
+      <div>
+        <label for="preset">فترة سريعة</label>
+        <select id="preset">
+          <option value="7">آخر 7 أيام</option>
+          <option value="30" selected>آخر 30 يوم</option>
+          <option value="90">آخر 90 يوم</option>
+          <option value="mtd">هذا الشهر</option>
+          <option value="ytd">من بداية السنة</option>
+          <option value="custom">تخصيص</option>
+        </select>
+      </div>
+      <div>
+        <label for="fromDate">من تاريخ</label>
+        <input id="fromDate" type="date" />
+      </div>
+      <div>
+        <label for="toDate">إلى تاريخ</label>
+        <input id="toDate" type="date" />
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+          <button class="btn secondary" id="exportBtn" type="button">📤 تصدير CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
+      <div class="pill"><span class="muted">مصدر المبيعات:</span> <b id="srcSales">—</b></div>
+      <div class="pill"><span class="muted">مصدر المصروفات:</span> <b id="srcExp">—</b></div>
+      <div class="pill"><span class="muted">مصدر المشتريات:</span> <b id="srcPurch">—</b></div>
+    </div>
   </div>
 
+  <div class="card">
+    <h2>ملخص سريع</h2>
+    <div class="grid4">
+      <div class="kpi">
+        <div class="t">إجمالي المبيعات</div>
+        <div class="v" id="kpiSales">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">إجمالي المشتريات</div>
+        <div class="v" id="kpiPurch">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">إجمالي المصروفات</div>
+        <div class="v" id="kpiExp">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">صافي (تقديري)</div>
+        <div class="v" id="kpiNet">0.00</div>
+      </div>
+    </div>
+    <div class="muted" style="margin-top:10px;line-height:1.8">
+      صافي (تقديري) = مبيعات - مشتريات - مصروفات (لحد ما نعمل FIFO كامل).
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>الرسوم البيانية</h2>
+
+    <div class="chartGrid">
+      <div class="chartBox">
+        <div class="chartHead">
+          <div>
+            <div class="chartTitle">مبيعات / مشتريات / مصروفات (يومي)</div>
+            <div class="chartNote">Bar Chart — تلقائي على الفترة المختارة</div>
+          </div>
+        </div>
+        <canvas id="barCanvas" width="1200" height="420" aria-label="Bar chart"></canvas>
+      </div>
+
+      <div class="chartBox">
+        <div class="chartHead">
+          <div>
+            <div class="chartTitle">توزيع المصروفات حسب النوع</div>
+            <div class="chartNote">Doughnut — Top 6 + أخرى</div>
+          </div>
+        </div>
+        <canvas id="pieCanvas" width="800" height="420" aria-label="Pie chart"></canvas>
+      </div>
+
+      <div class="chartBox" style="grid-column:1/-1">
+        <div class="chartHead">
+          <div>
+            <div class="chartTitle">صافي اليوم (تقديري)</div>
+            <div class="chartNote">Line Chart — مبيعات - مشتريات - مصروفات</div>
+          </div>
+        </div>
+        <canvas id="lineCanvas" width="1200" height="360" aria-label="Line chart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>تفاصيل يومية</h2>
+    <div class="table-wrap" aria-live="polite">
+      <table id="tbl" role="table" aria-label="تفاصيل يومية">
+        <thead>
+          <tr>
+            <th style="min-width:140px">التاريخ</th>
+            <th style="min-width:180px">مبيعات</th>
+            <th style="min-width:180px">مشتريات</th>
+            <th style="min-width:180px">مصروفات</th>
+            <th style="min-width:180px">صافي (تقديري)</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
+      لا توجد بيانات في الفترة المحددة.
+    </div>
+  </div>
 </div>
 
-<footer>
-  Axentro © 2024 — By Ahmed Hamouda
+<footer class="site-footer">
+  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+  <div class="line2">By Ahmed Hamouda</div>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-/* ===== AUTH ===== */
-if(sessionStorage.getItem("AX_BO_OK") !== "1"){
+/* ================= AUTH GATE ================= */
+const OK_KEY = "AX_BO_OK";
+function requireAuth(){
+  if(sessionStorage.getItem(OK_KEY) !== "1"){
+    location.replace("login.html");
+    return false;
+  }
+  return true;
+}
+if(!requireAuth()) throw new Error("Not authenticated");
+document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
+  sessionStorage.removeItem(OK_KEY);
   location.replace("login.html");
+});
+
+/* ================= Toast ================= */
+const toast = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
 }
 
-/* ===== MOCK DATA (مؤقت) =====
-   لاحقًا هيتربط بـ Google Sheets
-*/
-const sales = JSON.parse(localStorage.getItem("AX_SALES") || "[]");
-const purchases = JSON.parse(localStorage.getItem("AX_PURCHASES") || "[]");
-const expenses = JSON.parse(localStorage.getItem("AX_EXPENSES_LOCAL_V1") || "[]");
+/* ================= Helpers ================= */
+function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
+function esc(s){
+  return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function toISODateMaybe(val){
+  const s = String(val||"").trim();
+  if(!s) return "";
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m){
+    const dd = String(m[1]).padStart(2,"0");
+    const mm = String(m[2]).padStart(2,"0");
+    const yy = String(m[3]);
+    return `${yy}-${mm}-${dd}`;
+  }
+  const d = new Date(s);
+  if(!isNaN(d.getTime())){
+    const y = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}-${mm}-${dd}`;
+  }
+  return "";
+}
+function fmt(n){ return money(n).toFixed(2); }
+function fmtEGP(n){ return fmt(n) + " جنيه"; }
 
-function sum(arr){ return arr.reduce((s,x)=>s+(Number(x.total||x.amount||0)),0); }
-
-function loadReports(){
-  const salesSum = sum(sales);
-  const purchasesSum = sum(purchases);
-  const expensesSum = sum(expenses);
-  const profit = salesSum - purchasesSum - expensesSum;
-
-  document.getElementById("salesTotal").textContent = salesSum.toFixed(2);
-  document.getElementById("purchasesTotal").textContent = purchasesSum.toFixed(2);
-  document.getElementById("expensesTotal").textContent = expensesSum.toFixed(2);
-  document.getElementById("profitTotal").textContent = profit.toFixed(2);
-
-  const tbody = document.getElementById("detailsTable");
-  tbody.innerHTML = `
-    <tr>
-      <td>مبيعات</td>
-      <td>${sales.length}</td>
-      <td>${salesSum.toFixed(2)}</td>
-    </tr>
-    <tr>
-      <td>مشتريات</td>
-      <td>${purchases.length}</td>
-      <td>${purchasesSum.toFixed(2)}</td>
-    </tr>
-    <tr>
-      <td>مصروفات</td>
-      <td>${expenses.length}</td>
-      <td>${expensesSum.toFixed(2)}</td>
-    </tr>
-  `;
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function addDays(iso, delta){
+  const d = new Date(iso + "T00:00:00");
+  d.setDate(d.getDate()+delta);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  const day = String(d.getDate()).padStart(2,"0");
+  return `${y}-${m}-${day}`;
+}
+function monthStartISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,"0");
+  return `${y}-${m}-01`;
+}
+function yearStartISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  return `${y}-01-01`;
 }
 
-loadReports();
+function setLastSync(){
+  document.getElementById("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
+}
+
+/* ================= Load Storage Sources ================= */
+function safeParse(key){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return null;
+    const j = JSON.parse(raw);
+    return Array.isArray(j) ? j : null;
+  }catch(e){ return null; }
+}
+
+// SALES
+function loadSales(){
+  let src = "—";
+  let list = safeParse("AX_SALES_LOG_CACHE_V1");
+  if(list && list.length){ src = "AX_SALES_LOG_CACHE_V1"; }
+  else{
+    list = safeParse("AX_SALES_LOG_LOCAL_V1");
+    if(list && list.length) src = "AX_SALES_LOG_LOCAL_V1";
+    else list = [];
+  }
+  document.getElementById("srcSales").textContent = src;
+  return list;
+}
+// EXPENSES
+function loadExpenses(){
+  let src = "—";
+  let list = safeParse("AX_EXPENSES_LOCAL_V1");
+  if(list && list.length) src = "AX_EXPENSES_LOCAL_V1";
+  else list = [];
+  document.getElementById("srcExp").textContent = src;
+  return list;
+}
+// PURCHASES (اختياري)
+function loadPurchases(){
+  let src = "—";
+  let list = safeParse("AX_PURCHASES_LOG_CACHE_V1");
+  if(list && list.length) src = "AX_PURCHASES_LOG_CACHE_V1";
+  else{
+    list = safeParse("AX_PURCHASES");
+    if(list && list.length) src = "AX_PURCHASES";
+    else list = [];
+  }
+  document.getElementById("srcPurch").textContent = src;
+  return list;
+}
+
+/* ================= Normalize ================= */
+function normSalesRow(r){
+  return {
+    date: toISODateMaybe(r.date || r.invDate || r.day || ""),
+    val: money(r.finalTotal ?? r.total ?? r.amount ?? 0),
+  };
+}
+function normPurchRow(r){
+  return {
+    date: toISODateMaybe(r.date || r.invDate || r.day || ""),
+    val: money(r.finalTotal ?? r.total ?? r.amount ?? 0),
+  };
+}
+function normExpRow(r){
+  const cat = String(r.cat ?? r.category ?? r.type ?? "أخرى").trim() || "أخرى";
+  return {
+    date: toISODateMaybe(r.date || r.day || ""),
+    val: money(r.amount ?? r.total ?? r.value ?? 0),
+    cat
+  };
+}
+
+/* ================= State ================= */
+let SALES = [];
+let PURCH = [];
+let EXPS  = [];
+let DAILY = []; // [{date,sales,purch,exp,net}]
+let PIE = [];   // [{cat,val}]
+
+/* ================= Filter ================= */
+function getFilterRange(){
+  const preset = document.getElementById("preset").value;
+  const to = document.getElementById("toDate").value || todayISO();
+  let from = document.getElementById("fromDate").value || "";
+
+  if(preset === "7"){ from = addDays(to, -6); }
+  if(preset === "30"){ from = addDays(to, -29); }
+  if(preset === "90"){ from = addDays(to, -89); }
+  if(preset === "mtd"){ from = monthStartISO(); }
+  if(preset === "ytd"){ from = yearStartISO(); }
+  if(preset === "custom"){
+    from = document.getElementById("fromDate").value || from || addDays(to, -29);
+  }
+
+  // write back
+  document.getElementById("fromDate").value = from;
+  document.getElementById("toDate").value = to;
+
+  return {from, to};
+}
+
+function inRange(d, from, to){
+  if(!d) return false;
+  if(from && d < from) return false;
+  if(to && d > to) return false;
+  return true;
+}
+
+/* ================= Build Daily ================= */
+function buildDaily(from, to){
+  const map = new Map();
+  // init all days to show continuous charts
+  let cur = from;
+  while(cur <= to){
+    map.set(cur, {date:cur, sales:0, purch:0, exp:0, net:0});
+    cur = addDays(cur, 1);
+  }
+
+  SALES.forEach(x=>{
+    if(inRange(x.date, from, to)){
+      const row = map.get(x.date);
+      if(row) row.sales += x.val;
+    }
+  });
+  PURCH.forEach(x=>{
+    if(inRange(x.date, from, to)){
+      const row = map.get(x.date);
+      if(row) row.purch += x.val;
+    }
+  });
+  EXPS.forEach(x=>{
+    if(inRange(x.date, from, to)){
+      const row = map.get(x.date);
+      if(row) row.exp += x.val;
+    }
+  });
+
+  const out = Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
+  out.forEach(r=> r.net = r.sales - r.purch - r.exp);
+  DAILY = out;
+}
+
+function buildPie(from, to){
+  const catMap = new Map();
+  EXPS.forEach(x=>{
+    if(inRange(x.date, from, to)){
+      const k = x.cat || "أخرى";
+      catMap.set(k, (catMap.get(k)||0) + x.val);
+    }
+  });
+  const arr = Array.from(catMap.entries()).map(([cat,val])=>({cat,val}));
+  arr.sort((a,b)=> b.val - a.val);
+
+  const top = arr.slice(0,6);
+  const rest = arr.slice(6).reduce((s,x)=> s + x.val, 0);
+  if(rest > 0) top.push({cat:"أخرى", val:rest});
+  PIE = top;
+}
+
+/* ================= KPI ================= */
+function setKpi(id, n, cls){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove("ok","bad");
+  if(cls) el.classList.add(cls);
+  el.textContent = fmtEGP(n);
+}
+
+/* ================= Draw Charts (No libs) ================= */
+function DPR(ctx){
+  const dpr = Math.max(1, window.devicePixelRatio || 1);
+  const c = ctx.canvas;
+  const cssW = c.clientWidth || c.width;
+  const cssH = c.clientHeight || c.height;
+  c.width = Math.round(cssW * dpr);
+  c.height = Math.round(cssH * dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  return {w: cssW, h: cssH, dpr};
+}
+
+function drawGrid(ctx, w, h, padding, yTicks){
+  ctx.save();
+  ctx.clearRect(0,0,w,h);
+
+  // bg
+  const g = ctx.createLinearGradient(0,0,0,h);
+  g.addColorStop(0, "rgba(176,141,87,.10)");
+  g.addColorStop(1, "rgba(255,255,255,1)");
+  ctx.fillStyle = g;
+  roundRect(ctx, 0,0,w,h, 14);
+  ctx.fill();
+
+  // grid lines
+  ctx.strokeStyle = "rgba(15,23,42,.08)";
+  ctx.lineWidth = 1;
+
+  for(let i=0;i<=yTicks;i++){
+    const y = padding.top + ( (h - padding.top - padding.bottom) * i / yTicks );
+    ctx.beginPath();
+    ctx.moveTo(padding.left, y);
+    ctx.lineTo(w - padding.right, y);
+    ctx.stroke();
+  }
+
+  // border
+  ctx.strokeStyle = "rgba(15,23,42,.10)";
+  ctx.lineWidth = 1;
+  roundRect(ctx, 0.5,0.5,w-1,h-1, 14);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+function roundRect(ctx, x,y,w,h,r){
+  const rr = Math.min(r, w/2, h/2);
+  ctx.beginPath();
+  ctx.moveTo(x+rr, y);
+  ctx.arcTo(x+w, y, x+w, y+h, rr);
+  ctx.arcTo(x+w, y+h, x, y+h, rr);
+  ctx.arcTo(x, y+h, x, y, rr);
+  ctx.arcTo(x, y, x+w, y, rr);
+  ctx.closePath();
+}
+
+function drawBarChart(canvasId, labels, series){
+  // series: [{name, values, fill, stroke}]
+  const c = document.getElementById(canvasId);
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const {w,h} = DPR(ctx);
+
+  const padding = {top:18, right:16, bottom:38, left:54};
+  const yTicks = 4;
+
+  const maxV = Math.max(1, ...series.flatMap(s=>s.values));
+  drawGrid(ctx, w, h, padding, yTicks);
+
+  // y labels
+  ctx.fillStyle = "rgba(100,116,139,1)";
+  ctx.font = "12px system-ui";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  for(let i=0;i<=yTicks;i++){
+    const v = maxV * (1 - i/yTicks);
+    const y = padding.top + ( (h - padding.top - padding.bottom) * i / yTicks );
+    ctx.fillText((v>=1000? Math.round(v): v.toFixed(0)), 10, y);
+  }
+
+  const plotW = w - padding.left - padding.right;
+  const plotH = h - padding.top - padding.bottom;
+
+  const n = labels.length;
+  const groupW = plotW / Math.max(1,n);
+  const barW = Math.max(4, (groupW * 0.66) / series.length);
+  const gap = Math.max(2, (groupW*0.34));
+
+  // x labels (show smart)
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  const step = Math.ceil(n / 8); // max 8 labels
+  for(let i=0;i<n;i+=step){
+    const x = padding.left + i*groupW + groupW/2;
+    ctx.fillText(labels[i].slice(5), x, h - padding.bottom + 8); // show MM-DD
+  }
+
+  series.forEach((s, si)=>{
+    for(let i=0;i<n;i++){
+      const v = s.values[i] || 0;
+      const bh = (v/maxV) * plotH;
+      const x0 = padding.left + i*groupW + gap/2 + si*barW;
+      const y0 = padding.top + (plotH - bh);
+
+      const grd = ctx.createLinearGradient(0,y0,0,y0+bh);
+      grd.addColorStop(0, s.fill);
+      grd.addColorStop(1, "rgba(255,255,255,.25)");
+      ctx.fillStyle = grd;
+      ctx.strokeStyle = s.stroke;
+      ctx.lineWidth = 1;
+
+      roundRect(ctx, x0, y0, barW-2, bh, 8);
+      ctx.fill();
+      ctx.stroke();
+    }
+  });
+
+  // legend
+  let lx = padding.left;
+  const ly = 10;
+  ctx.textAlign="left";
+  ctx.textBaseline="middle";
+  series.forEach(s=>{
+    ctx.fillStyle = s.stroke;
+    ctx.beginPath(); ctx.arc(lx, ly, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(15,23,42,.85)";
+    ctx.fillText(" " + s.name, lx+10, ly);
+    lx += 10 + ctx.measureText(" " + s.name).width + 18;
+  });
+}
+
+function drawLineChart(canvasId, labels, values){
+  const c = document.getElementById(canvasId);
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const {w,h} = DPR(ctx);
+
+  const padding = {top:18, right:16, bottom:38, left:54};
+  const yTicks = 4;
+
+  const maxV = Math.max(1, ...values.map(v=>Math.abs(v)));
+  drawGrid(ctx, w, h, padding, yTicks);
+
+  // center line (0)
+  const plotW = w - padding.left - padding.right;
+  const plotH = h - padding.top - padding.bottom;
+  const zeroY = padding.top + plotH/2;
+
+  ctx.strokeStyle = "rgba(15,23,42,.10)";
+  ctx.setLineDash([6,6]);
+  ctx.beginPath();
+  ctx.moveTo(padding.left, zeroY);
+  ctx.lineTo(w-padding.right, zeroY);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // scale (centered)
+  const yMap = (v)=>{
+    // v in [-maxV, maxV]
+    return padding.top + ( (maxV - v) / (2*maxV) ) * plotH;
+  };
+
+  // y labels
+  ctx.fillStyle = "rgba(100,116,139,1)";
+  ctx.font = "12px system-ui";
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  for(let i=0;i<=yTicks;i++){
+    const v = maxV * (1 - 2*i/yTicks); // from +max to -max
+    const y = yMap(v);
+    ctx.fillText((Math.round(v)), 10, y);
+  }
+
+  // x step
+  const n = labels.length;
+  const stepX = plotW / Math.max(1, n-1);
+
+  // area fill
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x = padding.left + i*stepX;
+    const y = yMap(v);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+  ctx.lineTo(padding.left + (n-1)*stepX, yMap(0));
+  ctx.lineTo(padding.left, yMap(0));
+  ctx.closePath();
+
+  const g = ctx.createLinearGradient(0,padding.top,0,h-padding.bottom);
+  g.addColorStop(0,"rgba(176,141,87,.28)");
+  g.addColorStop(1,"rgba(176,141,87,0)");
+  ctx.fillStyle = g;
+  ctx.fill();
+
+  // line
+  ctx.strokeStyle = "rgba(184,134,11,.95)";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x = padding.left + i*stepX;
+    const y = yMap(v);
+    if(i===0) ctx.moveTo(x,y);
+    else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  // points
+  ctx.fillStyle = "rgba(15,23,42,.85)";
+  values.forEach((v,i)=>{
+    if(i % Math.ceil(n/10) !== 0 && i !== n-1) return;
+    const x = padding.left + i*stepX;
+    const y = yMap(v);
+    ctx.beginPath(); ctx.arc(x,y,3.5,0,Math.PI*2); ctx.fill();
+  });
+
+  // x labels
+  ctx.fillStyle = "rgba(100,116,139,1)";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  const stepLbl = Math.ceil(n/8);
+  for(let i=0;i<n;i+=stepLbl){
+    const x = padding.left + i*stepX;
+    ctx.fillText(labels[i].slice(5), x, h - padding.bottom + 8);
+  }
+}
+
+function drawDoughnut(canvasId, items){
+  const c = document.getElementById(canvasId);
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const {w,h} = DPR(ctx);
+
+  ctx.clearRect(0,0,w,h);
+  // bg rounded
+  ctx.fillStyle = "rgba(255,255,255,1)";
+  roundRect(ctx, 0,0,w,h, 14);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(15,23,42,.10)";
+  ctx.stroke();
+
+  const total = items.reduce((s,x)=> s + money(x.val), 0) || 1;
+
+  const cx = w/2;
+  const cy = h/2 + 10;
+  const rOuter = Math.min(w,h)*0.34;
+  const rInner = rOuter*0.62;
+
+  // palette (gold/ink)
+  const colors = [
+    ["rgba(184,134,11,.95)","rgba(176,141,87,.25)"],
+    ["rgba(15,23,42,.88)","rgba(15,23,42,.18)"],
+    ["rgba(176,141,87,.95)","rgba(176,141,87,.25)"],
+    ["rgba(2,6,23,.75)","rgba(2,6,23,.14)"],
+    ["rgba(215,185,122,.95)","rgba(215,185,122,.25)"],
+    ["rgba(51,65,85,.85)","rgba(51,65,85,.18)"],
+    ["rgba(148,163,184,.95)","rgba(148,163,184,.25)"],
+  ];
+
+  let ang = -Math.PI/2;
+  items.forEach((it, i)=>{
+    const frac = money(it.val)/total;
+    const a2 = ang + frac*2*Math.PI;
+
+    const [stroke, fill] = colors[i % colors.length];
+
+    ctx.beginPath();
+    ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,rOuter,ang,a2);
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    ang = a2;
+  });
+
+  // cut hole
+  ctx.globalCompositeOperation = "destination-out";
+  ctx.beginPath();
+  ctx.arc(cx,cy,rInner,0,Math.PI*2);
+  ctx.fill();
+  ctx.globalCompositeOperation = "source-over";
+
+  // center text
+  ctx.fillStyle = "rgba(15,23,42,.88)";
+  ctx.font = "1000 14px system-ui";
+  ctx.textAlign="center";
+  ctx.textBaseline="middle";
+  ctx.fillText("إجمالي المصروفات", cx, cy-10);
+  ctx.font = "1000 18px system-ui";
+  ctx.fillText(fmtEGP(total), cx, cy+14);
+
+  // legend
+  let y = 16;
+  ctx.textAlign="right";
+  ctx.textBaseline="middle";
+  ctx.font = "900 12px system-ui";
+  items.forEach((it, i)=>{
+    const [stroke] = colors[i % colors.length];
+    ctx.fillStyle = stroke;
+    ctx.beginPath(); ctx.arc(w-16, y, 5, 0, Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(15,23,42,.85)";
+    const pct = total ? Math.round((money(it.val)/total)*100) : 0;
+    ctx.fillText(`${it.cat} — ${pct}%`, w-28, y);
+    y += 18;
+  });
+}
+
+/* ================= Build + Render ================= */
+function computeAndRender(){
+  setLastSync();
+
+  const {from, to} = getFilterRange();
+
+  // load sources
+  SALES = loadSales().map(normSalesRow).filter(x=>x.date);
+  EXPS  = loadExpenses().map(normExpRow).filter(x=>x.date);
+  PURCH = loadPurchases().map(normPurchRow).filter(x=>x.date);
+
+  buildDaily(from, to);
+  buildPie(from, to);
+
+  // KPIs
+  const salesSum = DAILY.reduce((s,r)=> s + money(r.sales), 0);
+  const purchSum = DAILY.reduce((s,r)=> s + money(r.purch), 0);
+  const expSum   = DAILY.reduce((s,r)=> s + money(r.exp), 0);
+  const netSum   = DAILY.reduce((s,r)=> s + money(r.net), 0);
+
+  setKpi("kpiSales", salesSum);
+  setKpi("kpiPurch", purchSum);
+  setKpi("kpiExp", expSum);
+  setKpi("kpiNet", netSum, netSum>=0 ? "ok":"bad");
+
+  // table daily
+  const tbody = document.getElementById("tbody");
+  const empty = document.getElementById("emptyBox");
+  tbody.innerHTML = "";
+
+  const hasAny = DAILY.some(r=> r.sales||r.purch||r.exp||r.net);
+  empty.style.display = hasAny ? "none" : "block";
+
+  DAILY.slice().reverse().forEach(r=>{
+    if(!hasAny) return;
+    if(!(r.sales||r.purch||r.exp||r.net)) return;
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="التاريخ" class="center">${esc(r.date)}</td>
+      <td data-label="مبيعات" class="center">${fmtEGP(r.sales)}</td>
+      <td data-label="مشتريات" class="center">${fmtEGP(r.purch)}</td>
+      <td data-label="مصروفات" class="center">${fmtEGP(r.exp)}</td>
+      <td data-label="صافي" class="center"><b>${fmtEGP(r.net)}</b></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // charts
+  const labels = DAILY.map(r=> r.date);
+  drawBarChart("barCanvas", labels, [
+    {name:"مبيعات", values: DAILY.map(r=> r.sales), fill:"rgba(176,141,87,.35)", stroke:"rgba(184,134,11,.95)"},
+    {name:"مشتريات", values: DAILY.map(r=> r.purch), fill:"rgba(15,23,42,.16)", stroke:"rgba(15,23,42,.88)"},
+    {name:"مصروفات", values: DAILY.map(r=> r.exp), fill:"rgba(215,185,122,.30)", stroke:"rgba(176,141,87,.95)"},
+  ]);
+
+  drawLineChart("lineCanvas", labels, DAILY.map(r=> r.net));
+  drawDoughnut("pieCanvas", PIE);
+
+  showToast("✅ تم تحديث التقارير");
+}
+
+/* ================= Export CSV ================= */
+function exportCSV(){
+  const header = ["date","sales","purchases","expenses","net"];
+  const rows = DAILY.map(r => ({
+    date: r.date,
+    sales: fmt(r.sales),
+    purchases: fmt(r.purch),
+    expenses: fmt(r.exp),
+    net: fmt(r.net),
+  }));
+  const csv = [
+    header.join(","),
+    ...rows.map(o => header.map(k => {
+      const v = String(o[k] ?? "");
+      if(/[",\n]/.test(v)) return `"${v.replace(/"/g,'""')}"`;
+      return v;
+    }).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reports_daily_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("✅ تم تصدير CSV");
+}
+
+/* ================= UI ================= */
+document.getElementById("refreshBtn").addEventListener("click", computeAndRender);
+document.getElementById("exportBtn").addEventListener("click", exportCSV);
+
+document.getElementById("preset").addEventListener("change", ()=>{
+  const p = document.getElementById("preset").value;
+  const isCustom = (p === "custom");
+  document.getElementById("fromDate").disabled = !isCustom;
+  document.getElementById("toDate").disabled = !isCustom;
+  computeAndRender();
+});
+
+// لو المستخدم غيّر يدوي في custom
+["fromDate","toDate"].forEach(id=>{
+  document.getElementById(id).addEventListener("change", ()=>{
+    if(document.getElementById("preset").value === "custom") computeAndRender();
+  });
+});
+
+/* ================= BOOT ================= */
+(function boot(){
+  // defaults
+  const to = todayISO();
+  document.getElementById("toDate").value = to;
+  document.getElementById("fromDate").value = addDays(to, -29);
+  document.getElementById("fromDate").disabled = true;
+  document.getElementById("toDate").disabled = true;
+  computeAndRender();
+})();
+
+/* redraw on resize (debounced) */
+let rzT=null;
+window.addEventListener("resize", ()=>{
+  clearTimeout(rzT);
+  rzT = setTimeout(()=> computeAndRender(), 150);
+});
 </script>
-
 </body>
 </html>
