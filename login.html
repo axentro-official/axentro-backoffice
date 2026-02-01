@@ -18,7 +18,11 @@
       --gold2:#B8860B;
       --goldSoft: rgba(212,175,55,.18);
       --goldSoft2: rgba(184,134,11,.12);
+
+      --bad:#dc2626;
+      --badSoft: rgba(220,38,38,.07);
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -35,7 +39,16 @@
       -webkit-font-smoothing:antialiased;
     }
 
-    .wrap{width:min(980px, 92vw); margin:0 auto; padding:18px; flex:1; display:grid; place-items:center;}
+    .wrap{
+      width:min(980px, 92vw);
+      margin:0 auto;
+      padding:18px;
+      flex:1;
+      display:grid;
+      place-items:center;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+
     .card{
       width:min(520px, 100%);
       background:rgba(255,255,255,.92);
@@ -58,6 +71,13 @@
     .t2{font-weight:900;color:var(--muted);font-size:12px;margin-top:2px}
 
     label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
+
+    .field{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+    }
+
     input{
       width:100%;
       padding:12px;
@@ -68,14 +88,29 @@
       box-shadow:0 8px 18px rgba(15,23,42,.06);
       font-size:14px;
     }
+    /* منع Zoom على iOS */
     @media (max-width:720px){ input{font-size:16px;} }
+
     input:focus{
       border-color: rgba(212,175,55,.65);
       box-shadow:0 10px 22px rgba(212,175,55,.14);
     }
 
+    .iconBtn{
+      width:52px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.92);
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      cursor:pointer;
+      font-weight:1000;
+      touch-action: manipulation;
+    }
+    .iconBtn:active{transform:translateY(1px)}
+    .iconBtn:focus{outline:3px solid rgba(212,175,55,.25); outline-offset:3px;}
+
     .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button{
+    button.primary{
       flex:1;
       padding:12px 14px;
       border-radius:16px;
@@ -87,7 +122,9 @@
       box-shadow:0 12px 22px rgba(212,175,55,.14);
       touch-action: manipulation;
     }
-    button:active{transform:translateY(1px)}
+    button.primary:active{transform:translateY(1px)}
+    button.primary[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+
     .hint{
       margin-top:10px;
       font-size:12px;
@@ -101,11 +138,12 @@
       display:none;
       padding:10px 12px;
       border-radius:14px;
-      border:1px solid rgba(220,38,38,.16);
-      background:rgba(220,38,38,.06);
+      border:1px solid rgba(220,38,38,.22);
+      background:var(--badSoft);
       color:#991b1b;
       font-weight:1000;
       line-height:1.7;
+      word-break:break-word;
     }
 
     .site-footer{
@@ -120,7 +158,20 @@
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
+
+    .mini{
+      margin-top:8px;
+      font-size:12px;
+      color:#334155;
+      font-weight:900;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .mini span{color:var(--muted); font-weight:900;}
   </style>
 </head>
 
@@ -129,7 +180,8 @@
     <section class="card" aria-label="تسجيل دخول الإدارة">
       <div class="head">
         <div class="logo">
-          <img src="images/bslogo.webp" alt="BS Logo" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='BS'">
+          <img src="images/bslogo.webp" alt="BS Logo"
+               onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='BS'">
         </div>
         <div>
           <div class="t1">B.S Medical &amp; Aesthetic</div>
@@ -138,13 +190,22 @@
       </div>
 
       <label for="pass">رمز الدخول</label>
-      <input id="pass" type="password" placeholder="••••••••" aria-label="رمز الدخول" />
 
-      <div class="row">
-        <button id="loginBtn" type="button">دخول</button>
+      <div class="field">
+        <input id="pass" type="password" placeholder="••••••••" aria-label="رمز الدخول" autocomplete="current-password" />
+        <button class="iconBtn" id="togglePass" type="button" aria-label="إظهار أو إخفاء كلمة المرور">👁️</button>
       </div>
 
-      <div id="err" class="err" role="status"></div>
+      <div class="mini">
+        <div>الدخول للإدارة فقط <span>ليس للعملاء</span></div>
+        <div id="lockInfo" style="display:none;color:#991b1b"></div>
+      </div>
+
+      <div class="row">
+        <button class="primary" id="loginBtn" type="button">دخول</button>
+      </div>
+
+      <div id="err" class="err" role="status" aria-live="polite"></div>
 
       <div class="hint">
         ⚠️ تنبيه: هذه الصفحة للإدارة فقط وليست للعملاء.
@@ -162,9 +223,9 @@
   const ADMIN_PASSWORD = "1407";
   const OK_KEY = "AX_BO_OK"; // ✅ موحّد لكل صفحات الإدارة
 
-  /* lock (اختياري) */
-  const FAILS_KEY = "BS_BO_FAILS";
-  const LOCK_UNTIL_KEY = "BS_BO_LOCK_UNTIL";
+  /* lock (بسيط ومحسّن) */
+  const FAILS_KEY = "AX_BO_FAILS";
+  const LOCK_UNTIL_KEY = "AX_BO_LOCK_UNTIL";
   const MAX_FAILS = 5;
   const LOCK_MINUTES = 10;
 
@@ -195,6 +256,8 @@
   const passEl = document.getElementById("pass");
   const btn = document.getElementById("loginBtn");
   const err = document.getElementById("err");
+  const lockInfo = document.getElementById("lockInfo");
+  const togglePass = document.getElementById("togglePass");
 
   function showErr(msg){
     err.textContent = msg;
@@ -205,23 +268,55 @@
     err.style.display = "none";
   }
 
+  function refreshLockUI(){
+    if(isLocked()){
+      lockInfo.textContent = lockRemainingText();
+      lockInfo.style.display = "block";
+      btn.disabled = true;
+    }else{
+      lockInfo.textContent = "";
+      lockInfo.style.display = "none";
+      btn.disabled = false;
+    }
+  }
+
   function doLogin(){
     clearErr();
+    refreshLockUI();
     if(isLocked()){
       showErr(lockRemainingText());
       return;
     }
-    const v = String(passEl.value || "");
+
+    const v = String(passEl.value || "").trim();
+
+    if(!v){
+      showErr("اكتب رمز الدخول أولاً.");
+      passEl.focus();
+      return;
+    }
+
     if(v === ADMIN_PASSWORD){
       resetFails();
       sessionStorage.setItem(OK_KEY, "1");
-      location.href = "dashboard.html";
+      location.replace("dashboard.html");
     }else{
       const tries = incFail();
+      refreshLockUI();
       if(isLocked()) showErr(lockRemainingText());
       else showErr(`رمز الدخول غير صحيح. المتبقي قبل القفل: ${Math.max(0, MAX_FAILS - tries)}`);
+      passEl.select();
+      passEl.focus();
     }
   }
+
+  // إظهار/إخفاء كلمة المرور
+  togglePass.addEventListener("click", ()=>{
+    const isPwd = passEl.type === "password";
+    passEl.type = isPwd ? "text" : "password";
+    togglePass.textContent = isPwd ? "🙈" : "👁️";
+    passEl.focus();
+  });
 
   btn.addEventListener("click", doLogin);
   passEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doLogin(); });
@@ -232,6 +327,9 @@
   }else{
     try{ passEl.focus(); }catch(e){}
   }
+
+  // تحديث حالة القفل وقت الفتح
+  refreshLockUI();
 </script>
 </body>
 </html>
