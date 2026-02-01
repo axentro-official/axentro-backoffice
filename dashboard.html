@@ -18,6 +18,9 @@
       --gold2:#B8860B;
       --goldSoft: rgba(212,175,55,.18);
       --goldSoft2: rgba(184,134,11,.12);
+
+      --bad:#dc2626;
+      --ok:#16a34a;
     }
     *{box-sizing:border-box}
     html,body{height:100%}
@@ -35,9 +38,19 @@
       -webkit-font-smoothing:antialiased;
     }
 
-    .container{width:min(980px, 94vw); margin:0 auto; padding:18px; flex:1}
+    .container{
+      width:min(980px, 94vw);
+      margin:0 auto;
+      padding:18px;
+      flex:1;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+
     .top{
-      display:flex; gap:12px; align-items:center; justify-content:space-between;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
       padding:14px 14px;
       border:1px solid var(--stroke);
       border-radius:18px;
@@ -59,6 +72,7 @@
     .t1{font-weight:1000}
     .t2{font-size:12px;color:var(--muted);font-weight:900;margin-top:2px}
 
+    .actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
     .pill{
       padding:10px 12px;
       border-radius:16px;
@@ -67,6 +81,18 @@
       font-weight:1000;
       white-space:nowrap;
     }
+    .btn{
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.92);
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow: 0 8px 18px rgba(15,23,42,.06);
+      touch-action: manipulation;
+      white-space:nowrap;
+    }
+    .btn:active{transform:translateY(1px)}
 
     .grid{
       margin-top:14px;
@@ -74,13 +100,17 @@
       gap:12px;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     }
+
     .card{
       border-radius: var(--radius);
       border:1px solid var(--stroke);
       background: rgba(255,255,255,.92);
       box-shadow: var(--shadow);
       overflow:hidden;
+      transition: transform .15s ease, filter .15s ease;
     }
+    .card:hover{ transform: translateY(-1px); filter: brightness(1.01); }
+
     .card a{
       display:flex;
       align-items:center;
@@ -89,9 +119,11 @@
       padding:14px;
       color:inherit;
       text-decoration:none;
+      min-height:78px;
     }
     .c1{font-weight:1000}
     .c2{font-size:12px;color:var(--muted);font-weight:900;margin-top:4px}
+
     .ico{
       width:46px;height:46px;border-radius:16px;flex:0 0 auto;
       display:grid;place-items:center;
@@ -115,6 +147,9 @@
 
     @media (max-width:720px){
       .top{flex-direction:column;align-items:stretch}
+      .actions{justify-content:stretch}
+      .btn{width:100%}
+      .pill{width:100%; text-align:center}
     }
 
     .site-footer{
@@ -129,7 +164,33 @@
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
+
+    /* Toast (بديل ألطف من alert) */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 900;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(520px, 92vw);
+      text-align:center;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
   </style>
 </head>
 
@@ -147,8 +208,10 @@
         </div>
       </div>
 
-      <!-- ✅ بدون زر خروج -->
-      <div class="pill">✅ لوحة الإدارة</div>
+      <div class="actions">
+        <div class="pill">✅ لوحة الإدارة</div>
+        <button class="btn" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+      </div>
     </header>
 
     <section class="grid" aria-label="روابط الإدارة">
@@ -160,6 +223,17 @@
             <div class="c2">إنشاء فاتورة + طباعة + PDF</div>
           </div>
           <div class="ico">🧾</div>
+        </a>
+      </div>
+
+      <!-- ✅ فاتورة مشتريات (NEW) -->
+      <div class="card">
+        <a href="Purchase-invoice.html" aria-label="فاتورة مشتريات">
+          <div>
+            <div class="c1">فاتورة مشتريات</div>
+            <div class="c2">تسجيل مشتريات + طباعة + PDF</div>
+          </div>
+          <div class="ico">📦</div>
         </a>
       </div>
 
@@ -176,7 +250,7 @@
 
       <!-- ✅ صفحات لاحقًا -->
       <div class="card soon">
-        <a href="sales.html" onclick="return soon(event)" aria-label="سجل المبيعات">
+        <a href="sales.html" data-soon="1" aria-label="سجل المبيعات">
           <div>
             <div class="c1">سجل المبيعات <span class="tag">قريبًا</span></div>
             <div class="c2">كل فواتير البيع + فلترة</div>
@@ -186,7 +260,7 @@
       </div>
 
       <div class="card soon">
-        <a href="purchases.html" onclick="return soon(event)" aria-label="سجل المشتريات">
+        <a href="purchases.html" data-soon="1" aria-label="سجل المشتريات">
           <div>
             <div class="c1">سجل المشتريات <span class="tag">قريبًا</span></div>
             <div class="c2">كل فواتير الشراء + فلترة</div>
@@ -196,7 +270,7 @@
       </div>
 
       <div class="card soon">
-        <a href="inventory.html" onclick="return soon(event)" aria-label="المخزن">
+        <a href="inventory.html" data-soon="1" aria-label="المخزن">
           <div>
             <div class="c1">المخزن <span class="tag">قريبًا</span></div>
             <div class="c2">الأصناف + أرصدة + حركات</div>
@@ -206,7 +280,7 @@
       </div>
 
       <div class="card soon">
-        <a href="expenses.html" onclick="return soon(event)" aria-label="المصروفات">
+        <a href="expenses.html" data-soon="1" aria-label="المصروفات">
           <div>
             <div class="c1">المصروفات <span class="tag">قريبًا</span></div>
             <div class="c2">مرتبات / إيجار / نثريات…</div>
@@ -216,7 +290,7 @@
       </div>
 
       <div class="card soon">
-        <a href="reports.html" onclick="return soon(event)" aria-label="التقارير">
+        <a href="reports.html" data-soon="1" aria-label="التقارير">
           <div>
             <div class="c1">التقارير <span class="tag">قريبًا</span></div>
             <div class="c2">فلترة يوم/شهر/سنة</div>
@@ -226,7 +300,7 @@
       </div>
 
       <div class="card soon">
-        <a href="profits.html" onclick="return soon(event)" aria-label="الأرباح">
+        <a href="profits.html" data-soon="1" aria-label="الأرباح">
           <div>
             <div class="c1">الأرباح (FIFO) <span class="tag">قريبًا</span></div>
             <div class="c2">حسب فواتير البيع/الشراء الحقيقية</div>
@@ -242,6 +316,8 @@
     <div class="line2">By Ahmed Hamouda</div>
   </footer>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
   // ✅ Session Key موحّد لكل صفحات الإدارة
   const OK_KEY = "AX_BO_OK";
@@ -251,11 +327,29 @@
     location.replace("login.html");
   }
 
-  function soon(ev){
-    ev.preventDefault();
-    alert("قريبًا 👌");
-    return false;
+  // ✅ Logout
+  document.getElementById("logoutBtn").addEventListener("click", ()=>{
+    sessionStorage.removeItem(OK_KEY);
+    location.replace("login.html");
+  });
+
+  // Toast ألطف من alert
+  const toast = document.getElementById("toast");
+  let toastTimer = null;
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
   }
+
+  // ✅ أي لينك عليه data-soon يمنع التنقل ويعرض رسالة
+  document.addEventListener("click", (e)=>{
+    const a = e.target.closest("a[data-soon='1']");
+    if(!a) return;
+    e.preventDefault();
+    showToast("قريبًا 👌");
+  });
 </script>
 </body>
 </html>
