@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>المخزون — B.S Medical &amp; Aesthetic</title>
+
+  <style>
+    :root{
+      --bg:#f7f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --stroke:rgba(15,23,42,.10);
+      --shadow: 0 18px 50px rgba(2,6,23,.12);
+      --radius:18px;
+
+      --gold:#b08d57;
+      --gold2:#d7b97a;
+
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --bad:#dc2626;
+
+      --container-max:1100px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
+        radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
+        linear-gradient(180deg, #ffffff, var(--bg));
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+      padding:0;
+    }
+
+    .wrap{
+      max-width:var(--container-max);
+      margin:0 auto;
+      width:100%;
+      flex:1;
+      padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .wrap{
+        padding:14px;
+        padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      }
+    }
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid var(--stroke);
+      border-radius:18px;background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .logo{
+      width:44px;height:44px;border-radius:999px;
+      display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
+      border:1px solid rgba(176,141,87,.35);
+      box-shadow: 0 10px 24px rgba(2,6,23,.10);
+      overflow:hidden;
+      padding:6px;
+      flex:0 0 auto;
+    }
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    .brandTitle{font-weight:1000}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
+
+    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+      max-width:100%;
+    }
+
+    h2{margin:0 0 10px;font-weight:1000}
+    label{font-size:12px;color:var(--muted);font-weight:1000}
+    input, textarea, select{
+      width:100%;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+      max-width:100%;
+    }
+    input::placeholder, textarea::placeholder{color:#94a3b8}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(176,141,87,.55);
+      box-shadow:0 10px 22px rgba(176,141,87,.14);
+    }
+
+    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+    @media (max-width:920px){
+      .row{grid-template-columns:repeat(2,1fr);}
+      .row3{grid-template-columns:repeat(1,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
+    }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
+    }
+    @media (max-width:520px){
+      .row{grid-template-columns:repeat(1,1fr);}
+      input, textarea, select{ font-size:16px; }
+    }
+
+    .btn{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(176,141,87,.35);
+      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
+      color:var(--text);
+      font-weight:1000;
+      cursor:pointer;
+      touch-action: manipulation;
+      user-select:none;
+      max-width:100%;
+    }
+    .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      border-color: rgba(15,23,42,.14);
+      background:#fff;
+      opacity:.95;
+    }
+    .btn.danger{
+      border-color: rgba(220,38,38,.25);
+      background: rgba(220,38,38,.06);
+      color:#991b1b;
+    }
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;border-radius:999px;
+      padding:8px 10px;font-weight:1000;
+      color:#334155;
+      white-space:nowrap;
+      max-width:100%;
+    }
+    .pill b{color:var(--text)}
+    .muted{color:var(--muted);font-weight:900}
+
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:1120px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      max-width:100%;
+    }
+    th, td{
+      border:1px solid rgba(15,23,42,.10);
+      padding:8px;
+      text-align:center;
+      vertical-align:middle;
+      word-break:break-word;
+    }
+    th{
+      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
+      font-weight:1000;
+    }
+    td.left{text-align:right}
+    td.small{font-size:12px;color:#334155;font-weight:900}
+
+    .tag{
+      display:inline-block;
+      padding:6px 10px;border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;font-weight:1000;font-size:12px;
+      white-space:nowrap;
+    }
+    .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
+    .tag.warn{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#92400e}
+    .tag.bad{border-color:rgba(220,38,38,.25);background:rgba(220,38,38,.06);color:#991b1b}
+
+    .empty{
+      padding:14px;
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+      color:var(--muted);
+      font-weight:1000;
+      text-align:center;
+      line-height:1.8;
+    }
+
+    @media (max-width: 820px){
+      .table-wrap{ overflow:visible; }
+      table{ min-width:0; }
+      table, thead, tbody, th, td, tr{ display:block; width:100%; }
+      thead{ display:none; }
+      tbody tr{
+        border:1px solid rgba(15,23,42,.12);
+        background:#fff;
+        border-radius:16px;
+        padding:10px;
+        margin-bottom:10px;
+        box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      }
+      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
+      tbody td[data-label]::before{
+        content: attr(data-label);
+        display:block;
+        font-size:12px;color: var(--muted);
+        font-weight:1000;margin-bottom:6px;
+      }
+      tbody td.center{ text-align:center; }
+    }
+
+    .site-footer{
+      margin-top:auto;
+      padding:16px 16px 22px;
+      text-align:center;
+      color:var(--muted);
+      border-top:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+    }
+    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 1000;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(620px, 92vw);
+      text-align:center;
+      line-height:1.7;
+      white-space:pre-line;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+
+    /* Modal */
+    .modalWrap{
+      position:fixed; inset:0;
+      background: rgba(2,6,23,.45);
+      display:none;
+      align-items:center; justify-content:center;
+      padding:14px;
+      z-index:9998;
+    }
+    .modal{
+      width:min(560px, 96vw);
+      background:#fff;
+      border-radius:18px;
+      border:1px solid rgba(15,23,42,.12);
+      box-shadow: 0 30px 90px rgba(2,6,23,.28);
+      overflow:hidden;
+    }
+    .modalHead{
+      padding:12px 14px;
+      display:flex;justify-content:space-between;align-items:center;gap:10px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
+      font-weight:1000;
+    }
+    .modalBody{ padding:14px; }
+    .xbtn{
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;border-radius:12px;
+      padding:8px 10px;
+      cursor:pointer;
+      font-weight:1000;
+    }
+    .hint{
+      font-size:12px;color:var(--muted);
+      font-weight:900;line-height:1.7;
+      margin-top:8px;
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">المخزون (Inventory)</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>بحث وفلترة</h2>
+
+    <div class="row" role="region" aria-label="فلترة المخزون">
+      <div>
+        <label for="q">بحث سريع</label>
+        <input id="q" placeholder="ابحث بـ SKU / اسم المنتج..." />
+      </div>
+      <div>
+        <label for="stockState">الحالة</label>
+        <select id="stockState">
+          <option value="all">الكل</option>
+          <option value="available">متاح</option>
+          <option value="low">منخفض</option>
+          <option value="out">نفد</option>
+        </select>
+      </div>
+      <div>
+        <label for="minQty">كمية من</label>
+        <input id="minQty" type="number" min="0" step="1" placeholder="0" />
+      </div>
+      <div>
+        <label for="sortBy">ترتيب</label>
+        <select id="sortBy">
+          <option value="name_asc">الاسم (أ-ي)</option>
+          <option value="name_desc">الاسم (ي-أ)</option>
+          <option value="qty_desc">الكمية: الأعلى</option>
+          <option value="qty_asc">الكمية: الأقل</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row3" style="margin-top:10px">
+      <div>
+        <label for="defaultMin">حد التنبيه الافتراضي (Min)</label>
+        <input id="defaultMin" type="number" min="0" step="1" placeholder="مثال: 3" />
+        <div class="hint">لو المنتج ملوش Min خاص، هنستخدم ده في تحديد "منخفض".</div>
+      </div>
+
+      <div>
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+          <button class="btn secondary" id="clearFiltersBtn" type="button">مسح الفلاتر</button>
+        </div>
+      </div>
+
+      <div>
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="exportBtn" type="button">📤 تصدير CSV</button>
+          <button class="btn secondary" id="openImportBtn" type="button">📥 استيراد</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+      <div class="pill"><span class="muted">عدد النتائج:</span> <b id="countTxt">0</b></div>
+      <div class="pill"><span class="muted">إجمالي الكمية:</span> <b id="sumQtyTxt">0</b></div>
+      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>قائمة المخزون</h2>
+
+    <div class="table-wrap" aria-live="polite">
+      <table id="invTable" role="table" aria-label="جدول المخزون">
+        <thead>
+          <tr>
+            <th style="width:60px">#</th>
+            <th style="min-width:160px">SKU</th>
+            <th style="min-width:320px">اسم المنتج</th>
+            <th style="min-width:130px">الكمية</th>
+            <th style="min-width:140px">Min</th>
+            <th style="min-width:140px">الحالة</th>
+            <th style="min-width:200px">إجراءات</th>
+          </tr>
+        </thead>
+        <tbody id="invBody"></tbody>
+      </table>
+    </div>
+
+    <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
+      لا توجد نتائج مطابقة للفلترة الحالية.
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+  <div class="line2">By Ahmed Hamouda</div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Import Modal -->
+<div class="modalWrap" id="importModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="استيراد المخزون">
+    <div class="modalHead">
+      <div>📥 استيراد المخزون</div>
+      <button class="xbtn" id="closeImportBtn" type="button">✖</button>
+    </div>
+    <div class="modalBody">
+      <div class="hint" style="margin-top:0">
+        الصق <b>JSON Array</b> أو <b>CSV</b>.
+        <br>JSON مثال: <span dir="ltr">[{"sku":"101234","name":"Product","qty":10,"min":3},{"sku":"...","name":"...","qty":0}]</span>
+        <br>CSV مثال: <span dir="ltr">sku,name,qty,min,status</span>
+      </div>
+      <textarea id="importTa" rows="7" placeholder="الصق JSON/CSV هنا..."></textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" id="importBtn" type="button">✅ استيراد</button>
+        <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
+        <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح المخزون المحلي</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modalWrap" id="editModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="تعديل المخزون">
+    <div class="modalHead">
+      <div>✏️ تعديل رصيد</div>
+      <button class="xbtn" id="closeEditBtn" type="button">✖</button>
+    </div>
+    <div class="modalBody">
+      <div class="row2">
+        <div>
+          <label>SKU</label>
+          <input id="editSku" readonly />
+        </div>
+        <div>
+          <label>اسم المنتج</label>
+          <input id="editName" readonly />
+        </div>
+      </div>
+
+      <div class="row3" style="margin-top:10px">
+        <div>
+          <label for="editQty">الكمية</label>
+          <input id="editQty" type="number" min="0" step="1" />
+        </div>
+        <div>
+          <label for="editMin">Min (تنبيه)</label>
+          <input id="editMin" type="number" min="0" step="1" placeholder="اختياري" />
+        </div>
+        <div>
+          <label for="editStatus">الحالة (اختياري)</label>
+          <select id="editStatus">
+            <option value="">تلقائي</option>
+            <option value="available">متاح</option>
+            <option value="low">منخفض</option>
+            <option value="out">نفد</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row1" style="margin-top:10px">
+        <div>
+          <label for="editNote">ملاحظة (اختياري)</label>
+          <input id="editNote" placeholder="مثال: جرد / إضافة شحنة..." />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" id="saveEditBtn" type="button">💾 حفظ</button>
+        <button class="btn secondary" id="cancelEditBtn" type="button">إلغاء</button>
+      </div>
+
+      <div class="hint">
+        التعديل هنا <b>محلي</b> (LocalStorage) لحد ما تعمل Apps Script للتحديث على الشيت.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= AUTH GATE ================= */
+const OK_KEY = "AX_BO_OK";
+function requireAuth(){
+  if(sessionStorage.getItem(OK_KEY) !== "1"){
+    location.replace("login.html");
+    return false;
+  }
+  return true;
+}
+if(!requireAuth()) throw new Error("Not authenticated");
+
+document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
+  sessionStorage.removeItem(OK_KEY);
+  location.replace("login.html");
+});
+
+/* ================= Toast ================= */
+const toast = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
+}
+
+/* ================= CONFIG =================
+   ✅ لاحقاً غيّر ده لو عملت Apps Script للمخزون
+*/
+const INVENTORY_API_URL =
+  "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=inventory";
+
+const LOCAL_KEY = "AX_INVENTORY_LOCAL_V1";
+const CACHE_KEY = "AX_INVENTORY_CACHE_V1";
+const CACHE_TS  = "AX_INVENTORY_CACHE_TS_V1";
+const CACHE_TTL_MS = 5 * 60 * 1000;
+
+let RAW = [];
+let VIEW = [];
+let EDITING_SKU = "";
+
+/* ================= Helpers ================= */
+function nInt(v){ v = parseInt(v,10); return isFinite(v)?v:0; }
+function norm(s){ return String(s||"").trim().toLowerCase(); }
+
+function setLastSync(ts){
+  const el = document.getElementById("lastSyncTxt");
+  if(!el) return;
+  if(!ts){ el.textContent = "—"; return; }
+  el.textContent = new Date(ts).toLocaleString("ar-EG");
+}
+
+function saveCache(list){
+  try{
+    localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+    localStorage.setItem(CACHE_TS, String(Date.now()));
+  }catch(e){}
+}
+function loadCache(){
+  try{
+    const raw = localStorage.getItem(CACHE_KEY);
+    const ts  = Number(localStorage.getItem(CACHE_TS) || 0);
+    if(!raw) return null;
+    const list = JSON.parse(raw);
+    if(!Array.isArray(list)) return null;
+    return { list, ts };
+  }catch(e){ return null; }
+}
+function saveLocal(list){
+  try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(list)); }catch(e){}
+}
+function loadLocal(){
+  try{
+    const raw = localStorage.getItem(LOCAL_KEY);
+    if(!raw) return [];
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : [];
+  }catch(e){ return []; }
+}
+
+function parseCSV(text){
+  const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(lines.length < 2) return [];
+  const header = lines[0].split(",").map(h=>h.trim());
+  const out = [];
+  for(let i=1;i<lines.length;i++){
+    const cells = lines[i].split(",").map(c=>c.trim());
+    const obj = {};
+    header.forEach((h, idx)=> obj[h] = cells[idx] ?? "");
+    out.push(obj);
+  }
+  return out;
+}
+
+function normalizeRow(r){
+  const sku  = String(r.sku ?? r.SKU ?? r.id ?? r.product_id ?? "").trim();
+  const name = String(r.name ?? r.product ?? r.product_name ?? r.title ?? "").trim();
+
+  const qty  = nInt(r.qty ?? r.stock_qty ?? r.stock ?? r.quantity ?? r.count ?? 0);
+  const min  = (r.min ?? r.min_stock ?? r.minQty ?? r.minimum);
+  const minInt = (min === "" || min === null || typeof min === "undefined") ? null : nInt(min);
+
+  const status = String(r.status ?? r.state ?? "").trim(); // optional
+  const note = String(r.note ?? r.notes ?? "").trim();
+
+  return { sku, name, qty, min: minInt, status, note };
+}
+
+function computeState(row, defaultMin){
+  const qty = nInt(row.qty);
+  const min = (row.min === null || typeof row.min === "undefined") ? defaultMin : nInt(row.min);
+  const manual = norm(row.status);
+
+  if(manual === "available" || manual === "low" || manual === "out") return manual;
+
+  if(qty <= 0) return "out";
+  if(min > 0 && qty <= min) return "low";
+  return "available";
+}
+
+function stateTag(state){
+  if(state === "out") return { txt:"نفد", cls:"bad" };
+  if(state === "low") return { txt:"منخفض", cls:"warn" };
+  return { txt:"متاح", cls:"ok" };
+}
+
+/* ================= Fetch (optional) ================= */
+async function fetchInventory(){
+  const res = await fetch(INVENTORY_API_URL, { cache:"no-store" });
+  if(!res.ok) throw new Error("HTTP " + res.status);
+  const data = await res.json();
+  if(Array.isArray(data)) return data;
+  if(data && typeof data === "object"){
+    if(Array.isArray(data.data)) return data.data;
+    if(Array.isArray(data.items)) return data.items;
+    if(Array.isArray(data.rows)) return data.rows;
+  }
+  return [];
+}
+
+async function loadInventorySmart(force=false){
+  const cached = loadCache();
+  const now = Date.now();
+  const hasCache = cached && cached.list && cached.list.length;
+  const fresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
+
+  // Local has priority (because edits)
+  const local = loadLocal();
+  if(local.length){
+    RAW = local.map(normalizeRow).filter(x=>x.sku || x.name);
+    saveCache(RAW);
+    setLastSync(cached?.ts || Date.now());
+    applyFiltersAndRender();
+  }
+
+  if(hasCache && !local.length){
+    RAW = cached.list.map(normalizeRow);
+    setLastSync(cached.ts);
+    applyFiltersAndRender();
+  }
+
+  // Try network fetch (optional)
+  if(!force && fresh){
+    setTimeout(()=> refreshFromNet(false), 350);
+  }else{
+    await refreshFromNet(false);
+  }
+}
+
+async function refreshFromNet(showMsg){
+  try{
+    const list = await fetchInventory();
+    const normed = list.map(normalizeRow).filter(x=>x.sku || x.name);
+    // Merge: if local exists, keep local (edits) and ignore net for now
+    const local = loadLocal();
+    if(!local.length){
+      RAW = normed;
+      saveCache(normed);
+      setLastSync(Date.now());
+      applyFiltersAndRender();
+      if(showMsg) showToast("✅ تم تحديث المخزون");
+    }
+  }catch(e){
+    if(showMsg) showToast("⚠️ تعذر تحميل المخزون الآن.\nاعتمد على الاستيراد اليدوي.");
+  }
+}
+
+/* ================= Filters + Render ================= */
+function getFilters(){
+  return {
+    q: norm(document.getElementById("q")?.value),
+    stockState: document.getElementById("stockState")?.value || "all",
+    minQty: nInt(document.getElementById("minQty")?.value),
+    sortBy: document.getElementById("sortBy")?.value || "name_asc",
+    defaultMin: nInt(document.getElementById("defaultMin")?.value || 0),
+  };
+}
+
+function applyFilters(){
+  const f = getFilters();
+  let arr = Array.isArray(RAW) ? [...RAW] : [];
+
+  // search
+  if(f.q){
+    arr = arr.filter(r=>{
+      const hay = [r.sku, r.name].map(norm).join(" ");
+      return hay.includes(f.q);
+    });
+  }
+
+  // min qty
+  if(f.minQty > 0){
+    arr = arr.filter(r=> nInt(r.qty) >= f.minQty);
+  }
+
+  // state
+  if(f.stockState !== "all"){
+    arr = arr.filter(r=> computeState(r, f.defaultMin) === f.stockState);
+  }
+
+  // sort
+  const byName = (a,b)=> norm(a.name).localeCompare(norm(b.name));
+  const byQty  = (a,b)=> nInt(a.qty) - nInt(b.qty);
+
+  switch(f.sortBy){
+    case "name_desc": arr.sort((a,b)=> -byName(a,b)); break;
+    case "qty_asc":   arr.sort(byQty); break;
+    case "qty_desc":  arr.sort((a,b)=> -byQty(a,b)); break;
+    default:          arr.sort(byName);
+  }
+
+  VIEW = arr;
+}
+
+function escapeHtml(str){
+  return String(str || "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function render(){
+  const tbody = document.getElementById("invBody");
+  const empty = document.getElementById("emptyBox");
+  if(!tbody) return;
+
+  tbody.innerHTML = "";
+  const list = Array.isArray(VIEW) ? VIEW : [];
+
+  const f = getFilters();
+  const count = list.length;
+  const sumQty = list.reduce((s,r)=> s + nInt(r.qty), 0);
+
+  document.getElementById("countTxt").textContent = String(count);
+  document.getElementById("sumQtyTxt").textContent = String(sumQty);
+
+  if(!count){
+    if(empty) empty.style.display = "block";
+    return;
+  }else{
+    if(empty) empty.style.display = "none";
+  }
+
+  list.forEach((r, idx)=>{
+    const state = computeState(r, f.defaultMin);
+    const tag = stateTag(state);
+    const minShow = (r.min === null || typeof r.min === "undefined") ? (f.defaultMin ? `(${f.defaultMin})` : "—") : String(nInt(r.min));
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-label="#" class="center" style="font-weight:1000">${idx+1}</td>
+
+      <td data-label="SKU" class="center">
+        <div style="font-weight:1000;direction:ltr;unicode-bidi:embed">${escapeHtml(r.sku || "—")}</div>
+      </td>
+
+      <td data-label="اسم المنتج" class="left">
+        <div style="font-weight:1000">${escapeHtml(r.name || "—")}</div>
+        ${r.note ? `<div class="small">${escapeHtml(r.note)}</div>` : `<div class="small">—</div>`}
+      </td>
+
+      <td data-label="الكمية" class="center">
+        <span class="tag">${nInt(r.qty)}</span>
+      </td>
+
+      <td data-label="Min" class="center">
+        <span class="tag">${escapeHtml(minShow)}</span>
+      </td>
+
+      <td data-label="الحالة" class="center">
+        <span class="tag ${tag.cls}">${tag.txt}</span>
+      </td>
+
+      <td data-label="إجراءات" class="center">
+        <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+          <button class="btn secondary" type="button" data-act="edit" data-sku="${escapeHtml(r.sku)}">✏️ تعديل</button>
+          <button class="btn danger" type="button" data-act="remove" data-sku="${escapeHtml(r.sku)}">🗑 حذف</button>
+        </div>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function applyFiltersAndRender(){
+  applyFilters();
+  render();
+}
+
+/* ================= Import / Export ================= */
+function openModal(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = "flex";
+  el.setAttribute("aria-hidden","false");
+}
+function closeModal(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.style.display = "none";
+  el.setAttribute("aria-hidden","true");
+}
+
+function importInventory(){
+  const ta = document.getElementById("importTa");
+  const raw = String(ta?.value || "").trim();
+  if(!raw){ showToast("الصق بيانات للاستيراد أولاً"); return; }
+
+  let list = [];
+  try{
+    if(raw.startsWith("[") || raw.startsWith("{")){
+      const j = JSON.parse(raw);
+      if(Array.isArray(j)) list = j;
+      else if(j && typeof j === "object"){
+        if(Array.isArray(j.data)) list = j.data;
+        else if(Array.isArray(j.items)) list = j.items;
+        else list = [j];
+      }
+    }else{
+      list = parseCSV(raw);
+    }
+  }catch(e){
+    showToast("❌ صيغة غير صحيحة.\nجرّب JSON Array أو CSV.");
+    return;
+  }
+
+  const normed = list.map(normalizeRow).filter(x=>x.sku || x.name);
+  if(!normed.length){
+    showToast("⚠️ لم يتم العثور على بيانات صالحة للاستيراد.");
+    return;
+  }
+
+  // de-dup by sku (keep last)
+  const map = new Map();
+  normed.forEach(r=>{
+    const key = norm(r.sku) || ("_name_"+norm(r.name));
+    map.set(key, r);
+  });
+  const finalList = Array.from(map.values());
+
+  RAW = finalList;
+  saveLocal(finalList);
+  saveCache(finalList);
+  setLastSync(Date.now());
+  applyFiltersAndRender();
+  showToast("✅ تم استيراد المخزون");
+  closeModal("importModal");
+}
+
+function clearLocal(){
+  localStorage.removeItem(LOCAL_KEY);
+  RAW = [];
+  VIEW = [];
+  applyFiltersAndRender();
+  showToast("✅ تم مسح المخزون المحلي");
+}
+
+function exportCSV(){
+  const f = getFilters();
+  const rows = (Array.isArray(VIEW)?VIEW:[]).map(r=>{
+    const state = computeState(r, f.defaultMin);
+    return {
+      sku: r.sku || "",
+      name: r.name || "",
+      qty: nInt(r.qty),
+      min: (r.min===null || typeof r.min==="undefined") ? "" : nInt(r.min),
+      status: r.status || state,
+      note: r.note || ""
+    };
+  });
+
+  const header = ["sku","name","qty","min","status","note"];
+  const csv = [
+    header.join(","),
+    ...rows.map(o => header.map(k => {
+      const v = String(o[k] ?? "");
+      // escape quotes + commas
+      if(/[",\n]/.test(v)) return `"${v.replace(/"/g,'""')}"`;
+      return v;
+    }).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "inventory_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("✅ تم تصدير CSV");
+}
+
+/* ================= Edit (local) ================= */
+function findBySku(sku){
+  const s = norm(sku);
+  return RAW.find(r=> norm(r.sku) === s) || null;
+}
+
+function openEdit(sku){
+  const row = findBySku(sku);
+  if(!row){ showToast("لم يتم العثور على المنتج"); return; }
+  EDITING_SKU = row.sku;
+
+  document.getElementById("editSku").value = row.sku || "";
+  document.getElementById("editName").value = row.name || "";
+  document.getElementById("editQty").value = String(nInt(row.qty));
+  document.getElementById("editMin").value = (row.min===null || typeof row.min==="undefined") ? "" : String(nInt(row.min));
+  document.getElementById("editStatus").value = (row.status || "").trim();
+  document.getElementById("editNote").value = row.note || "";
+
+  openModal("editModal");
+}
+
+function saveEdit(){
+  if(!EDITING_SKU) return;
+
+  const sku = EDITING_SKU;
+  const row = findBySku(sku);
+  if(!row){ showToast("لم يتم العثور على المنتج"); return; }
+
+  row.qty = Math.max(0, nInt(document.getElementById("editQty").value));
+  const minRaw = document.getElementById("editMin").value;
+  row.min = (String(minRaw).trim()==="") ? null : Math.max(0, nInt(minRaw));
+  row.status = String(document.getElementById("editStatus").value || "").trim();
+  row.note = String(document.getElementById("editNote").value || "").trim();
+
+  saveLocal(RAW);
+  saveCache(RAW);
+  setLastSync(Date.now());
+  applyFiltersAndRender();
+  closeModal("editModal");
+  showToast("✅ تم حفظ التعديل");
+}
+
+function removeRow(sku){
+  const s = norm(sku);
+  const before = RAW.length;
+  RAW = RAW.filter(r=> norm(r.sku) !== s);
+  if(RAW.length === before){
+    showToast("لم يتم العثور على SKU للحذف");
+    return;
+  }
+  saveLocal(RAW);
+  saveCache(RAW);
+  setLastSync(Date.now());
+  applyFiltersAndRender();
+  showToast("✅ تم الحذف");
+}
+
+/* ================= UI events ================= */
+document.getElementById("refreshBtn")?.addEventListener("click", ()=> loadInventorySmart(true));
+document.getElementById("clearFiltersBtn")?.addEventListener("click", ()=>{
+  document.getElementById("q").value = "";
+  document.getElementById("stockState").value = "all";
+  document.getElementById("minQty").value = "";
+  document.getElementById("sortBy").value = "name_asc";
+  applyFiltersAndRender();
+  showToast("✅ تم مسح الفلاتر");
+});
+
+["q","stockState","minQty","sortBy","defaultMin"].forEach(id=>{
+  document.getElementById(id)?.addEventListener("input", applyFiltersAndRender);
+  document.getElementById(id)?.addEventListener("change", applyFiltersAndRender);
+});
+
+document.getElementById("exportBtn")?.addEventListener("click", exportCSV);
+
+/* Import modal bind */
+document.getElementById("openImportBtn")?.addEventListener("click", ()=> openModal("importModal"));
+document.getElementById("closeImportBtn")?.addEventListener("click", ()=> closeModal("importModal"));
+document.getElementById("importModal")?.addEventListener("click", (e)=>{
+  if(e.target === document.getElementById("importModal")) closeModal("importModal");
+});
+document.getElementById("importBtn")?.addEventListener("click", importInventory);
+document.getElementById("clearImportBtn")?.addEventListener("click", ()=>{ document.getElementById("importTa").value=""; });
+document.getElementById("clearLocalBtn")?.addEventListener("click", clearLocal);
+
+/* Edit modal bind */
+document.getElementById("closeEditBtn")?.addEventListener("click", ()=> closeModal("editModal"));
+document.getElementById("cancelEditBtn")?.addEventListener("click", ()=> closeModal("editModal"));
+document.getElementById("editModal")?.addEventListener("click", (e)=>{
+  if(e.target === document.getElementById("editModal")) closeModal("editModal");
+});
+document.getElementById("saveEditBtn")?.addEventListener("click", saveEdit);
+
+/* table actions */
+document.getElementById("invBody")?.addEventListener("click", (e)=>{
+  const btn = e.target.closest("button[data-act]");
+  if(!btn) return;
+  const act = btn.getAttribute("data-act");
+  const sku = btn.getAttribute("data-sku") || "";
+  if(act === "edit") openEdit(sku);
+  if(act === "remove"){
+    if(confirm("تأكيد حذف هذا الصنف من المخزون المحلي؟")){
+      removeRow(sku);
+    }
+  }
+});
+
+/* ================= BOOT ================= */
+loadInventorySmart(false);
+</script>
+</body>
+</html>
