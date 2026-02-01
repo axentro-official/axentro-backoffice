@@ -132,19 +132,6 @@
       font-size:20px;
     }
 
-    .tag{
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.92);
-      font-size:12px;
-      font-weight:1000;
-      color:#334155;
-      margin-inline-start:8px;
-    }
-    .soon{opacity:.75}
-    .soon .tag{border-style:dashed}
-
     @media (max-width:720px){
       .top{flex-direction:column;align-items:stretch}
       .actions{justify-content:stretch}
@@ -166,31 +153,6 @@
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
-
-    /* Toast (بديل ألطف من alert) */
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,.92);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 900;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease;
-      z-index: 9999;
-      max-width: min(520px, 92vw);
-      text-align:center;
-    }
-    .toast.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
   </style>
 </head>
 
@@ -226,7 +188,7 @@
         </a>
       </div>
 
-      <!-- ✅ فاتورة مشتريات (NEW) -->
+      <!-- ✅ فاتورة مشتريات -->
       <div class="card">
         <a href="Purchase-invoice.html" aria-label="فاتورة مشتريات">
           <div>
@@ -237,7 +199,7 @@
         </a>
       </div>
 
-      <!-- ✅ عرض سعر منفصل -->
+      <!-- ✅ عرض سعر -->
       <div class="card">
         <a href="quotation.html" aria-label="عرض سعر">
           <div>
@@ -248,61 +210,66 @@
         </a>
       </div>
 
-      <!-- ✅ صفحات لاحقًا -->
-      <div class="card soon">
-        <a href="sales.html" data-soon="1" aria-label="سجل المبيعات">
+      <!-- ✅ سجل المبيعات (الاسم الجديد) -->
+      <div class="card">
+        <a href="sales-log.html" aria-label="سجل المبيعات">
           <div>
-            <div class="c1">سجل المبيعات <span class="tag">قريبًا</span></div>
+            <div class="c1">سجل المبيعات</div>
             <div class="c2">كل فواتير البيع + فلترة</div>
           </div>
           <div class="ico">📒</div>
         </a>
       </div>
 
-      <div class="card soon">
-        <a href="purchases.html" data-soon="1" aria-label="سجل المشتريات">
+      <!-- ✅ سجل المشتريات (الاسم الجديد) -->
+      <div class="card">
+        <a href="purchases-log.html" aria-label="سجل المشتريات">
           <div>
-            <div class="c1">سجل المشتريات <span class="tag">قريبًا</span></div>
+            <div class="c1">سجل المشتريات</div>
             <div class="c2">كل فواتير الشراء + فلترة</div>
           </div>
           <div class="ico">📦</div>
         </a>
       </div>
 
-      <div class="card soon">
-        <a href="inventory.html" data-soon="1" aria-label="المخزن">
+      <!-- ✅ المخزن -->
+      <div class="card">
+        <a href="inventory.html" aria-label="المخزن">
           <div>
-            <div class="c1">المخزن <span class="tag">قريبًا</span></div>
+            <div class="c1">المخزن</div>
             <div class="c2">الأصناف + أرصدة + حركات</div>
           </div>
           <div class="ico">🏬</div>
         </a>
       </div>
 
-      <div class="card soon">
-        <a href="expenses.html" data-soon="1" aria-label="المصروفات">
+      <!-- ✅ المصروفات -->
+      <div class="card">
+        <a href="expenses.html" aria-label="المصروفات">
           <div>
-            <div class="c1">المصروفات <span class="tag">قريبًا</span></div>
+            <div class="c1">المصروفات</div>
             <div class="c2">مرتبات / إيجار / نثريات…</div>
           </div>
           <div class="ico">💸</div>
         </a>
       </div>
 
-      <div class="card soon">
-        <a href="reports.html" data-soon="1" aria-label="التقارير">
+      <!-- ✅ التقارير -->
+      <div class="card">
+        <a href="reports.html" aria-label="التقارير">
           <div>
-            <div class="c1">التقارير <span class="tag">قريبًا</span></div>
+            <div class="c1">التقارير</div>
             <div class="c2">فلترة يوم/شهر/سنة</div>
           </div>
           <div class="ico">📊</div>
         </a>
       </div>
 
-      <div class="card soon">
-        <a href="profits.html" data-soon="1" aria-label="الأرباح">
+      <!-- ✅ الأرباح -->
+      <div class="card">
+        <a href="profits.html" aria-label="الأرباح">
           <div>
-            <div class="c1">الأرباح (FIFO) <span class="tag">قريبًا</span></div>
+            <div class="c1">الأرباح (FIFO)</div>
             <div class="c2">حسب فواتير البيع/الشراء الحقيقية</div>
           </div>
           <div class="ico">💰</div>
@@ -315,8 +282,6 @@
     <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
     <div class="line2">By Ahmed Hamouda</div>
   </footer>
-
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
   // ✅ Session Key موحّد لكل صفحات الإدارة
@@ -331,24 +296,6 @@
   document.getElementById("logoutBtn").addEventListener("click", ()=>{
     sessionStorage.removeItem(OK_KEY);
     location.replace("login.html");
-  });
-
-  // Toast ألطف من alert
-  const toast = document.getElementById("toast");
-  let toastTimer = null;
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
-  }
-
-  // ✅ أي لينك عليه data-soon يمنع التنقل ويعرض رسالة
-  document.addEventListener("click", (e)=>{
-    const a = e.target.closest("a[data-soon='1']");
-    if(!a) return;
-    e.preventDefault();
-    showToast("قريبًا 👌");
   });
 </script>
 </body>
