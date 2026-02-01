@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>تسجيل دخول الإدارة — Axentro</title>
+
+  <style>
+    :root{
+      --bg:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --stroke:#e6e8ee;
+      --shadow:0 18px 50px rgba(15,23,42,.10);
+      --radius:18px;
+
+      --gold1:#D4AF37;
+      --gold2:#B8860B;
+      --goldSoft: rgba(212,175,55,.18);
+      --goldSoft2: rgba(184,134,11,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 480px at 10% 10%, var(--goldSoft), transparent 60%),
+        radial-gradient(760px 520px at 90% 20%, rgba(15,23,42,.05), transparent 60%),
+        linear-gradient(180deg, var(--bg), #f7f8fb);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .wrap{width:min(980px, 92vw); margin:0 auto; padding:18px; flex:1; display:grid; place-items:center;}
+    .card{
+      width:min(520px, 100%);
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .logo{
+      width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
+      border:1px solid rgba(212,175,55,.35);
+      box-shadow: 0 10px 26px rgba(15,23,42,.10);
+      overflow:hidden; padding:7px; flex:0 0 auto;
+    }
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    .t1{font-weight:1000;font-size:18px}
+    .t2{font-weight:900;color:var(--muted);font-size:12px;margin-top:2px}
+
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
+    input{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.95);
+      outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      font-size:14px;
+    }
+    @media (max-width:720px){ input{font-size:16px;} } /* iOS zoom fix */
+    input:focus{
+      border-color: rgba(212,175,55,.65);
+      box-shadow:0 10px 22px rgba(212,175,55,.14);
+    }
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{
+      flex:1;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.55);
+      background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
+      color:#0f172a;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 12px 22px rgba(212,175,55,.14);
+      touch-action: manipulation;
+    }
+    button:active{transform:translateY(1px)}
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      line-height:1.7;
+    }
+
+    .err{
+      margin-top:10px;
+      display:none;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(220,38,38,.16);
+      background:rgba(220,38,38,.06);
+      color:#991b1b;
+      font-weight:1000;
+      line-height:1.7;
+    }
+
+    .site-footer{
+      margin-top:auto;
+      padding:16px 16px 22px;
+      text-align:center;
+      color:var(--muted);
+      border-top:1px solid var(--stroke);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(10px);
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+    }
+    .site-footer .line1{ font-weight:1000; color:#0f172a; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
+    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <section class="card" aria-label="تسجيل دخول الإدارة">
+      <div class="head">
+        <div class="logo">
+          <img src="images/bslogo.webp" alt="BS Logo" onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='BS'">
+        </div>
+        <div>
+          <div class="t1">B.S Medical &amp; Aesthetic</div>
+          <div class="t2">تسجيل دخول الإدارة — Axentro Backoffice</div>
+        </div>
+      </div>
+
+      <label for="pass">رمز الدخول</label>
+      <input id="pass" type="password" placeholder="••••••••" aria-label="رمز الدخول" />
+
+      <div class="row">
+        <button id="loginBtn" type="button">دخول</button>
+      </div>
+
+      <div id="err" class="err" role="status"></div>
+
+      <div class="hint">
+        ⚠️ تنبيه: هذه الصفحة للإدارة فقط وليست للعملاء.
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+    <div class="line2">By Ahmed Hamouda</div>
+  </footer>
+
+<script>
+  /* ===== CONFIG ===== */
+  const ADMIN_PASSWORD = "1407";
+  const OK_KEY = "BS_BACKOFFICE_OK";
+
+  /* lock like your admin page (اختياري بسيط) */
+  const FAILS_KEY = "BS_BO_FAILS";
+  const LOCK_UNTIL_KEY = "BS_BO_LOCK_UNTIL";
+  const MAX_FAILS = 5;
+  const LOCK_MINUTES = 10;
+
+  function nowMs(){ return Date.now(); }
+  function isLocked(){
+    const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
+    return until && nowMs() < until;
+  }
+  function lockRemainingText(){
+    const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
+    const diff = Math.max(0, until - nowMs());
+    const mins = Math.ceil(diff / 60000);
+    return `تم قفل الدخول مؤقتًا. حاول بعد ${mins} دقيقة.`;
+  }
+  function incFail(){
+    const n = Number(localStorage.getItem(FAILS_KEY) || 0) + 1;
+    localStorage.setItem(FAILS_KEY, String(n));
+    if(n >= MAX_FAILS){
+      localStorage.setItem(LOCK_UNTIL_KEY, String(nowMs() + LOCK_MINUTES*60000));
+    }
+    return n;
+  }
+  function resetFails(){
+    localStorage.removeItem(FAILS_KEY);
+    localStorage.removeItem(LOCK_UNTIL_KEY);
+  }
+
+  const passEl = document.getElementById("pass");
+  const btn = document.getElementById("loginBtn");
+  const err = document.getElementById("err");
+
+  function showErr(msg){
+    err.textContent = msg;
+    err.style.display = "block";
+  }
+  function clearErr(){
+    err.textContent = "";
+    err.style.display = "none";
+  }
+
+  function doLogin(){
+    clearErr();
+    if(isLocked()){
+      showErr(lockRemainingText());
+      return;
+    }
+    const v = String(passEl.value || "");
+    if(v === ADMIN_PASSWORD){
+      resetFails();
+      sessionStorage.setItem(OK_KEY, "1");
+      location.href = "dashboard.html";
+    }else{
+      const tries = incFail();
+      if(isLocked()) showErr(lockRemainingText());
+      else showErr(`رمز الدخول غير صحيح. المتبقي قبل القفل: ${Math.max(0, MAX_FAILS - tries)}`);
+    }
+  }
+
+  btn.addEventListener("click", doLogin);
+  passEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doLogin(); });
+
+  // لو مسجل قبل كده، ودّيه للداش
+  if(sessionStorage.getItem(OK_KEY) === "1"){
+    location.replace("dashboard.html");
+  }else{
+    try{ passEl.focus(); }catch(e){}
+  }
+</script>
+</body>
+</html>
