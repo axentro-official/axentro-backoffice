@@ -293,6 +293,21 @@
     </div>
   </div>
 
+  <!-- ✅ Import Copy/Paste -->
+  <div class="card" id="importCard">
+    <h2>استيراد فاتورة مشتريات (Copy/Paste)</h2>
+    <textarea id="purchaseImport" rows="7" placeholder="الصق أي نص هنا (واتساب / فاتورة / إيميل / PDF منسوخ)...&#10;&#10;أمثلة صيغ مدعومة:&#10;Supplier: ABC Pharma | Ref: INV-8891&#10;SKU123 | Product Name | Qty 5 | Price 120 | Disc 10&#10;Product X × 3 @ 95&#10;Product Y - 2 - 140"></textarea>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn" id="importPurchaseBtn" type="button">📥 استيراد إلى الجدول</button>
+      <button class="btn secondary" id="clearPurchaseImportBtn" type="button">مسح</button>
+    </div>
+
+    <div style="margin-top:10px;color:#64748b;font-weight:1000;line-height:1.8">
+      سيحاول النظام استخراج: اسم المورد / الهاتف / العنوان / مرجع المورد + الأصناف (SKU/اسم/كمية/سعر/خصم) من أي صياغة تقريبًا.
+    </div>
+  </div>
+
   <div class="card">
     <h2>بيانات الفاتورة</h2>
 
@@ -420,7 +435,7 @@ function showToast(msg){
   toast.textContent = msg;
   toast.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
 }
 
 /* ================= CONFIG ================= */
@@ -467,6 +482,7 @@ function initInvoice(keepDraft=false){
     document.getElementById("globalDiscount").value = "";
     document.getElementById("shippingFee").value = "";
     document.getElementById("invoiceNote").value = "";
+    document.getElementById("purchaseImport").value = "";
 
     document.querySelector("#itemsTable tbody").innerHTML = "";
     ROW_ID = 0;
@@ -567,7 +583,6 @@ function resolveImageBySku(sku){
   return `images/${s}.webp`;
 }
 function resolvePurchasePriceFromProduct(p){
-  // لو الـ API فيه cost_price أو purchase_price هنستخدمه
   const candidates = [p?.cost_price, p?.purchase_price, p?.buy_price, p?.cost];
   for(const c of candidates){
     const n = Number(c);
@@ -648,7 +663,6 @@ itemsTbody.addEventListener("input", (ev)=>{
       const autoCost = resolvePurchasePriceFromProduct(p);
       if(autoCost > 0){
         const priceEl = tr.querySelector('[data-field="price"]');
-        // لو السعر لسه صفر، عبّيه تلقائي
         if(money(priceEl.value) <= 0) priceEl.value = String(autoCost);
       }
     }
@@ -1206,7 +1220,6 @@ function loadDraft(){
 function applyDraft(d){
   if(!d) return false;
 
-  // اترك invNo/date/time تتولد من جديد لو مش موجودة
   if(d.invNo) document.getElementById("invNo").value = d.invNo;
   if(d.invDate) document.getElementById("invDate").value = d.invDate;
   if(d.invTime) document.getElementById("invTime").value = d.invTime;
@@ -1249,6 +1262,340 @@ function clearDraft(){
   localStorage.removeItem(DRAFT_KEY);
 }
 
+/* ================= SUPER IMPORT (Copy/Paste) ================= */
+
+// Normalize + smart helpers
+function normalizeDigitsAndText(s){
+  return String(s||"")
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[٫]/g,".")
+    .replace(/[،]/g,",")
+    .replace(/\t/g," ")
+    .replace(/\u00A0/g," ")
+    .trim();
+}
+
+function stripCurrency(s){
+  return String(s||"")
+    .replace(/\b(egp|جنيه|ج|ج\.م|le|l\.e|£)\b/ig," ")
+    .replace(/\s{2,}/g," ")
+    .trim();
+}
+
+function extractPhoneAny(t){
+  const m = String(t||"").match(/(\+?2?01[0-9][0-9]\s?[-]?\s?[0-9]{3,4}\s?[-]?\s?[0-9]{3,4})/);
+  return m ? m[1].replace(/\s+/g," ").trim() : "";
+}
+
+function extractSupplierMetaSmart(fullText){
+  const t = normalizeDigitsAndText(fullText);
+
+  let supplierName = "";
+  let refNo = "";
+  let supplierAddress = "";
+  const supplierPhone = extractPhoneAny(t);
+
+  // Name patterns
+  let m = t.match(/(?:المورد|اسم\s*المورد|Supplier|Vendor|Company|الشركة)\s*[:：\-]\s*(.+)/i);
+  if(m && m[1]) supplierName = m[1].split(/\n/)[0].trim();
+
+  // Ref patterns
+  m = t.match(/(?:مرجع|Ref|Reference|Invoice\s*No|Inv\s*No|Bill\s*No|No\.?)\s*[:：#\-]\s*([A-Za-z0-9\-_/]{3,})/i);
+  if(m && m[1]) refNo = m[1].trim();
+
+  // Address patterns
+  m = t.match(/(?:العنوان|Address)\s*[:：\-]\s*(.+)/i);
+  if(m && m[1]) supplierAddress = m[1].split(/\n/)[0].trim();
+
+  // Fallback: first meaningful line as supplier if missing
+  if(!supplierName){
+    const lines = t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    const first = lines.find(l =>
+      l.length >= 3 &&
+      l.length <= 80 &&
+      !/(qty|quantity|price|cost|amount|total|subtotal|grand|الكمية|السعر|الإجمالي|اجمالي)/i.test(l) &&
+      !/^\d+(\.\d+)?$/.test(l)
+    );
+    if(first) supplierName = first;
+  }
+
+  return { supplierName, supplierPhone, supplierAddress, refNo };
+}
+
+function parseNumbersInLine(line){
+  // returns all numbers as floats from a line
+  const t = stripCurrency(normalizeDigitsAndText(line));
+  const nums = t.match(/-?\d+(?:\.\d+)?/g) || [];
+  return nums.map(n=>Number(n)).filter(n=>isFinite(n));
+}
+
+function guessSku(line){
+  const t = normalizeDigitsAndText(line);
+  const m = t.match(/\b([A-Z]{2,}\d{1,}[A-Z0-9_-]*)\b/i);
+  return m ? m[1].toUpperCase() : "";
+}
+
+function cleanNameFromLine(line, sku){
+  let t = normalizeDigitsAndText(line);
+  if(sku) t = t.replace(new RegExp("\\b"+sku+"\\b","ig")," ");
+  t = t.replace(/(?:qty|quantity|الكمية|price|cost|amount|disc|discount|خصم|سعر|سعر\s*الشراء)\s*[:：]?\s*[-]?\d+(?:\.\d+)?/ig," ");
+  t = t.replace(/[@]\s*[-]?\d+(?:\.\d+)?/g," ");
+  t = stripCurrency(t);
+  t = t.replace(/[|]/g," ").replace(/[-]{2,}/g," ");
+  t = t.replace(/\s{2,}/g," ").trim();
+  // remove pure separators
+  return t;
+}
+
+function lineLooksLikeTotal(line){
+  return /(subtotal|grand\s*total|total\s*amount|total|الإجمالي|اجمالي|المجموع)/i.test(line);
+}
+
+function parseItemLineUltra(line){
+  const raw = normalizeDigitsAndText(line);
+  if(!raw) return null;
+
+  // skip meta lines
+  if(/^(المورد|اسم\s*المورد|Supplier|Vendor|Company|الشركة|العنوان|Address|Ref|مرجع|Invoice|Bill)/i.test(raw)) return null;
+  if(lineLooksLikeTotal(raw)) return null;
+
+  // If it is just a header row
+  if(/(item|description|qty|quantity|price|amount|sku|المنتج|الكمية|السعر|القيمة)/i.test(raw) && raw.length < 80){
+    // still might be item, but usually header; ignore
+    return null;
+  }
+
+  // Try pipe table format: SKU | NAME | QTY | PRICE | DISC
+  const parts = raw.split("|").map(s=>s.trim()).filter(Boolean);
+  let sku = "";
+  let name = "";
+  let qty = 0;
+  let price = 0;
+  let disc = 0;
+
+  if(parts.length >= 2){
+    const p0 = parts[0];
+    const p1 = parts[1];
+
+    sku = guessSku(p0) || guessSku(raw);
+    name = p1;
+
+    const allNums = parts.flatMap(p => parseNumbersInLine(p));
+    // heuristic: qty usually small int
+    // price medium, disc maybe last
+    if(allNums.length){
+      const ints = allNums.filter(n => Number.isInteger(n) && n > 0 && n <= 9999);
+      qty = ints.length ? ints[0] : 0;
+
+      // choose price as next number after qty, else largest
+      if(qty){
+        const idx = allNums.findIndex(n=>n===qty);
+        if(idx>=0 && allNums[idx+1]!=null) price = Number(allNums[idx+1]);
+      }
+      if(!price) price = Math.max(...allNums.filter(n=>n>=0));
+      // disc guess: smallest positive that isn't qty and isn't price (or last)
+      const candDisc = allNums.filter(n => n>=0 && n!==qty && n!==price);
+      disc = candDisc.length ? candDisc[candDisc.length-1] : 0;
+    }
+  }else{
+    // Other formats
+    sku = guessSku(raw);
+    // qty formats
+    let m = raw.match(/(?:qty|quantity|الكمية)\s*[:：]?\s*(\d{1,6})/i);
+    if(m) qty = Number(m[1]);
+    if(!qty){
+      m = raw.match(/(\d{1,6})\s*(?:x|×)\s*/i);
+      if(m) qty = Number(m[1]);
+    }
+
+    // price formats
+    m = raw.match(/(?:price|cost|سعر|سعر\s*الشراء)\s*[:：]?\s*([-]?\d+(?:\.\d+)?)/i);
+    if(m) price = Number(m[1]);
+    if(!price){
+      m = raw.match(/[@]\s*([-]?\d+(?:\.\d+)?)/);
+      if(m) price = Number(m[1]);
+    }
+    if(!price){
+      m = raw.match(/([-]?\d+(?:\.\d+)?)\s*(?:جنيه|egp|le|l\.e|£)/i);
+      if(m) price = Number(m[1]);
+    }
+
+    // discount formats
+    m = raw.match(/(?:disc|discount|خصم)\s*[:：]?\s*([-]?\d+(?:\.\d+)?)/i);
+    if(m) disc = Number(m[1]);
+
+    name = cleanNameFromLine(raw, sku);
+  }
+
+  // If still no name, try from catalog by sku
+  if(!name && sku){
+    const p = findBySku(sku);
+    if(p) name = String(p.name||"").trim();
+    else name = sku;
+  }
+
+  // fallback: pull first text chunk before numbers
+  if(!name){
+    const tmp = raw.split(/[-\d]/)[0].trim();
+    if(tmp && tmp.length >= 2) name = tmp;
+  }
+
+  if(!sku && name){
+    const p2 = findByName(name);
+    if(p2) sku = String(p2.id||"").trim();
+  }
+
+  if(!qty || qty < 1) qty = 1;
+  if(!isFinite(price)) price = 0;
+  if(!isFinite(disc)) disc = 0;
+
+  // discard lines that are too short and have no meaningful text
+  if(!sku && (!name || name.length < 2)) return null;
+
+  // clamp
+  if(price < 0) price = 0;
+  if(disc < 0) disc = 0;
+
+  return { sku, name, qty, price, disc };
+}
+
+function splitTextIntoCandidateLines(text){
+  const t = normalizeDigitsAndText(text);
+  let lines = t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+
+  // If single line huge, split by separators
+  if(lines.length <= 1 && t.length > 120){
+    lines = t.split(/[;]+/).map(x=>x.trim()).filter(Boolean);
+  }
+
+  // Also split lines containing many items separated by comma
+  const expanded = [];
+  for(const l of lines){
+    if((l.match(/,/g)||[]).length >= 2 && l.length > 60){
+      l.split(/,/).map(x=>x.trim()).filter(Boolean).forEach(x=>expanded.push(x));
+    }else{
+      expanded.push(l);
+    }
+  }
+
+  return expanded;
+}
+
+function mergeDuplicateItems(items){
+  const map = new Map();
+  for(const it of items){
+    const key = (String(it.sku||"").trim().toLowerCase() + "|" + String(it.name||"").trim().toLowerCase()).trim();
+    if(!key || key === "|") continue;
+
+    if(!map.has(key)){
+      map.set(key, { ...it });
+    }else{
+      const cur = map.get(key);
+      cur.qty = money(cur.qty) + money(it.qty);
+      // if current price is 0 and new has price, take it
+      if(money(cur.price) <= 0 && money(it.price) > 0) cur.price = money(it.price);
+      // sum discounts
+      cur.disc = money(cur.disc) + money(it.disc);
+      map.set(key, cur);
+    }
+  }
+  return Array.from(map.values());
+}
+
+function importPurchaseFromText(){
+  const ta = document.getElementById("purchaseImport");
+  const raw = String(ta?.value || "").trim();
+  if(!raw){ showToast("الصق النص أولاً."); return; }
+
+  const meta = extractSupplierMetaSmart(raw);
+
+  if(meta.refNo) document.getElementById("refNo").value = meta.refNo;
+  if(meta.supplierName) document.getElementById("supplierName").value = meta.supplierName;
+  if(meta.supplierPhone) document.getElementById("supplierPhone").value = meta.supplierPhone;
+  if(meta.supplierAddress) document.getElementById("supplierAddress").value = meta.supplierAddress;
+
+  const lines = splitTextIntoCandidateLines(raw);
+
+  // Parse candidates
+  let items = [];
+  for(const line of lines){
+    const it = parseItemLineUltra(line);
+    if(it) items.push(it);
+  }
+
+  // If weak result, try an additional pass: split by " - " or " | " if line is long
+  if(items.length < 2){
+    const more = [];
+    for(const l of lines){
+      if(l.length > 70 && (l.includes(" - ") || l.includes(" | "))){
+        l.split(/(?:\s-\s|\s\|\s)/).map(x=>x.trim()).filter(Boolean).forEach(x=>more.push(x));
+      }
+    }
+    for(const x of more){
+      const it = parseItemLineUltra(x);
+      if(it) items.push(it);
+    }
+  }
+
+  items = mergeDuplicateItems(items);
+
+  // If still no items, just save meta + toast
+  if(!items.length){
+    calcGrand();
+    scheduleDraftSave();
+    showToast("✅ تم ملء بيانات المورد\nلكن لم يتم استخراج أصناف بشكل واضح.");
+    return;
+  }
+
+  // Build table from items
+  const tbody = document.querySelector("#itemsTable tbody");
+  tbody.innerHTML = "";
+  ROW_ID = 0;
+
+  items.forEach(it=>{
+    const tr = addRow(true);
+
+    // sync with catalog if possible
+    let sku = String(it.sku||"").trim();
+    let name = String(it.name||"").trim();
+
+    let p = null;
+    if(sku) p = findBySku(sku);
+    if(!p && name) p = findByName(name);
+
+    if(p){
+      if(!sku) sku = String(p.id||"").trim();
+      if(!name) name = String(p.name||"").trim();
+    }
+
+    tr.querySelector('[data-field="sku"]').value = sku;
+    tr.querySelector('[data-field="name"]').value = name;
+    tr.querySelector('[data-field="qty"]').value = String(Math.max(1, Math.floor(money(it.qty) || 1)));
+
+    const priceEl = tr.querySelector('[data-field="price"]');
+    const discEl  = tr.querySelector('[data-field="discount"]');
+
+    // price: if import price is 0, try auto cost
+    let price = money(it.price);
+    if(price <= 0 && p){
+      const autoCost = resolvePurchasePriceFromProduct(p);
+      if(autoCost > 0) price = autoCost;
+    }
+    priceEl.value = String(Math.max(0, price));
+
+    discEl.value = String(Math.max(0, money(it.disc)));
+
+    syncRowThumb(tr);
+    calcRowByTr(tr);
+  });
+
+  refreshRowNumbers();
+  calcGrand();
+  scheduleDraftSave();
+
+  showToast(`✅ تم الاستيراد بنجاح\nعدد الأصناف: ${items.length}`);
+}
+
 /* ================= BIND ================= */
 document.getElementById('addRowBtn')?.addEventListener('click', ()=>{
   addRow(false);
@@ -1276,10 +1623,17 @@ document.getElementById("resetBtn")?.addEventListener("click", ()=>{
   scheduleDraftSave();
 });
 
+// Import binds
+document.getElementById("importPurchaseBtn")?.addEventListener("click", importPurchaseFromText);
+document.getElementById("clearPurchaseImportBtn")?.addEventListener("click", ()=>{
+  const ta = document.getElementById("purchaseImport");
+  if(ta) ta.value = "";
+  showToast("تم المسح");
+});
+
 /* ================= BOOT ================= */
 initInvoice(true);
 loadProductsSmart();
-addRow(true);
 refreshRowNumbers();
 calcGrand();
 
@@ -1288,6 +1642,14 @@ const draft = loadDraft();
 if(draft){
   const ok = applyDraft(draft);
   if(ok) showToast("✅ تم استرجاع آخر فاتورة محفوظة تلقائيًا");
+}else{
+  // لو مفيش Draft، ضيف صف واحد فقط
+  const tbody = document.querySelector("#itemsTable tbody");
+  if(tbody && tbody.children.length === 0){
+    addRow(true);
+    refreshRowNumbers();
+    calcGrand();
+  }
 }
 </script>
 </body>
