@@ -68,7 +68,7 @@
       box-shadow:0 8px 18px rgba(15,23,42,.06);
       font-size:14px;
     }
-    @media (max-width:720px){ input{font-size:16px;} } /* iOS zoom fix */
+    @media (max-width:720px){ input{font-size:16px;} }
     input:focus{
       border-color: rgba(212,175,55,.65);
       box-shadow:0 10px 22px rgba(212,175,55,.14);
@@ -160,9 +160,9 @@
 <script>
   /* ===== CONFIG ===== */
   const ADMIN_PASSWORD = "1407";
-  const OK_KEY = "BS_BACKOFFICE_OK";
+  const OK_KEY = "AX_BO_OK"; // ✅ موحّد لكل صفحات الإدارة
 
-  /* lock like your admin page (اختياري بسيط) */
+  /* lock (اختياري) */
   const FAILS_KEY = "BS_BO_FAILS";
   const LOCK_UNTIL_KEY = "BS_BO_LOCK_UNTIL";
   const MAX_FAILS = 5;
