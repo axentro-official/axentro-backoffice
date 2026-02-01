@@ -179,7 +179,6 @@
       color:#334155;
     }
 
-    /* ✅ 3 خانات: خصم خاص + توصيل + ملاحظة */
     .extraBox{
       display:grid;
       grid-template-columns:1fr 1fr 1fr;
@@ -189,18 +188,6 @@
     @media (max-width:920px){
       .extraBox{grid-template-columns:1fr;}
     }
-
-    #loginBox{
-      position:fixed; inset:0;
-      background:rgba(2,6,23,.55);
-      display:flex; align-items:center; justify-content:center;
-      z-index:999;
-      padding:14px;
-      backdrop-filter: blur(10px);
-    }
-    #loginBox .card{max-width:520px;width:min(92vw,520px)}
-    .loginTitle{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .loginMainTitle{font-weight:1000;font-size:22px;color: var(--gold);letter-spacing:.2px;}
 
     .site-footer{
       margin-top:auto;
@@ -245,29 +232,7 @@
 </head>
 
 <body>
-<div id="loginBox">
-  <div class="card" role="dialog" aria-modal="true" aria-label="تسجيل دخول الإدارة">
-    <div class="loginTitle">
-      <div class="logo" style="box-shadow:none">
-        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
-      </div>
-      <div>
-        <div class="loginMainTitle">لوحة إدارة الفواتير</div>
-        <div style="font-weight:900;font-size:12px;color:#334155;margin-top:4px">B.S Medical &amp; Aesthetic</div>
-      </div>
-    </div>
-
-    <label for="passInput">رمز الدخول</label>
-    <input type="password" id="passInput" placeholder="••••••••" aria-label="رمز الدخول"/>
-
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
-      <button id="loginBtn" class="btn" style="flex:1">دخول</button>
-      <!-- ✅ تم حذف زر الخروج من شاشة اللوجين -->
-    </div>
-  </div>
-</div>
-
-<div class="wrap" id="app" style="display:none">
+<div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
       <div class="logo">
@@ -275,21 +240,16 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub" id="brandSub">إدارة وإنشاء فواتير</div>
+        <div class="brandSub">إدارة وإنشاء فواتير</div>
       </div>
     </div>
 
-    <!-- ✅ تايمر الجلسة + زر الخروج (داخل الجلسة فقط) -->
+    <!-- ✅ زر رجوع للداش بورد (بدون خروج) -->
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <div id="sessionTimer" style="font-weight:900;color:var(--muted);white-space:nowrap">
-        ⏳ متبقي: --
-      </div>
-      <button class="btn secondary" id="logoutTopBtn" style="white-space:nowrap">
-        🚪 تسجيل خروج
-      </button>
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
     </div>
-
   </div>
+
   <div class="card" id="importCard">
     <h2>استيراد طلب من واتساب</h2>
     <textarea id="waImport" rows="5" placeholder="الصق رسالة الطلب كاملة هنا (كما وصلت من واتساب)..."></textarea>
@@ -393,10 +353,6 @@
       <button class="btn" id="printA4Btn" style="flex:1">🖨️ طباعة A4</button>
       <button class="btn" id="savePdfA4Btn" style="flex:1">📄 حفظ PDF لـ A4</button>
     </div>
-
-    <div style="margin-top:10px;display:none" id="quoteRow">
-      <button class="btn" id="saveQuotePdfBtn" style="width:100%">📄 حفظ PDF (عرض سعر)</button>
-    </div>
   </div>
 </div>
 
@@ -408,8 +364,17 @@
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
 <script>
+/* ================= AUTH GATE ================= */
+function requireAuth(){
+  if(sessionStorage.getItem("BS_ADMIN_OK") !== "1"){
+    location.replace("login.html");
+    return false;
+  }
+  return true;
+}
+if(!requireAuth()) throw new Error("Not authenticated");
+
 /* ================= CONFIG ================= */
-const ADMIN_PASSWORD = "1407";
 const API_URL = "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec";
 const IMG_PLACEHOLDER = "https://via.placeholder.com/600x400?text=No+Image";
 const QR_SRC_MAIN = "qr-links.png";
@@ -421,179 +386,6 @@ const CACHE_TTL_MS   = 10 * 60 * 1000;
 
 let PRODUCTS = [];
 let ROW_ID = 0;
-
-/* ================= MODE ================= */
-function isQuoteMode(){
-  try{ return new URLSearchParams(location.search).get("quote") === "1"; }
-  catch(e){ return false; }
-}
-function applyModeUI(){
-  const quote = isQuoteMode();
-  const pageTitle = document.getElementById("pageTitle");
-  const brandSub  = document.getElementById("brandSub");
-  const importCard = document.getElementById("importCard");
-
-  const thermalRow = document.getElementById("thermalRow");
-  const a4Row = document.getElementById("a4Row");
-  const quoteRow = document.getElementById("quoteRow");
-
-  if(quote){
-    if(pageTitle) pageTitle.textContent = "عرض سعر  B.S";
-    if(brandSub) brandSub.textContent = "إنشاء عرض سعر (Quotation)";
-    if(importCard) importCard.style.display = "none";
-    if(thermalRow) thermalRow.style.display = "none";
-    if(a4Row) a4Row.style.display = "none";
-    if(quoteRow) quoteRow.style.display = "block";
-    try{ document.title = "عرض سعر — B.S Medical & Aesthetic"; }catch(e){}
-  }else{
-    if(pageTitle) pageTitle.textContent = "فاتورة  B.S";
-    if(brandSub) brandSub.textContent = "إدارة وإنشاء فواتير";
-    if(importCard) importCard.style.display = "";
-    if(thermalRow) thermalRow.style.display = "";
-    if(a4Row) a4Row.style.display = "flex";
-    if(quoteRow) quoteRow.style.display = "none";
-    try{ document.title = "لوحة إدارة الفواتير — B.S Medical & Aesthetic"; }catch(e){}
-  }
-}
-  /* ================= HARDEN ADMIN ================= */
-const FAILS_KEY = "BS_ADMIN_FAILS";
-const LOCK_UNTIL_KEY = "BS_ADMIN_LOCK_UNTIL";
-const MAX_FAILS = 5;
-const LOCK_MINUTES = 10;
-const IDLE_MINUTES = 20;
-
-let idleTimer = null;
-/* ✅ تايمر عرضي للجلسة */
-let idleLeftMs = IDLE_MINUTES * 60000;
-let idleTick = null;
-
-function nowMs(){ return Date.now(); }
-function isLocked(){
-  const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
-  return until && nowMs() < until;
-}
-function lockRemainingText(){
-  const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
-  const diff = Math.max(0, until - nowMs());
-  const mins = Math.ceil(diff / 60000);
-  return `تم قفل الدخول مؤقتًا. حاول بعد ${mins} دقيقة.`;
-}
-function incFail(){
-  const n = Number(localStorage.getItem(FAILS_KEY) || 0) + 1;
-  localStorage.setItem(FAILS_KEY, String(n));
-  if(n >= MAX_FAILS){
-    const until = nowMs() + (LOCK_MINUTES * 60000);
-    localStorage.setItem(LOCK_UNTIL_KEY, String(until));
-  }
-  return n;
-}
-function resetFails(){
-  localStorage.removeItem(FAILS_KEY);
-  localStorage.removeItem(LOCK_UNTIL_KEY);
-}
-
-/* ✅ عرض التايمر فوق */
-function renderSessionTimer(){
-  const el = document.getElementById("sessionTimer");
-  if(!el) return;
-
-  if(sessionStorage.getItem("BS_ADMIN_OK") !== "1"){
-    el.textContent = "⏳ متبقي: --";
-    return;
-  }
-
-  const totalSec = Math.max(0, Math.ceil(idleLeftMs / 1000));
-  const mm = String(Math.floor(totalSec / 60)).padStart(2,"0");
-  const ss = String(totalSec % 60).padStart(2,"0");
-  el.textContent = `⏳ متبقي: ${mm}:${ss}`;
-}
-
-function startIdleGuard(){
-  stopIdleGuard();
-
-  idleLeftMs = IDLE_MINUTES * 60000;
-  renderSessionTimer();
-
-  idleTick = setInterval(()=>{
-    idleLeftMs -= 1000;
-    renderSessionTimer();
-    if(idleLeftMs <= 0){
-      clearInterval(idleTick);
-      idleTick = null;
-    }
-  }, 1000);
-
-  const kick = ()=>{ 
-    try{ alert("تم تسجيل الخروج تلقائيًا بسبب عدم النشاط."); }catch(e){} 
-    setLoggedIn(false); 
-  };
-  idleTimer = setTimeout(kick, IDLE_MINUTES * 60000);
-}
-
-function stopIdleGuard(){
-  if(idleTimer){ clearTimeout(idleTimer); idleTimer = null; }
-  if(idleTick){ clearInterval(idleTick); idleTick = null; }
-  idleLeftMs = IDLE_MINUTES * 60000;
-  renderSessionTimer();
-}
-
-function bumpIdle(){
-  if(sessionStorage.getItem("BS_ADMIN_OK") === "1") startIdleGuard();
-}
-
-["click","keydown","mousemove","touchstart","scroll"].forEach(ev=>{
-  window.addEventListener(ev, ()=> bumpIdle(), {passive:true});
-});
-document.addEventListener("visibilitychange", ()=>{
-  if(document.visibilityState === "visible") bumpIdle();
-});
-
-/* ================= LOGIN ================= */
-const loginBox  = document.getElementById('loginBox');
-const loginBtn  = document.getElementById('loginBtn');
-const passInput = document.getElementById('passInput');
-
-function setLoggedIn(isOn){
-  if(isOn){
-    sessionStorage.setItem("BS_ADMIN_OK", "1");
-    loginBox.style.display = "none";
-    document.getElementById("app").style.display = "block";
-    bumpIdle();
-    renderSessionTimer();
-  }else{
-    sessionStorage.removeItem("BS_ADMIN_OK");
-    document.getElementById("app").style.display = "none";
-    loginBox.style.display = "flex";
-    passInput.value = "";
-    stopIdleGuard();
-    try{ passInput.focus(); }catch(e){}
-  }
-}
-
-function checkPass(){
-  if(isLocked()){ alert(lockRemainingText()); return; }
-  const v = String(passInput.value || "");
-  if(v === ADMIN_PASSWORD){
-    resetFails();
-    setLoggedIn(true);
-    applyModeUI();
-    initInvoice();
-    loadProductsSmart();
-  }else{
-    const tries = incFail();
-    if(isLocked()) alert(lockRemainingText());
-    else{
-      const left = Math.max(0, MAX_FAILS - tries);
-      alert(`رمز الدخول غير صحيح\nالمتبقي قبل القفل: ${left}`);
-    }
-  }
-}
-
-loginBtn.addEventListener('click', checkPass);
-passInput.addEventListener('keydown', (e)=> { if(e.key === 'Enter') checkPass(); });
-
-/* ✅ زر الخروج داخل الجلسة */
-document.getElementById('logoutTopBtn')?.addEventListener('click', ()=> setLoggedIn(false));
 
 /* ================= INIT ================= */
 function formatDateEnglish(d){ return d.toLocaleDateString("en-GB").replaceAll("/", "-"); }
@@ -658,7 +450,8 @@ async function loadProductsSmart(){
   if(cacheFresh) setTimeout(doFetch, 400);
   else await doFetch();
 }
-  function buildDataLists(){
+
+function buildDataLists(){
   let dlSku = document.getElementById("skuList");
   if(!dlSku){
     dlSku = document.createElement("datalist");
@@ -852,10 +645,8 @@ function calcGrand(){
   const deliveryFee = Math.max(0, deliveryFeeIn);
 
   const finalTotal = afterAllDiscount + deliveryFee;
-
   const deliveryText = deliveryFee > 0 ? `${deliveryFee.toFixed(2)} جنيه` : "توصيل مجاني";
 
-  /* ✅ إضافة: الإجمالي قبل خدمة التوصيل */
   document.getElementById("totalsBox").innerHTML = `
     <div class="totalLine"><span class="k">الإجمالي قبل الخصم</span><span class="v">${totalBefore.toFixed(2)} جنيه</span></div>
     <div class="totalLine"><span class="k">الخصم</span><span class="v">${rowDiscountSum.toFixed(2)} جنيه</span></div>
@@ -881,14 +672,9 @@ function calcGrand(){
 /* ================= WhatsApp import ================= */
 function extractOrderIdSmart(text){
   const t = String(text || "");
-
-  // 1️⃣ أشكال مباشرة وواضحة
-  let m = t.match(
-    /(?:رقم\s*(?:الطلب|الاوردَر|الاوردر|الأوردر)|طلب\s*رقم|order\s*(?:id|no|number))\s*(?:[:：#]?\s*)([A-Za-z0-9-_]{3,})/i
-  );
+  let m = t.match(/(?:رقم\s*(?:الطلب|الاوردَر|الاوردر|الأوردر)|طلب\s*رقم|order\s*(?:id|no|number))\s*(?:[:：#]?\s*)([A-Za-z0-9-_]{3,})/i);
   if(m && m[1]) return m[1].trim();
 
-  // 2️⃣ أي سطر فيه كلمة طلب + رقم
   const lines = t.split(/\r?\n/);
   for(const line of lines){
     if(/طلب|order/i.test(line)){
@@ -896,17 +682,13 @@ function extractOrderIdSmart(text){
       if(hit) return hit[1];
     }
   }
-
-  // 3️⃣ fallback ذكي: أول رقم طويل في الرسالة
   const fallback = t.match(/\b([0-9]{5,})\b/);
   if(fallback) return fallback[1];
-
   return "";
-  }
+}
 
 function extractCustomerData(fullText){
   const t = String(fullText || "");
-
   const nameMatch = t.match(/(?:^|\n)\s*الاسم\s*[:：]\s*(.+)\s*(?:\n|$)/i);
   const name = nameMatch ? nameMatch[1].trim() : "";
 
@@ -956,10 +738,6 @@ function parseWhatsAppLines(fullText){
 }
 
 function importFromWhatsApp(){
-  if(isQuoteMode()){
-    alert("وضع الكوتيشن لا يدعم الاستيراد من واتساب.");
-    return;
-  }
   const ta = document.getElementById("waImport");
   const raw = String(ta.value || "").trim();
   if(!raw){ alert("الصق رسالة واتساب أولاً."); return; }
@@ -1102,10 +880,8 @@ function numberToArabicWords(number){
 }
 
 /* ================= A4 ================= */
-function buildA4Html(d, mode){
-  const isQuote = (mode==="quote");
-  const docTitle = isQuote ? "عرض سعر" : "فاتورة";
-
+function buildA4Html(d){
+  const docTitle = "فاتورة";
   const deliveryText = (Number(d.deliveryFee||0) > 0) ? `${Number(d.deliveryFee).toFixed(2)} جنيه` : "توصيل مجاني";
   const noteHtml = d.note ? `<div class="note">${escapeHtml(d.note)}</div>` : "";
 
@@ -1220,15 +996,13 @@ function buildA4Html(d, mode){
 
 function exportA4(){
   const d = getInvoiceData();
-  openPrintWindow(buildA4Html(d, isQuoteMode() ? "quote" : "invoice"), `${isQuoteMode() ? "عرض سعر" : "فاتورة"} ${d.invNo}`);
+  openPrintWindow(buildA4Html(d), `فاتورة ${d.invNo}`);
 }
 
 /* ================= Thermal ================= */
-function buildThermalHtml(mm, d, mode){
+function buildThermalHtml(mm, d){
   const widthMm = (mm === 58) ? 58 : 80;
-  const isQuote = (mode==="quote");
-  const titleText = isQuote ? "عرض سعر" : "فاتورة";
-  const deliveryText = (Number(d.deliveryFee||0) > 0) ? `${Number(d.deliveryFee).toFixed(2)}` : "0.00";
+  const titleText = "فاتورة";
 
   const items = d.items.length ? d.items.map(it=>{
     const name = (it.name || it.skuName || it.sku || "").trim();
@@ -1335,7 +1109,7 @@ function buildThermalHtml(mm, d, mode){
 
 function printThermal(mm){
   const d = getInvoiceData();
-  openPrintWindow(buildThermalHtml(mm, d, isQuoteMode() ? "quote" : "invoice"), `${isQuoteMode() ? "عرض سعر" : "فاتورة"} ${d.invNo}`);
+  openPrintWindow(buildThermalHtml(mm, d), `فاتورة ${d.invNo}`);
 }
 
 /* ================= PDF (FIX WHITE PAGE) ================= */
@@ -1366,17 +1140,17 @@ async function inlineAllImages(root){
   }
 }
 
-function buildA4FragmentForPdf(d, mode){
-  const full = buildA4Html(d, mode);
+function buildA4FragmentForPdf(d){
+  const full = buildA4Html(d);
   const style = (full.match(/<style>([\s\S]*?)<\/style>/i) || [,""])[1];
   const body  = (full.match(/<body[^>]*>([\s\S]*?)<\/body>/i) || [,""])[1];
   return `<div><style>${style}</style>${body}</div>`;
 }
 
-async function savePdfA4(mode){
+async function savePdfA4(){
   const d = getInvoiceData();
   const safeKey = (d.orderId || d.invNo || "BS").replace(/[^\w-]+/g,"_");
-  const filename = `${mode==="quote" ? "quotation" : "invoice"}_${safeKey}.pdf`;
+  const filename = `invoice_${safeKey}.pdf`;
 
   const holder = document.createElement("div");
   holder.style.position = "fixed";
@@ -1386,7 +1160,7 @@ async function savePdfA4(mode){
   holder.style.background = "#fff";
   holder.style.zIndex = "-1";
 
-  holder.innerHTML = buildA4FragmentForPdf(d, mode);
+  holder.innerHTML = buildA4FragmentForPdf(d);
   document.body.appendChild(holder);
 
   await new Promise(r=> setTimeout(r, 150));
@@ -1420,25 +1194,14 @@ document.getElementById('importBtn')?.addEventListener("click", importFromWhatsA
 document.getElementById('clearImportBtn')?.addEventListener("click", ()=>{ document.getElementById("waImport").value=""; });
 
 document.getElementById('printA4Btn')?.addEventListener('click', exportA4);
-document.getElementById('savePdfA4Btn')?.addEventListener('click', ()=> savePdfA4("invoice"));
-document.getElementById('saveQuotePdfBtn')?.addEventListener('click', ()=> savePdfA4("quote"));
+document.getElementById('savePdfA4Btn')?.addEventListener('click', savePdfA4);
 
 document.getElementById('thermal80Btn')?.addEventListener('click', ()=> printThermal(80));
 document.getElementById('thermal58Btn')?.addEventListener('click', ()=> printThermal(58));
 
 /* ================= BOOT ================= */
-applyModeUI();
-
-if(sessionStorage.getItem("BS_ADMIN_OK") === "1"){
-  setLoggedIn(true);
-  applyModeUI();
-  initInvoice();
-  loadProductsSmart();
-}else{
-  setLoggedIn(false);
-  try{ passInput.focus(); }catch(e){}
-}
-
+initInvoice();
+loadProductsSmart();
 addRow(true);
 refreshRowNumbers();
 calcGrand();
