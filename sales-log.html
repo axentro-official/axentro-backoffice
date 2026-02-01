@@ -28,7 +28,13 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden; /* ✅ Fix: يمنع الزحزحة الأفقية */
+    }
+
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
@@ -37,15 +43,31 @@
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
-      padding:18px;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      min-height:100vh;
+      min-height:100%;
       display:flex;
       flex-direction:column;
       -webkit-font-smoothing:antialiased;
+
+      /* ❌ شيلنا padding من body */
+      padding:0;
     }
 
-    .wrap{max-width:var(--container-max);margin:0 auto;width:100%;flex:1}
+    /* ✅ نقلنا الـ padding للـ wrap علشان تبقى متظبطة على الموبايل */
+    .wrap{
+      max-width:var(--container-max);
+      margin:0 auto;
+      width:100%;
+      flex:1;
+
+      padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .wrap{
+        padding:14px;
+        padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      }
+    }
 
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -71,6 +93,7 @@
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
 
     .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
     .card{
       background:rgba(255,255,255,.92);
       border:1px solid var(--stroke);
@@ -78,6 +101,7 @@
       box-shadow:var(--shadow);
       padding:16px;
       margin-bottom:16px;
+      max-width:100%;
     }
 
     h2{margin:0 0 10px;font-weight:1000}
@@ -91,6 +115,7 @@
       color:var(--text);
       outline:none;
       box-shadow:0 8px 18px rgba(15,23,42,.05);
+      max-width:100%;
     }
     input::placeholder, textarea::placeholder{color:#94a3b8}
     input:focus, textarea:focus, select:focus{
@@ -128,6 +153,7 @@
       cursor:pointer;
       touch-action: manipulation;
       user-select:none;
+      max-width:100%;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn:active{transform:translateY(1px)}
@@ -149,11 +175,19 @@
       padding:8px 10px;font-weight:1000;
       color:#334155;
       white-space:nowrap;
+      max-width:100%;
     }
     .pill b{color:var(--text)}
     .muted{color:var(--muted);font-weight:900}
 
-    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
+    /* ✅ جدول آمن على الموبايل */
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
     table{
       width:100%;
       border-collapse:collapse;
@@ -162,12 +196,15 @@
       background:#fff;
       border-radius:12px;
       overflow:hidden;
+      max-width:100%;
     }
     th, td{
       border:1px solid rgba(15,23,42,.10);
       padding:8px;
       text-align:center;
       vertical-align:middle;
+      max-width:100%;
+      word-break:break-word;
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
@@ -175,6 +212,7 @@
     }
     td.left{text-align:right}
     td.small{font-size:12px;color:#334155;font-weight:900}
+
     .tag{
       display:inline-block;
       padding:6px 10px;border-radius:999px;
@@ -230,6 +268,7 @@
       background: rgba(255,255,255,.75);
       backdrop-filter: blur(10px);
       padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      max-width:100%;
     }
     .site-footer .line1{ font-weight:1000; color:#334155; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
@@ -262,6 +301,9 @@
       opacity: 1;
       transform: translateX(-50%) translateY(-4px);
     }
+
+    /* ✅ احتياطي ضد أي عنصر يطلع برا الشاشة */
+    img, input, textarea, select, button{ max-width:100%; }
   </style>
 </head>
 
@@ -413,11 +455,7 @@ function showToast(msg){
   toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
 }
 
-/* ================= CONFIG =================
-  ✅ غيّر ده لعنوان الـ Apps Script اللي بيرجع "سجل المبيعات"
-  - أنا حاطط نفس عنوان المنتجات كمثال + باراميتر mode=sales_log
-  - لو عندك Endpoint مختلف: حطّه هنا وخلاص.
-*/
+/* ================= CONFIG ================= */
 const SALES_LOG_API_URL =
   "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=sales_log";
 
@@ -426,20 +464,18 @@ const CACHE_KEY = "AX_SALES_LOG_CACHE_V1";
 const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V1";
 const CACHE_TTL_MS = 3 * 60 * 1000;
 
-let RAW = [];     // كل السجل
-let VIEW = [];    // بعد الفلترة
+let RAW = [];
+let VIEW = [];
 
 /* ================= Helpers ================= */
 function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
 function norm(s){ return String(s||"").trim().toLowerCase(); }
 
 function toISODateMaybe(val){
-  // يقبل: 2026-02-01 أو 01-02-2026 أو 01/02/2026 ... ويحاول يرجّع YYYY-MM-DD
   const s = String(val||"").trim();
   if(!s) return "";
   if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
 
-  // en-GB: dd/mm/yyyy أو dd-mm-yyyy
   let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
   if(m){
     const dd = String(m[1]).padStart(2,"0");
@@ -448,7 +484,6 @@ function toISODateMaybe(val){
     return `${yy}-${mm}-${dd}`;
   }
 
-  // fallback: Date parsing
   const d = new Date(s);
   if(!isNaN(d.getTime())){
     const y = d.getFullYear();
@@ -459,9 +494,7 @@ function toISODateMaybe(val){
   return "";
 }
 
-function fmtMoney(n){
-  return `${money(n).toFixed(2)} جنيه`;
-}
+function fmtMoney(n){ return `${money(n).toFixed(2)} جنيه`; }
 
 function setLastSync(ts){
   const el = document.getElementById("lastSyncTxt");
@@ -506,10 +539,8 @@ async function fetchSalesLog(){
   if(!res.ok) throw new Error("HTTP " + res.status);
   const data = await res.json();
 
-  // نتوقع Array
   if(Array.isArray(data)) return data;
 
-  // بعض Apps Script بيرجع {data:[...]} أو {items:[...]}
   if(data && typeof data === "object"){
     if(Array.isArray(data.data)) return data.data;
     if(Array.isArray(data.items)) return data.items;
@@ -519,7 +550,6 @@ async function fetchSalesLog(){
 }
 
 function normalizeRow(r){
-  // توحيد أسماء الحقول (علشان أي مصدر)
   const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.id || "";
   const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.day || "");
   const time  = r.time || r.invTime || r.invoice_time || "";
@@ -547,7 +577,6 @@ async function loadSalesSmart(force=false){
   const hasCache = cached && cached.list && cached.list.length;
   const fresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
 
-  // ابدأ باللوكال (لو مستخدم الاستيراد اليدوي)
   const local = loadLocal();
   const localNorm = local.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
   if(localNorm.length){
@@ -557,14 +586,12 @@ async function loadSalesSmart(force=false){
     applyFiltersAndRender();
   }
 
-  // لو عندنا كاش، اعرضه بسرعة
   if(hasCache){
     RAW = cached.list.map(normalizeRow);
     setLastSync(cached.ts);
     applyFiltersAndRender();
   }
 
-  // بعدها حدث من الشبكة
   if(!force && fresh){
     setTimeout(()=> refreshFromNet(false), 300);
   }else{
@@ -602,54 +629,42 @@ function getFilters(){
 function applyFilters(){
   const f = getFilters();
   let arr = Array.isArray(RAW) ? [...RAW] : [];
-
-  // normalize dates on the fly
   arr = arr.map(normalizeRow);
 
-  // search
   if(f.q){
     arr = arr.filter(r=>{
-      const hay = [
-        r.invNo, r.orderId, r.custName, r.custPhone, r.date, r.time
-      ].map(norm).join(" ");
+      const hay = [r.invNo, r.orderId, r.custName, r.custPhone, r.date, r.time].map(norm).join(" ");
       return hay.includes(f.q);
     });
   }
 
-  // date range
-  if(f.fromDate){
-    arr = arr.filter(r => r.date && r.date >= f.fromDate);
-  }
-  if(f.toDate){
-    arr = arr.filter(r => r.date && r.date <= f.toDate);
-  }
+  if(f.fromDate) arr = arr.filter(r => r.date && r.date >= f.fromDate);
+  if(f.toDate)   arr = arr.filter(r => r.date && r.date <= f.toDate);
 
-  // totals
-  if(f.minTotal > 0){
-    arr = arr.filter(r => money(r.finalTotal) >= f.minTotal);
-  }
-  if(f.maxTotal > 0){
-    arr = arr.filter(r => money(r.finalTotal) <= f.maxTotal);
-  }
+  if(f.minTotal > 0) arr = arr.filter(r => money(r.finalTotal) >= f.minTotal);
+  if(f.maxTotal > 0) arr = arr.filter(r => money(r.finalTotal) <= f.maxTotal);
 
-  // sort
   const byDate = (a,b)=>{
     const ad = a.date || "";
     const bd = b.date || "";
     if(ad !== bd) return ad.localeCompare(bd);
-    // fallback: invNo
     return norm(a.invNo).localeCompare(norm(b.invNo));
   };
   const byTotal = (a,b)=> money(a.finalTotal) - money(b.finalTotal);
 
   switch(f.sortBy){
-    case "date_asc": arr.sort(byDate); break;
-    case "date_desc": arr.sort((a,b)=> -byDate(a,b)); break;
-    case "total_asc": arr.sort(byTotal); break;
+    case "date_asc":   arr.sort(byDate); break;
+    case "date_desc":  arr.sort((a,b)=> -byDate(a,b)); break;
+    case "total_asc":  arr.sort(byTotal); break;
     case "total_desc": arr.sort((a,b)=> -byTotal(a,b)); break;
   }
 
   VIEW = arr;
+}
+
+function escapeHtml(str){
+  return String(str || "")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }
 
 function render(){
@@ -660,7 +675,6 @@ function render(){
   tbody.innerHTML = "";
   const list = Array.isArray(VIEW) ? VIEW : [];
 
-  // header stats
   const count = list.length;
   const sum = list.reduce((s,r)=> s + money(r.finalTotal), 0);
   document.getElementById("countTxt").textContent = String(count);
@@ -706,12 +720,10 @@ function applyFiltersAndRender(){
 
 /* ================= Import manual ================= */
 function parseCSV(text){
-  // بسيط: أول سطر هيدر، والباقي قيم مفصولة بفواصل
   const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
   if(lines.length < 2) return [];
   const header = lines[0].split(",").map(h=>h.trim());
   const out = [];
-
   for(let i=1;i<lines.length;i++){
     const cells = lines[i].split(",").map(c=>c.trim());
     const obj = {};
@@ -732,7 +744,6 @@ function importManual(){
       const j = JSON.parse(raw);
       if(Array.isArray(j)) list = j;
       else if(j && typeof j === "object"){
-        // {data:[...]} أو سجل واحد
         if(Array.isArray(j.data)) list = j.data;
         else if(Array.isArray(j.items)) list = j.items;
         else list = [j];
@@ -768,11 +779,6 @@ function clearLocal(){
 }
 
 /* ================= UI events ================= */
-function escapeHtml(str){
-  return String(str || "")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
 document.getElementById("refreshBtn")?.addEventListener("click", ()=> loadSalesSmart(true));
 document.getElementById("clearFiltersBtn")?.addEventListener("click", ()=>{
   document.getElementById("q").value = "";
@@ -786,10 +792,7 @@ document.getElementById("clearFiltersBtn")?.addEventListener("click", ()=>{
 });
 
 ["q","fromDate","toDate","minTotal","maxTotal","sortBy"].forEach(id=>{
-  document.getElementById(id)?.addEventListener("input", ()=>{
-    // input على select مش بيشتغل في بعض المتصفحات -> نضيف change
-    applyFiltersAndRender();
-  });
+  document.getElementById(id)?.addEventListener("input", applyFiltersAndRender);
   document.getElementById(id)?.addEventListener("change", applyFiltersAndRender);
 });
 
