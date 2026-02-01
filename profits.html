@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>الأرباح — B.S Medical &amp; Aesthetic</title>
+
+  <style>
+    :root{
+      --bg:#f7f7fb;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#64748b;
+      --stroke:rgba(15,23,42,.10);
+      --shadow: 0 18px 50px rgba(2,6,23,.12);
+      --radius:18px;
+
+      --gold:#b08d57;
+      --gold2:#d7b97a;
+
+      --ok:#16a34a;
+      --warn:#f59e0b;
+      --bad:#dc2626;
+
+      --container-max:1100px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
+        radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
+        linear-gradient(180deg, #ffffff, var(--bg));
+      min-height:100%;
+      display:flex;
+      flex-direction:column;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .wrap{
+      max-width:var(--container-max);
+      margin:0 auto;
+      width:100%;
+      flex:1;
+      padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+    }
+
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid var(--stroke);
+      border-radius:18px;background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .logo{
+      width:44px;height:44px;border-radius:999px;
+      display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
+      border:1px solid rgba(176,141,87,.35);
+      box-shadow: 0 10px 24px rgba(2,6,23,.10);
+      overflow:hidden;
+      padding:6px;
+      flex:0 0 auto;
+    }
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    .brandTitle{font-weight:1000}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
+
+    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+      max-width:100%;
+    }
+
+    h2{margin:0 0 10px;font-weight:1000}
+    label{font-size:12px;color:var(--muted);font-weight:1000}
+    input, textarea, select{
+      width:100%;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+      max-width:100%;
+    }
+    input::placeholder, textarea::placeholder{color:#94a3b8}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(176,141,87,.55);
+      box-shadow:0 10px 22px rgba(176,141,87,.14);
+    }
+
+    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+    @media (max-width:920px){
+      .row{grid-template-columns:repeat(2,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
+      .row3{grid-template-columns:repeat(1,1fr);}
+    }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
+    }
+    @media (max-width:520px){
+      .row{grid-template-columns:repeat(1,1fr);}
+      input, textarea, select{ font-size:16px; }
+    }
+
+    .btn{
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(176,141,87,.35);
+      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
+      color:var(--text);
+      font-weight:1000;
+      cursor:pointer;
+      touch-action: manipulation;
+      user-select:none;
+      max-width:100%;
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      border-color: rgba(15,23,42,.14);
+      background:#fff;
+      opacity:.95;
+    }
+    .btn.danger{
+      border-color: rgba(220,38,38,.25);
+      background: rgba(220,38,38,.06);
+      color:#991b1b;
+    }
+
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;border-radius:999px;
+      padding:8px 10px;font-weight:1000;
+      color:#334155;
+      white-space:nowrap;
+      max-width:100%;
+    }
+    .pill b{color:var(--text)}
+    .muted{color:var(--muted);font-weight:900}
+
+    .grid4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:10px;
+    }
+    @media (max-width:1000px){ .grid4{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){ .grid4{grid-template-columns:1fr} }
+
+    .kpi{
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 10px 28px rgba(2,6,23,.06);
+    }
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
+    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
+    .kpi .v.ok{color:#166534}
+    .kpi .v.bad{color:#991b1b}
+
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:980px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      max-width:100%;
+    }
+    th, td{
+      border:1px solid rgba(15,23,42,.10);
+      padding:8px;
+      text-align:center;
+      vertical-align:middle;
+      word-break:break-word;
+    }
+    th{
+      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
+      font-weight:1000;
+    }
+    td.left{text-align:right}
+
+    .empty{
+      padding:14px;
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+      color:var(--muted);
+      font-weight:1000;
+      text-align:center;
+      line-height:1.8;
+    }
+
+    @media (max-width: 820px){
+      .table-wrap{ overflow:visible; }
+      table{ min-width:0; }
+      table, thead, tbody, th, td, tr{ display:block; width:100%; }
+      thead{ display:none; }
+      tbody tr{
+        border:1px solid rgba(15,23,42,.12);
+        background:#fff;
+        border-radius:16px;
+        padding:10px;
+        margin-bottom:10px;
+        box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      }
+      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
+      tbody td[data-label]::before{
+        content: attr(data-label);
+        display:block;
+        font-size:12px;color: var(--muted);
+        font-weight:1000;margin-bottom:6px;
+      }
+      tbody td.center{ text-align:center; }
+    }
+
+    .site-footer{
+      margin-top:auto;
+      padding:16px 16px 22px;
+      text-align:center;
+      color:var(--muted);
+      border-top:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(10px);
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+    }
+    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
+
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 1000;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(680px, 92vw);
+      text-align:center;
+      line-height:1.7;
+      white-space:pre-line;
+    }
+    .toast.show{
+      opacity: 1;
+      transform: translateX(-50%) translateY(-4px);
+    }
+  </style>
+</head>
+
+<body>
+<div class="wrap" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">الأرباح (Profits) — تقديري الآن</div>
+      </div>
+    </div>
+
+    <div class="topActions">
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>فلترة</h2>
+
+    <div class="row" role="region" aria-label="فلترة الأرباح">
+      <div>
+        <label for="fromDate">من تاريخ</label>
+        <input id="fromDate" type="date" />
+      </div>
+      <div>
+        <label for="toDate">إلى تاريخ</label>
+        <input id="toDate" type="date" />
+      </div>
+      <div>
+        <label for="mode">وضع الحساب</label>
+        <select id="mode">
+          <option value="estimate">تقديري (مبيعات - مشتريات - مصروفات)</option>
+          <option value="fifo" disabled>FIFO (قريبًا بعد بناء المخزون)</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+          <button class="btn secondary" id="clearFiltersBtn" type="button">مسح</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid4">
+      <div class="kpi">
+        <div class="t">إجمالي المبيعات</div>
+        <div class="v" id="kpiSales">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">إجمالي المشتريات</div>
+        <div class="v" id="kpiPurch">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">إجمالي المصروفات</div>
+        <div class="v" id="kpiExp">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">صافي الربح (تقديري)</div>
+        <div class="v" id="kpiProfit">0.00</div>
+        <div class="t" id="kpiProfitHint" style="margin-top:6px">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+      <div class="pill"><span class="muted">عدد عمليات البيع:</span> <b id="salesCount">0</b></div>
+      <div class="pill"><span class="muted">عدد عمليات الشراء:</span> <b id="purchCount">0</b></div>
+      <div class="pill"><span class="muted">عدد المصروفات:</span> <b id="expCount">0</b></div>
+      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
+    </div>
+  </div>
+
+  <div class="card" id="importCard">
+    <h2>استيراد يدوي (اختياري)</h2>
+    <div class="muted" style="line-height:1.8">
+      لو لسه مش جاهز الربط: الصق هنا <b>JSON Array</b> أو <b>CSV</b> لكل نوع، ثم اضغط استيراد.
+      <br><b>Sales CSV</b>: <span dir="ltr">date,total,invNo</span>
+      <br><b>Purchases CSV</b>: <span dir="ltr">date,total,invNo</span>
+      <br><b>Expenses CSV</b>: <span dir="ltr">date,amount,cat</span>
+    </div>
+
+    <div class="row3" style="margin-top:10px">
+      <div>
+        <label for="importType">نوع البيانات</label>
+        <select id="importType">
+          <option value="sales">مبيعات</option>
+          <option value="purchases">مشتريات</option>
+          <option value="expenses">مصروفات</option>
+        </select>
+      </div>
+      <div style="grid-column: span 2;">
+        <label for="importTa">الصق البيانات</label>
+        <textarea id="importTa" rows="5" placeholder="الصق JSON/CSV هنا..."></textarea>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn" id="importBtn" type="button">📥 استيراد</button>
+      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
+      <button class="btn" id="exportBtn" type="button">📤 تصدير النتائج CSV</button>
+      <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح بيانات الأرباح المحلية</button>
+    </div>
+
+    <div class="muted" style="margin-top:10px">
+      الاستيراد هنا يخزن داخل LocalStorage بمفاتيح خاصة بصفحة الأرباح فقط.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>ملخص بحسب النوع</h2>
+    <div class="table-wrap" aria-live="polite">
+      <table id="summaryTable" role="table" aria-label="ملخص الأرباح">
+        <thead>
+          <tr>
+            <th style="width:200px">النوع</th>
+            <th style="width:160px">عدد</th>
+            <th style="width:220px">الإجمالي</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
+      لا توجد بيانات في الفترة المحددة.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>تفاصيل (آخر 200 عملية بعد الفلترة)</h2>
+    <div class="table-wrap" aria-live="polite">
+      <table id="detailsTable" role="table" aria-label="تفاصيل العمليات">
+        <thead>
+          <tr>
+            <th style="width:80px">#</th>
+            <th style="min-width:140px">النوع</th>
+            <th style="min-width:160px">التاريخ</th>
+            <th style="min-width:220px">مرجع</th>
+            <th style="min-width:180px">القيمة</th>
+            <th style="min-width:260px">ملاحظة</th>
+          </tr>
+        </thead>
+        <tbody id="detailsBody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+  <div class="line2">By Ahmed Hamouda</div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ================= AUTH GATE ================= */
+const OK_KEY = "AX_BO_OK";
+function requireAuth(){
+  if(sessionStorage.getItem(OK_KEY) !== "1"){
+    location.replace("login.html");
+    return false;
+  }
+  return true;
+}
+if(!requireAuth()) throw new Error("Not authenticated");
+
+document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
+  sessionStorage.removeItem(OK_KEY);
+  location.replace("login.html");
+});
+
+/* ================= Toast ================= */
+const toast = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
+}
+
+/* ================= Storage Keys =================
+  ✅ الصفحة تحاول تقرأ من مفاتيح منطقية:
+  - sales: AX_SALES_LOG_CACHE_V1 (لو عندك Sales-log) أو AX_SALES
+  - purchases: AX_PURCHASES أو AX_PURCHASES_LOG_CACHE_V1 (لو هتعملها)
+  - expenses: AX_EXPENSES_LOCAL_V1 (اللي عندك بالفعل)
+  ثم تدمج مع مفاتيح استيراد الأرباح هنا:
+*/
+const PROF_LOCAL_SALES_KEY = "AX_PROFITS_LOCAL_SALES_V1";
+const PROF_LOCAL_PURCH_KEY = "AX_PROFITS_LOCAL_PURCH_V1";
+const PROF_LOCAL_EXP_KEY   = "AX_PROFITS_LOCAL_EXP_V1";
+const PROF_TS_KEY          = "AX_PROFITS_TS_V1";
+
+/* ================= Helpers ================= */
+function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
+function norm(s){ return String(s||"").trim().toLowerCase(); }
+function esc(s){
+  return String(s||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function setLastSync(ts){
+  const el = document.getElementById("lastSyncTxt");
+  if(!el) return;
+  if(!ts){ el.textContent = "—"; return; }
+  el.textContent = new Date(ts).toLocaleString("ar-EG");
+}
+function readTS(){
+  return Number(localStorage.getItem(PROF_TS_KEY) || 0);
+}
+function writeTS(){
+  try{ localStorage.setItem(PROF_TS_KEY, String(Date.now())); }catch(e){}
+}
+
+/* date normalize -> YYYY-MM-DD */
+function toISODateMaybe(val){
+  const s = String(val||"").trim();
+  if(!s) return "";
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+  if(m){
+    const dd = String(m[1]).padStart(2,"0");
+    const mm = String(m[2]).padStart(2,"0");
+    const yy = String(m[3]);
+    return `${yy}-${mm}-${dd}`;
+  }
+  const d = new Date(s);
+  if(!isNaN(d.getTime())){
+    const y = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${y}-${mm}-${dd}`;
+  }
+  return "";
+}
+
+/* ================= Load sources ================= */
+function safeParse(key, fallback=[]){
+  try{
+    const raw = localStorage.getItem(key);
+    if(!raw) return fallback;
+    const j = JSON.parse(raw);
+    return Array.isArray(j) ? j : fallback;
+  }catch(e){ return fallback; }
+}
+
+function loadSales(){
+  const a = safeParse("AX_SALES_LOG_CACHE_V1", null);
+  if(Array.isArray(a) && a.length) return a;
+  const b = safeParse("AX_SALES", null);
+  if(Array.isArray(b) && b.length) return b;
+  const c = safeParse(PROF_LOCAL_SALES_KEY, []);
+  return c;
+}
+function loadPurchases(){
+  const a = safeParse("AX_PURCHASES_LOG_CACHE_V1", null);
+  if(Array.isArray(a) && a.length) return a;
+  const b = safeParse("AX_PURCHASES", null);
+  if(Array.isArray(b) && b.length) return b;
+  const c = safeParse(PROF_LOCAL_PURCH_KEY, []);
+  return c;
+}
+function loadExpenses(){
+  const a = safeParse("AX_EXPENSES_LOCAL_V1", null); // ✅ الموجود عندك
+  if(Array.isArray(a) && a.length) return a;
+  const c = safeParse(PROF_LOCAL_EXP_KEY, []);
+  return c;
+}
+
+/* ================= Normalize rows ================= */
+function normSalesRow(r){
+  const date = toISODateMaybe(r.date || r.invDate || r.day || "");
+  const total = money(r.finalTotal ?? r.total ?? r.amount ?? 0);
+  const ref = String(r.invNo || r.invoiceNo || r.id || r.orderId || "").trim();
+  const note = String(r.custName || r.customer || "").trim();
+  return { type:"sales", date, value: total, ref, note };
+}
+function normPurchRow(r){
+  const date = toISODateMaybe(r.date || r.invDate || r.day || "");
+  const total = money(r.finalTotal ?? r.total ?? r.amount ?? 0);
+  const ref = String(r.invNo || r.invoiceNo || r.id || "").trim();
+  const note = String(r.supplierName || r.supplier || "").trim();
+  return { type:"purchases", date, value: total, ref, note };
+}
+function normExpRow(r){
+  const date = toISODateMaybe(r.date || r.day || "");
+  const total = money(r.amount ?? r.total ?? r.value ?? 0);
+  const ref = String(r.ref || r.reference || "").trim();
+  const note = String(r.cat || r.category || r.note || "").trim();
+  return { type:"expenses", date, value: total, ref, note };
+}
+
+let SALES = [];
+let PURCH = [];
+let EXPS  = [];
+
+let VIEW_ALL = []; // merged + filtered
+
+function loadAll(){
+  SALES = loadSales().map(normSalesRow).filter(x=>x.date || x.value);
+  PURCH = loadPurchases().map(normPurchRow).filter(x=>x.date || x.value);
+  EXPS  = loadExpenses().map(normExpRow).filter(x=>x.date || x.value);
+}
+
+/* ================= Filters ================= */
+function getFilters(){
+  return {
+    from: document.getElementById("fromDate")?.value || "",
+    to: document.getElementById("toDate")?.value || "",
+    mode: document.getElementById("mode")?.value || "estimate",
+  };
+}
+function inRange(d, from, to){
+  if(!d) return false;
+  if(from && d < from) return false;
+  if(to && d > to) return false;
+  return true;
+}
+
+/* ================= Render ================= */
+function setKpi(id, val, cls){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.remove("ok","bad");
+  if(cls) el.classList.add(cls);
+  el.textContent = Number(val||0).toFixed(2) + " جنيه";
+}
+
+function render(){
+  const f = getFilters();
+
+  const merged = []
+    .concat(SALES)
+    .concat(PURCH)
+    .concat(EXPS)
+    .filter(x => (!f.from && !f.to) ? true : inRange(x.date, f.from, f.to));
+
+  VIEW_ALL = merged.sort((a,b)=> (b.date||"").localeCompare(a.date||"")).slice(0, 200);
+
+  const salesSum = SALES.filter(x=> (!f.from&&!f.to) ? true : inRange(x.date,f.from,f.to)).reduce((s,x)=> s+money(x.value), 0);
+  const purchSum = PURCH.filter(x=> (!f.from&&!f.to) ? true : inRange(x.date,f.from,f.to)).reduce((s,x)=> s+money(x.value), 0);
+  const expSum   = EXPS .filter(x=> (!f.from&&!f.to) ? true : inRange(x.date,f.from,f.to)).reduce((s,x)=> s+money(x.value), 0);
+
+  const profit = salesSum - purchSum - expSum;
+
+  setKpi("kpiSales", salesSum);
+  setKpi("kpiPurch", purchSum);
+  setKpi("kpiExp", expSum);
+
+  const profitCls = profit >= 0 ? "ok" : "bad";
+  setKpi("kpiProfit", profit, profitCls);
+
+  const hint = document.getElementById("kpiProfitHint");
+  if(hint){
+    hint.textContent = "المعادلة: مبيعات - مشتريات - مصروفات (حتى الآن)";
+  }
+
+  document.getElementById("salesCount").textContent = String(SALES.length);
+  document.getElementById("purchCount").textContent = String(PURCH.length);
+  document.getElementById("expCount").textContent = String(EXPS.length);
+
+  // summary table
+  const sb = document.getElementById("summaryBody");
+  const empty = document.getElementById("emptyBox");
+  if(sb){
+    sb.innerHTML = `
+      <tr><td>مبيعات</td><td>${SALES.filter(x=> (!f.from&&!f.to)?true:inRange(x.date,f.from,f.to)).length}</td><td>${salesSum.toFixed(2)} جنيه</td></tr>
+      <tr><td>مشتريات</td><td>${PURCH.filter(x=> (!f.from&&!f.to)?true:inRange(x.date,f.from,f.to)).length}</td><td>${purchSum.toFixed(2)} جنيه</td></tr>
+      <tr><td>مصروفات</td><td>${EXPS.filter(x=> (!f.from&&!f.to)?true:inRange(x.date,f.from,f.to)).length}</td><td>${expSum.toFixed(2)} جنيه</td></tr>
+      <tr><td><b>صافي الربح</b></td><td>—</td><td><b>${profit.toFixed(2)} جنيه</b></td></tr>
+    `;
+  }
+
+  const hasAny = (salesSum || purchSum || expSum || merged.length);
+  if(empty){
+    empty.style.display = hasAny ? "none" : "block";
+  }
+
+  // details table
+  const db = document.getElementById("detailsBody");
+  if(db){
+    db.innerHTML = "";
+    VIEW_ALL.forEach((x, i)=>{
+      const tr = document.createElement("tr");
+      const tName = (x.type === "sales") ? "مبيعات" : (x.type === "purchases" ? "مشتريات" : "مصروفات");
+      tr.innerHTML = `
+        <td data-label="#" class="center" style="font-weight:1000">${i+1}</td>
+        <td data-label="النوع" class="center">${tName}</td>
+        <td data-label="التاريخ" class="center">${esc(x.date || "—")}</td>
+        <td data-label="مرجع" class="left">${esc(x.ref || "—")}</td>
+        <td data-label="القيمة" class="center">${money(x.value).toFixed(2)} جنيه</td>
+        <td data-label="ملاحظة" class="left">${esc(x.note || "—")}</td>
+      `;
+      db.appendChild(tr);
+    });
+  }
+}
+
+/* ================= Import / Export ================= */
+function parseCSV(text){
+  const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+  if(lines.length < 2) return [];
+  const header = lines[0].split(",").map(h=>h.trim());
+  const out = [];
+  for(let i=1;i<lines.length;i++){
+    const cells = lines[i].split(",").map(c=>c.trim());
+    const obj = {};
+    header.forEach((h, idx)=> obj[h] = cells[idx] ?? "");
+    out.push(obj);
+  }
+  return out;
+}
+
+function importManual(){
+  const type = document.getElementById("importType").value;
+  const ta = document.getElementById("importTa");
+  const raw = String(ta?.value || "").trim();
+  if(!raw){ showToast("الصق بيانات للاستيراد أولاً"); return; }
+
+  let list = [];
+  try{
+    if(raw.startsWith("[") || raw.startsWith("{")){
+      const j = JSON.parse(raw);
+      if(Array.isArray(j)) list = j;
+      else if(j && typeof j === "object"){
+        if(Array.isArray(j.data)) list = j.data;
+        else if(Array.isArray(j.items)) list = j.items;
+        else list = [j];
+      }
+    }else{
+      list = parseCSV(raw);
+    }
+  }catch(e){
+    showToast("❌ صيغة غير صحيحة.\nجرّب JSON Array أو CSV.");
+    return;
+  }
+
+  if(!list.length){ showToast("لا توجد بيانات"); return; }
+
+  if(type === "sales"){
+    const normed = list.map(r=> normSalesRow({
+      date: r.date || r.day || r.invDate || "",
+      total: r.total || r.finalTotal || r.amount || 0,
+      invNo: r.invNo || r.invoiceNo || r.id || "",
+      orderId: r.orderId || "",
+      custName: r.custName || r.customer || ""
+    })).filter(x=>x.date || x.value);
+    localStorage.setItem(PROF_LOCAL_SALES_KEY, JSON.stringify(normed));
+  }
+
+  if(type === "purchases"){
+    const normed = list.map(r=> normPurchRow({
+      date: r.date || r.day || r.invDate || "",
+      total: r.total || r.finalTotal || r.amount || 0,
+      invNo: r.invNo || r.invoiceNo || r.id || "",
+      supplierName: r.supplierName || r.supplier || ""
+    })).filter(x=>x.date || x.value);
+    localStorage.setItem(PROF_LOCAL_PURCH_KEY, JSON.stringify(normed));
+  }
+
+  if(type === "expenses"){
+    const normed = list.map(r=> normExpRow({
+      date: r.date || r.day || "",
+      amount: r.amount || r.total || r.value || 0,
+      ref: r.ref || r.reference || "",
+      cat: r.cat || r.category || r.type || "",
+      note: r.note || ""
+    })).filter(x=>x.date || x.value);
+    localStorage.setItem(PROF_LOCAL_EXP_KEY, JSON.stringify(normed));
+  }
+
+  writeTS();
+  setLastSync(readTS());
+  loadAll();
+  render();
+  showToast("✅ تم الاستيراد");
+}
+
+function exportCSV(){
+  const rows = VIEW_ALL.map(x=>({
+    type: x.type,
+    date: x.date || "",
+    value: money(x.value).toFixed(2),
+    ref: x.ref || "",
+    note: x.note || ""
+  }));
+  const header = ["type","date","value","ref","note"];
+  const csv = [
+    header.join(","),
+    ...rows.map(o => header.map(k => {
+      const v = String(o[k] ?? "");
+      if(/[",\n]/.test(v)) return `"${v.replace(/"/g,'""')}"`;
+      return v;
+    }).join(","))
+  ].join("\n");
+
+  const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "profits_details_export.csv";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast("✅ تم تصدير CSV");
+}
+
+function clearLocal(){
+  localStorage.removeItem(PROF_LOCAL_SALES_KEY);
+  localStorage.removeItem(PROF_LOCAL_PURCH_KEY);
+  localStorage.removeItem(PROF_LOCAL_EXP_KEY);
+  localStorage.removeItem(PROF_TS_KEY);
+  loadAll();
+  setLastSync(0);
+  render();
+  showToast("✅ تم مسح بيانات الأرباح المحلية");
+}
+
+/* ================= UI events ================= */
+document.getElementById("refreshBtn")?.addEventListener("click", ()=>{
+  loadAll();
+  setLastSync(readTS() || Date.now());
+  render();
+  showToast("✅ تم التحديث");
+});
+
+document.getElementById("clearFiltersBtn")?.addEventListener("click", ()=>{
+  document.getElementById("fromDate").value = "";
+  document.getElementById("toDate").value = "";
+  document.getElementById("mode").value = "estimate";
+  render();
+  showToast("✅ تم مسح الفلاتر");
+});
+
+document.getElementById("importBtn")?.addEventListener("click", importManual);
+document.getElementById("clearImportBtn")?.addEventListener("click", ()=>{ document.getElementById("importTa").value=""; });
+document.getElementById("exportBtn")?.addEventListener("click", exportCSV);
+document.getElementById("clearLocalBtn")?.addEventListener("click", ()=>{
+  if(confirm("تأكيد مسح بيانات الأرباح المحلية؟")) clearLocal();
+});
+
+/* ================= BOOT ================= */
+(function boot(){
+  setLastSync(readTS());
+  loadAll();
+  render();
+})();
+</script>
+
+</body>
+</html>
