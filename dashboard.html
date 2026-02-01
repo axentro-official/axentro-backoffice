@@ -68,19 +68,6 @@
       white-space:nowrap;
     }
 
-    .rowBtns{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .btn{
-      padding:10px 12px;border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.92);
-      font-weight:1000;
-      cursor:pointer;
-      box-shadow: 0 8px 18px rgba(15,23,42,.06);
-      touch-action: manipulation;
-      white-space:nowrap;
-    }
-    .btn:active{transform:translateY(1px)}
-
     .grid{
       margin-top:14px;
       display:grid;
@@ -128,8 +115,6 @@
 
     @media (max-width:720px){
       .top{flex-direction:column;align-items:stretch}
-      .rowBtns{justify-content:stretch}
-      .btn{width:100%}
     }
 
     .site-footer{
@@ -162,26 +147,25 @@
         </div>
       </div>
 
-      <div class="rowBtns">
-        <div class="pill">✅ مسجل دخول</div>
-        <button class="btn" id="logoutBtn">🚪 تسجيل خروج</button>
-      </div>
+      <!-- ✅ بدون زر خروج -->
+      <div class="pill">✅ لوحة الإدارة</div>
     </header>
 
     <section class="grid" aria-label="روابط الإدارة">
-      <!-- ✅ إدارة الفواتير -->
+      <!-- ✅ فواتير البيع -->
       <div class="card">
-        <a href="admin-invoice.html" aria-label="لوحة الفواتير">
+        <a href="Sales-invoice.html" aria-label="فاتورة مبيعات">
           <div>
-            <div class="c1">لوحة الفواتير</div>
+            <div class="c1">فاتورة مبيعات</div>
             <div class="c2">إنشاء فاتورة + طباعة + PDF</div>
           </div>
-          <div class="ico">🔐</div>
+          <div class="ico">🧾</div>
         </a>
       </div>
 
+      <!-- ✅ عرض سعر منفصل -->
       <div class="card">
-        <a href="admin-invoice.html?quote=1" aria-label="عرض سعر">
+        <a href="quotation.html" aria-label="عرض سعر">
           <div>
             <div class="c1">عرض سعر</div>
             <div class="c2">Quotation PDF</div>
@@ -190,14 +174,14 @@
         </a>
       </div>
 
-      <!-- ✅ الصفحات اللي هنعملها بعدين -->
+      <!-- ✅ صفحات لاحقًا -->
       <div class="card soon">
         <a href="sales.html" onclick="return soon(event)" aria-label="سجل المبيعات">
           <div>
             <div class="c1">سجل المبيعات <span class="tag">قريبًا</span></div>
             <div class="c2">كل فواتير البيع + فلترة</div>
           </div>
-          <div class="ico">🧾</div>
+          <div class="ico">📒</div>
         </a>
       </div>
 
@@ -259,17 +243,13 @@
   </footer>
 
 <script>
-  const OK_KEY = "BS_BACKOFFICE_OK";
+  // ✅ Session Key موحّد لكل صفحات الإدارة
+  const OK_KEY = "AX_BO_OK";
 
-  // حماية الداش
-  if(sessionStorage.getItem(OK_KEY) !== "1"){
+  // ✅ حماية الداش: لو مش عامل login يرجّع للوجين
+  if (sessionStorage.getItem(OK_KEY) !== "1") {
     location.replace("login.html");
   }
-
-  document.getElementById("logoutBtn").addEventListener("click", ()=>{
-    sessionStorage.removeItem(OK_KEY);
-    location.href = "login.html";
-  });
 
   function soon(ev){
     ev.preventDefault();
