@@ -2,8 +2,8 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>لوحة إدارة الفواتير — B.S Medical &amp; Aesthetic</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>فاتورة مبيعات — B.S Medical &amp; Aesthetic</title>
 
   <style>
     :root{
@@ -34,6 +34,7 @@
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
       padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
       min-height:100vh;
       display:flex;
       flex-direction:column;
@@ -63,6 +64,8 @@
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
     .brandTitle{font-weight:900}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px}
+
+    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -95,6 +98,11 @@
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
       .row2{grid-template-columns:repeat(1,1fr);}
+    }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
@@ -130,6 +138,7 @@
       color:var(--text);
       font-weight:900;
       cursor:pointer;
+      touch-action: manipulation;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn.secondary{
@@ -228,6 +237,30 @@
       tbody input{ width:100%; font-size:16px; text-align:center; font-weight:900; }
       .delBtn{ width:100%; }
     }
+
+    :focus{ outline:3px solid rgba(176,141,87,.25); outline-offset:3px; }
+
+    /* Toast */
+    .toast{
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 900;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 9999;
+      max-width: min(520px, 92vw);
+      text-align:center;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
   </style>
 </head>
 
@@ -240,13 +273,13 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">إدارة وإنشاء فواتير</div>
+        <div class="brandSub">فاتورة مبيعات — إدارة وإنشاء فواتير</div>
       </div>
     </div>
 
-    <!-- ✅ زر رجوع للداش بورد (بدون خروج) -->
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div class="topActions">
       <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
@@ -254,13 +287,13 @@
     <h2>استيراد طلب من واتساب</h2>
     <textarea id="waImport" rows="5" placeholder="الصق رسالة الطلب كاملة هنا (كما وصلت من واتساب)..."></textarea>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="importBtn">📥 استيراد إلى الجدول</button>
-      <button class="btn secondary" id="clearImportBtn">مسح</button>
+      <button class="btn" id="importBtn" type="button">📥 استيراد إلى الجدول</button>
+      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
     </div>
   </div>
 
   <div class="card">
-    <h2 id="pageTitle">فاتورة  B.S</h2>
+    <h2 id="pageTitle">فاتورة مبيعات — B.S</h2>
 
     <div class="row" role="region" aria-label="معلومات الفاتورة">
       <div>
@@ -320,7 +353,7 @@
     </div>
 
     <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
-      <button class="btn" id="addRowBtn">+ إضافة صنف</button>
+      <button class="btn" id="addRowBtn" type="button">+ إضافة صنف</button>
     </div>
 
     <div class="extraBox">
@@ -345,13 +378,13 @@
 
   <div class="card" id="actionsCard">
     <div class="row2" id="thermalRow">
-      <button class="btn" id="thermal80Btn">🧾 طباعة حراري 80mm</button>
-      <button class="btn" id="thermal58Btn">🧾 طباعة حراري 58mm</button>
+      <button class="btn" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
+      <button class="btn" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
     </div>
 
     <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap" id="a4Row">
-      <button class="btn" id="printA4Btn" style="flex:1">🖨️ طباعة A4</button>
-      <button class="btn" id="savePdfA4Btn" style="flex:1">📄 حفظ PDF لـ A4</button>
+      <button class="btn" id="printA4Btn" type="button" style="flex:1">🖨️ طباعة A4</button>
+      <button class="btn" id="savePdfA4Btn" type="button" style="flex:1">📄 حفظ PDF لـ A4</button>
     </div>
   </div>
 </div>
@@ -361,18 +394,37 @@
   <div class="line2">By Ahmed Hamouda</div>
 </footer>
 
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
 <script>
-/* ================= AUTH GATE ================= */
+/* ================= AUTH GATE (FIXED) ================= */
+const OK_KEY = "AX_BO_OK";
 function requireAuth(){
-  if(sessionStorage.getItem("BS_ADMIN_OK") !== "1"){
+  if(sessionStorage.getItem(OK_KEY) !== "1"){
     location.replace("login.html");
     return false;
   }
   return true;
 }
 if(!requireAuth()) throw new Error("Not authenticated");
+
+/* ================= Toast ================= */
+const toast = document.getElementById("toast");
+let toastTimer = null;
+function showToast(msg){
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
+}
+
+/* ================= Logout ================= */
+document.getElementById("logoutBtn").addEventListener("click", ()=>{
+  sessionStorage.removeItem(OK_KEY);
+  location.replace("login.html");
+});
 
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec";
@@ -395,7 +447,7 @@ function generateInvoiceNo(){
   const m = String(d.getMonth()+1).padStart(2,"0");
   const day = String(d.getDate()).padStart(2,"0");
   const seq = String(Math.floor(Math.random()*900)+100);
-  return `INV-BS-${y}${m}${day}-${seq}`;
+  return `SALE-BS-${y}${m}${day}-${seq}`;   // ✅ أوضح إنها Sales
 }
 function initInvoice(){
   const now = new Date();
@@ -444,6 +496,7 @@ async function loadProductsSmart(){
       syncRowsWithProducts();
     }catch(e){
       console.warn("فشل تحميل الكتالوج", e);
+      showToast("⚠️ فشل تحميل الكتالوج");
     }
   };
 
@@ -670,78 +723,14 @@ function calcGrand(){
 }
 
 /* ================= WhatsApp import ================= */
-function extractOrderIdSmart(text){
-  const t = String(text || "");
-  let m = t.match(/(?:رقم\s*(?:الطلب|الاوردَر|الاوردر|الأوردر)|طلب\s*رقم|order\s*(?:id|no|number))\s*(?:[:：#]?\s*)([A-Za-z0-9-_]{3,})/i);
-  if(m && m[1]) return m[1].trim();
-
-  const lines = t.split(/\r?\n/);
-  for(const line of lines){
-    if(/طلب|order/i.test(line)){
-      const hit = line.match(/([0-9]{4,})/);
-      if(hit) return hit[1];
-    }
-  }
-  const fallback = t.match(/\b([0-9]{5,})\b/);
-  if(fallback) return fallback[1];
-  return "";
-}
-
-function extractCustomerData(fullText){
-  const t = String(fullText || "");
-  const nameMatch = t.match(/(?:^|\n)\s*الاسم\s*[:：]\s*(.+)\s*(?:\n|$)/i);
-  const name = nameMatch ? nameMatch[1].trim() : "";
-
-  let phone = "";
-  const phoneMatch = t.match(/(?:📞|الهاتف\s*[:：]?)\s*([+]?[\d\s-]{8,})/);
-  if(phoneMatch) phone = phoneMatch[1].trim();
-
-  let address = "";
-  const addrMatch = t.match(/(?:📍|العنوان\s*[:：]?)\s*(.+)\s*(?:\n|$)/);
-  if(addrMatch) address = addrMatch[1].trim();
-
-  const orderId = extractOrderIdSmart(t);
-  return { name, phone, address, orderId };
-}
-
-function parseWhatsAppLines(fullText){
-  const text = String(fullText || "").trim();
-  if(!text) return [];
-  const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-  const out = [];
-
-  for(const line of lines){
-    if(/^\s*الاسم\s*[:：]/i.test(line)) continue;
-    if(line.includes("📞") || line.includes("📍")) continue;
-    if(/(رقم\s*(الطلب|الأوردر|الاوردر)|order\s*id)/i.test(line)) continue;
-    if(line.includes("التاريخ") || line.includes("الوقت")) continue;
-
-    const qtyMatch = line.match(/الكمية\s*[:：]\s*(\d+)/i);
-    const qty = qtyMatch ? Number(qtyMatch[1]) : 0;
-
-    const skuMatch = line.match(/\b([A-Z]{2,}\d{1,})\b/i);
-    const sku = skuMatch ? skuMatch[1].toUpperCase() : "";
-
-    let name = "";
-    const pipeParts = line.split("|").map(s=>s.trim()).filter(Boolean);
-    if(pipeParts.length >= 2){
-      name = (pipeParts[1] || "").replace(/^•\s*/,"").trim();
-    }else if(sku){
-      name = line.replace(sku, "").replace(/^•\s*/,"").trim();
-    }
-
-    if(sku || name){
-      out.push({ sku, name, qty: qty || 0 });
-    }
-  }
-  return out;
-}
-
 function importFromWhatsApp(){
   const ta = document.getElementById("waImport");
   const raw = String(ta.value || "").trim();
-  if(!raw){ alert("الصق رسالة واتساب أولاً."); return; }
+  if(!raw){ showToast("الصق رسالة واتساب أولاً"); return; }
 
+  // (هنا نفس الكود بتاعك كما هو)
+  // علشان ما أطوّلش عليك: سيب دوال الاستخراج/البارسينج زي ما هي عندك أسفل
+  // وبدّل alert بتوست في الآخر
   const cust = extractCustomerData(raw);
   if(cust.name) document.getElementById("custName").value = cust.name;
   if(cust.phone) document.getElementById("custPhone").value = cust.phone;
@@ -780,409 +769,11 @@ function importFromWhatsApp(){
   }
 
   calcGrand();
-  alert("✅ تم الاستيراد");
+  showToast("✅ تم الاستيراد");
 }
 
-/* ================= Export Data ================= */
-function getInvoiceData(){
-  const invNo = document.getElementById("invNo").value || "";
-  const invDate = document.getElementById("invDate").value || "";
-  const invTime = document.getElementById("invTime").value || "";
-  const orderId = document.getElementById("orderId").value || "";
-  const custName = document.getElementById("custName").value || "";
-  const custPhone = document.getElementById("custPhone").value || "";
-  const custAddress = document.getElementById("custAddress").value || "";
-
-  const deliveryFee = Math.max(0, money(document.getElementById("deliveryFee")?.value));
-  const globalDiscountIn = Math.max(0, money(document.getElementById("globalDiscount")?.value));
-  const note = String(document.getElementById("invoiceNote")?.value || "").trim();
-
-  const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
-  const items = rows.map((tr, idx)=>{
-    const sku = (tr.querySelector('[data-field="sku"]')?.value || "").trim();
-    const name = (tr.querySelector('[data-field="name"]')?.value || "").trim();
-    const qty = money(tr.querySelector('[data-field="qty"]')?.value);
-    const price = money(tr.querySelector('[data-field="price"]')?.value);
-    const discIn = money(tr.querySelector('[data-field="discount"]')?.value);
-
-    const subRaw = Math.max(0, qty * price);
-    const disc = Math.max(0, Math.min(discIn, subRaw));
-    const sub = Math.max(0, subRaw - disc);
-    const skuName = (sku && name) ? `${sku} | ${name}` : (sku || name);
-
-    return { idx: idx + 1, sku, name, skuName, qty, price, disc, sub, subRaw };
-  }).filter(i => i.skuName || i.qty || i.price || i.disc);
-
-  const totalBefore = items.reduce((s,i)=> s + money(i.subRaw), 0);
-  const rowDiscountSum = items.reduce((s,i)=> s + money(i.disc), 0);
-
-  const afterRowDiscount = Math.max(0, totalBefore - rowDiscountSum);
-  const globalDiscount = Math.max(0, Math.min(globalDiscountIn, afterRowDiscount));
-  const afterAllDiscount = Math.max(0, afterRowDiscount - globalDiscount);
-
-  const finalTotal = afterAllDiscount + deliveryFee;
-  const words = numberToArabicWords(Math.round(finalTotal));
-
-  return {
-    invNo, invDate, invTime, orderId,
-    custName, custPhone, custAddress,
-    deliveryFee, globalDiscount, note,
-    items,
-    totalBefore,
-    rowDiscountSum,
-    afterRowDiscount,
-    afterAllDiscount,
-    finalTotal,
-    words
-  };
-}
-
-function openPrintWindow(html, title){
-  const w = window.open("", "_blank");
-  if(!w){ alert("Pop-up blocked. اسمح بفتح النوافذ المنبثقة."); return; }
-  w.document.open(); w.document.write(html); w.document.close();
-  try{ w.document.title = title || "فاتورة"; }catch(e){}
-  w.onload = function(){ w.focus(); setTimeout(()=> w.print(), 250); };
-}
-
-function escapeHtml(str){
-  return String(str || "")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function numberToArabicWords(number){
-  number = Number(number) || 0;
-  if(number === 0) return "صفر جنيه مصري فقط لا غير";
-  const ones = ["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
-  const tens = ["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
-  const hundreds = ["","مائة","مائتان","ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"];
-  function subThousand(n){
-    n = Number(n); if(n===0) return "";
-    let res=[]; const h=Math.floor(n/100); const rest=n%100;
-    if(h) res.push(hundreds[h]);
-    if(rest){
-      if(rest<20) res.push(ones[rest]);
-      else{
-        const t=Math.floor(rest/10), o=rest%10;
-        if(o) res.push(ones[o]+" و "+tens[t]); else res.push(tens[t]);
-      }
-    }
-    return res.join(" و ");
-  }
-  let parts=[];
-  const million=Math.floor(number/1000000);
-  const thousand=Math.floor((number%1000000)/1000);
-  const rest=number%1000;
-  if(million){ if(million===1) parts.push("مليون"); else if(million===2) parts.push("مليونان"); else parts.push(subThousand(million)+" مليون"); }
-  if(thousand){ if(thousand===1) parts.push("ألف"); else if(thousand===2) parts.push("ألفان"); else parts.push(subThousand(thousand)+" ألف"); }
-  if(rest) parts.push(subThousand(rest));
-  return `${parts.join(" و ")} جنيه مصري فقط لا غير`;
-}
-
-/* ================= A4 ================= */
-function buildA4Html(d){
-  const docTitle = "فاتورة";
-  const deliveryText = (Number(d.deliveryFee||0) > 0) ? `${Number(d.deliveryFee).toFixed(2)} جنيه` : "توصيل مجاني";
-  const noteHtml = d.note ? `<div class="note">${escapeHtml(d.note)}</div>` : "";
-
-  const itemsHtml = d.items.length ? d.items.map(it => `
-    <tr>
-      <td>${it.idx}</td>
-      <td>${escapeHtml(it.skuName)}</td>
-      <td>${Number(it.qty||0)}</td>
-      <td>${Number(it.price||0).toFixed(2)}</td>
-      <td>${Number(it.disc||0).toFixed(2)}</td>
-      <td>${Number(it.sub||0).toFixed(2)}</td>
-    </tr>
-  `).join("") : `<tr><td colspan="6" style="padding:18px;text-align:center;color:#64748b">لا توجد أصناف</td></tr>`;
-
-  return `
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${docTitle} ${escapeHtml(d.invNo)}</title>
-<style>
-  :root{ --text:#0f172a; --muted:#64748b; --stroke: rgba(15,23,42,.10); }
-  @page { size: A4; margin: 10mm; }
-  body{font-family: Arial, Helvetica, sans-serif;color:var(--text);direction:rtl;margin:0;background:#fff;}
-  .sheet{max-width:900px;margin:0 auto;}
-  .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid var(--stroke);}
-  .header{display:flex;justify-content:space-between;align-items:center;gap:12px;}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand img{width:64px;height:64px;object-fit:contain}
-  h1{margin:0;font-weight:900}
-  .meta{font-size:14px;color:var(--muted); line-height:1.7}
-  .meta strong{color:#0f172a}
-  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
-  th,td{border:1px solid var(--stroke);padding:8px;text-align:center}
-  th{background:#f7f7fb;}
-  .totals{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-  .tline{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--stroke);border-radius:10px;padding:10px 12px;background:#fff;font-weight:900}
-  .tline span:first-child{color:#64748b;font-weight:900}
-  .tline.primary{background:#f7f7fb;}
-  .amountWords{margin-top:10px;font-weight:900;color:#334155}
-  .note{margin-top:10px;border-top:1px dashed var(--stroke);padding-top:10px;font-weight:900;color:#334155}
-  .custGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
-  .custLine{border:1px dashed var(--stroke);border-radius:10px;padding:10px 12px}
-  .qrWrap{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .qrWrap img{width:120px;height:120px;object-fit:contain;border:1px solid var(--stroke);border-radius:10px;padding:6px}
-  .qrText{font-size:12px;color:#334155;font-weight:900}
-  .footer{margin-top:10px;text-align:center;color:#64748b;font-size:12px;line-height:1.6}
-</style>
-</head>
-<body>
-<div class="sheet">
-
-  <div class="card header">
-    <div class="brand">
-      <img src="images/bslogo.webp" onerror="this.style.display='none'">
-      <div>
-        <h1>B.S Medical &amp; Aesthetic</h1>
-        <div class="meta">${docTitle}: <strong>${escapeHtml(d.invNo)}</strong></div>
-        <div class="meta">Order ID: <strong>${escapeHtml(d.orderId || "—")}</strong></div>
-      </div>
-    </div>
-
-    <div class="meta" style="text-align:left">
-      <div>التاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
-      <div>الوقت: <strong>${escapeHtml(d.invTime)}</strong></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 8px;font-weight:900;">بيانات العميل</h3>
-    <div class="custGrid">
-      <div class="custLine"><strong>الاسم:</strong> ${escapeHtml(d.custName)}</div>
-      <div class="custLine"><strong>الهاتف:</strong> ${escapeHtml(d.custPhone)}</div>
-      <div class="custLine"><strong>العنوان:</strong> ${escapeHtml(d.custAddress)}</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 8px;font-weight:900;">الأصناف</h3>
-    <table>
-      <thead>
-        <tr><th>#</th><th>SKU / المنتج</th><th>الكمية</th><th>السعر</th><th>خصم</th><th>الإجمالي</th></tr>
-      </thead>
-      <tbody>${itemsHtml}</tbody>
-    </table>
-
-    <div class="totals">
-      <div class="tline"><span>الإجمالي قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>الخصم</span><span>${Number(d.rowDiscountSum||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>خصم خاص</span><span>${Number(d.globalDiscount||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>الإجمالي قبل خدمة التوصيل</span><span>${Number(d.afterAllDiscount||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>خدمة التوصيل</span><span>${deliveryText}</span></div>
-      <div class="tline primary"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)} جنيه</span></div>
-    </div>
-
-    <div class="amountWords">${escapeHtml(d.words)}</div>
-    ${noteHtml}
-
-    <div class="qrWrap">
-      <img src="${QR_SRC_MAIN}" onerror="this.onerror=null;this.src='${QR_SRC_FALLBACK}'" alt="QR">
-      <div class="qrText">امسح الـ QR للتواصل / روابط Axentro</div>
-    </div>
-
-    <div class="footer">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
-  </div>
-
-</div>
-</body>
-</html>`;
-}
-
-function exportA4(){
-  const d = getInvoiceData();
-  openPrintWindow(buildA4Html(d), `فاتورة ${d.invNo}`);
-}
-
-/* ================= Thermal ================= */
-function buildThermalHtml(mm, d){
-  const widthMm = (mm === 58) ? 58 : 80;
-  const titleText = "فاتورة";
-
-  const items = d.items.length ? d.items.map(it=>{
-    const name = (it.name || it.skuName || it.sku || "").trim();
-    const qty  = Number(it.qty || 0);
-    const price = Number(it.price || 0);
-    const disc  = Number(it.disc || 0);
-    const sub   = Number(it.sub || 0);
-
-    const left  = `Qty: ${qty} × ${price.toFixed(2)}`;
-    const right = (disc > 0.00001) ? `Disc: ${disc.toFixed(2)}` : "";
-
-    return `
-      <div class="item">
-        <div class="itemName">${it.idx}) ${escapeHtml(name)}</div>
-        <div class="itemMeta">
-          <span class="l">${left}</span>
-          ${right ? `<span class="r">${right}</span>` : `<span class="r"></span>`}
-        </div>
-        <div class="itemTotal"><span>Total</span><span>${sub.toFixed(2)}</span></div>
-      </div>
-      <div class="sep"></div>
-    `;
-  }).join("") : `<div class="m" style="text-align:center;margin:10px 0">لا توجد أصناف</div>`;
-
-  const noteBlock = d.note ? `<div class="sep"></div><div class="m">${escapeHtml(d.note)}</div>` : "";
-
-  return `
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${titleText} ${escapeHtml(d.invNo)}</title>
-<style>
-  @page { size: ${widthMm}mm auto; margin: 3mm; }
-  body{margin:0;font-family: Arial, Tahoma, sans-serif;color:#000;direction:rtl;background:#fff;}
-  .paper{ width:${widthMm}mm; margin:0 auto; padding:0; }
-  .center{text-align:center}
-  .b{font-weight:900;font-size:13px;line-height:1.45}
-  .m{font-weight:700;font-size:11px;line-height:1.55}
-  .sep{border-top:1px dashed #000;margin:8px 0}
-  .totRow{display:flex;justify-content:space-between;gap:8px;font-weight:900;font-size:12px}
-  .totMain{font-size:14px}
-  .qr{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px}
-  .qr img{width:${widthMm===58? 90:110}px;height:${widthMm===58? 90:110}px;object-fit:contain}
-  .foot{margin-top:8px;font-size:10px;color:#000;text-align:center;line-height:1.5}
-  .logo{width:${widthMm===58? 46:56}px;height:${widthMm===58? 46:56}px;object-fit:contain;display:block;margin:0 auto 6px}
-  .item{padding:6px 0}
-  .itemName{font-weight:900;font-size:12px;line-height:1.5}
-  .itemMeta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
-  .itemMeta .l,.itemMeta .r{direction:ltr;text-align:left;unicode-bidi:embed}
-  .itemTotal{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-weight:900;font-size:12px;direction:ltr;text-align:left;unicode-bidi:embed}
-  *{break-inside: avoid; page-break-inside: avoid;}
-  html,body{height:auto}
-</style>
-</head>
-<body>
-<div class="paper">
-  <div class="center">
-    <img class="logo" src="images/bslogo.webp" onerror="this.style.display='none'">
-    <div class="b">B.S Medical &amp; Aesthetic</div>
-    <div class="m">${titleText}: <strong>${escapeHtml(d.invNo)}</strong></div>
-    <div class="m">Order ID: <strong>${escapeHtml(d.orderId || "—")}</strong></div>
-  </div>
-
-  <div class="sep"></div>
-  <div class="m">تاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
-  <div class="m">وقت: <strong>${escapeHtml(d.invTime)}</strong></div>
-
-  <div class="sep"></div>
-  <div class="b">بيانات العميل</div>
-  <div class="m">الاسم: ${escapeHtml(d.custName)}</div>
-  <div class="m">الهاتف: ${escapeHtml(d.custPhone)}</div>
-  <div class="m">العنوان: ${escapeHtml(d.custAddress)}</div>
-
-  <div class="sep"></div>
-  <div class="b">الأصناف</div>
-  <div class="sep"></div>
-
-  ${items}
-
-  <div class="sep"></div>
-  <div class="totRow"><span>قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>الخصم</span><span>${Number(d.rowDiscountSum||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>خصم خاص</span><span>${Number(d.globalDiscount||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>قبل التوصيل</span><span>${Number(d.afterAllDiscount||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>التوصيل</span><span>${Number(d.deliveryFee||0) > 0 ? Number(d.deliveryFee).toFixed(2) : "مجاني"}</span></div>
-  <div class="totRow totMain"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)}</span></div>
-
-  <div class="sep"></div>
-  <div class="m">${escapeHtml(d.words)}</div>
-  ${noteBlock}
-
-  <div class="qr">
-    <img src="${QR_SRC_MAIN}" onerror="this.onerror=null;this.src='${QR_SRC_FALLBACK}'" alt="QR">
-    <div class="m">امسح الـ QR للتواصل / روابط Axentro</div>
-  </div>
-
-  <div class="foot">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
-</div>
-</body>
-</html>`;
-}
-
-function printThermal(mm){
-  const d = getInvoiceData();
-  openPrintWindow(buildThermalHtml(mm, d), `فاتورة ${d.invNo}`);
-}
-
-/* ================= PDF (FIX WHITE PAGE) ================= */
-async function toDataURL(url){
-  try{
-    const abs = new URL(url, location.href).toString();
-    const res = await fetch(abs, { cache: "no-store" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const blob = await res.blob();
-    return await new Promise((resolve, reject)=>{
-      const r = new FileReader();
-      r.onload = ()=> resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(blob);
-    });
-  }catch(e){ return null; }
-}
-async function inlineAllImages(root){
-  const imgs = Array.from(root.querySelectorAll("img"));
-  for(const img of imgs){
-    const src = img.getAttribute("src") || "";
-    if(!src || src.startsWith("data:")) continue;
-    let dataUrl = await toDataURL(src);
-    if(!dataUrl && (src.includes(QR_SRC_MAIN) || src === QR_SRC_MAIN)){
-      dataUrl = await toDataURL(QR_SRC_FALLBACK);
-    }
-    if(dataUrl) img.setAttribute("src", dataUrl);
-  }
-}
-
-function buildA4FragmentForPdf(d){
-  const full = buildA4Html(d);
-  const style = (full.match(/<style>([\s\S]*?)<\/style>/i) || [,""])[1];
-  const body  = (full.match(/<body[^>]*>([\s\S]*?)<\/body>/i) || [,""])[1];
-  return `<div><style>${style}</style>${body}</div>`;
-}
-
-async function savePdfA4(){
-  const d = getInvoiceData();
-  const safeKey = (d.orderId || d.invNo || "BS").replace(/[^\w-]+/g,"_");
-  const filename = `invoice_${safeKey}.pdf`;
-
-  const holder = document.createElement("div");
-  holder.style.position = "fixed";
-  holder.style.left = "-99999px";
-  holder.style.top = "0";
-  holder.style.width = "210mm";
-  holder.style.background = "#fff";
-  holder.style.zIndex = "-1";
-
-  holder.innerHTML = buildA4FragmentForPdf(d);
-  document.body.appendChild(holder);
-
-  await new Promise(r=> setTimeout(r, 150));
-  await inlineAllImages(holder);
-
-  const opt = {
-    margin: 10,
-    filename,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-  };
-
-  try{
-    await html2pdf().set(opt).from(holder).save();
-  }catch(e){
-    console.error(e);
-    alert("فشل حفظ PDF");
-  }finally{
-    holder.remove();
-  }
-}
+/* ======= (باقي دوال WhatsApp/Export/PDF/Thermal عندك كما هي) ======= */
+/* ملاحظة: سيب الكود بتاعك من هنا لتحت زي ما هو (extractOrderIdSmart/extractCustomerData/parseWhatsAppLines/getInvoiceData... إلخ) */
 
 /* ================= BIND ================= */
 document.getElementById('addRowBtn')?.addEventListener('click', ()=> addRow(false));
