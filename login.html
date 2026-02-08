@@ -4,7 +4,6 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>تسجيل دخول الإدارة — Axentro</title>
-
   <style>
     :root{
       --bg:#ffffff;
@@ -174,40 +173,32 @@
     .mini span{color:var(--muted); font-weight:900;}
   </style>
 </head>
-
 <body>
   <main class="wrap">
-    <section class="card" aria-label="تسجيل دخول الإدارة">
+    <section class="card" aria-label="Login card">
       <div class="head">
-        <div class="logo">
-          <img src="images/bslogo.webp" alt="BS Logo"
-               onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='BS'">
+        <div class="brand">
+          <div class="logo">AX</div>
+          <div>
+            <h1 class="title">Axentro Backoffice</h1>
+            <p class="sub">تسجيل دخول الإدارة — عبر حساب Google</p>
+          </div>
         </div>
-        <div>
-          <div class="t1">B.S Medical &amp; Aesthetic</div>
-          <div class="t2">تسجيل دخول الإدارة — Axentro Backoffice</div>
+      </div>
+
+      <div class="body">
+        <div id="errMsg" class="msg err" style="display:none"></div>
+        <div id="statusMsg" class="msg ok" style="display:none"></div>
+
+        <div class="googleArea">
+          <div id="googleBtnWrap"></div>
+          <p class="hint">لو دي أول مرة تسجّل دخول، هيتم إرسال طلب موافقة تلقائيًا للإدارة.</p>
         </div>
-      </div>
 
-      <label for="pass"></label>
-
-      <div class="field">
-        <input id="pass" type="password" placeholder="••••••••" aria-label="<button class="iconBtn" id="togglePass" type="button" aria-label="إظهار أو إخفاء كلمة المرور">👁️</button>
-      </div>
-
-      <div class="mini">
-        <div>الدخول للإدارة فقط <span>ليس للعملاء</span></div>
-        <div id="lockInfo" style="display:none;color:#991b1b"></div>
-      </div>
-
-      <div class="row">
-        <button class="primary" id="loginBtn" type="button">دخول</button>
-      </div>
-
-      <div id="err" class="err" role="status" aria-live="polite"></div>
-
-      <div class="hint">
-        ⚠️ تنبيه: هذه الصفحة للإدارة فقط وليست للعملاء.
+        <div class="note">
+          <span class="warn">⚠️</span>
+          <span>هذه الصفحة للإدارة فقط وليست للعملاء.</span>
+        </div>
       </div>
     </section>
   </main>
@@ -217,73 +208,76 @@
     <div class="line2">By Ahmed Hamouda</div>
   </footer>
 
-<script src="app.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="app.js"></script>
-<script>
-(function(){
-  "use strict";
-  // CONFIG: ضع القيم هنا أو في window.AXENTRO_CONFIG أعلى الصفحة.
-  window.AXENTRO_CONFIG = Object.assign({
-    GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
-    GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
-  }, window.AXENTRO_CONFIG||{});
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script>
+  (function(){
+    "use strict";
+    const statusEl = document.getElementById("statusMsg");
+    const errEl = document.getElementById("errMsg");
+    const btnWrap = document.getElementById("googleBtnWrap");
 
-  const statusEl = document.getElementById("statusMsg");
-  const errEl = document.getElementById("errMsg");
-  const btnWrap = document.getElementById("googleBtnWrap");
-
-  function getNext(){
-    try{ return new URLSearchParams(location.search).get("next") || "dashboard.html"; }
-    catch(e){ return "dashboard.html"; }
-  }
-  function showStatus(t){ if(statusEl){ statusEl.textContent=t||""; statusEl.style.display=t? "block":"none"; } }
-  function showErr(t){ if(errEl){ errEl.textContent=t||""; errEl.style.display=t? "block":"none"; } }
-
-  if(AxentroAuth.isAuthed()){
-    location.replace(getNext());
-    return;
-  }
-
-  const cfg = AxentroAuth.cfg;
-  if(!cfg.GAS_WEB_APP_URL || !cfg.GOOGLE_CLIENT_ID){
-    showErr("⚠️ لم يتم ضبط GAS_WEB_APP_URL أو GOOGLE_CLIENT_ID بعد. راجع تعليمات الإعداد.");
-    return;
-  }
-
-  // Render Google button
-  window.handleCredential = async function(resp){
-    try{
-      showErr("");
-      showStatus("جاري تسجيل الدخول...");
-      const out = await AxentroAuth.loginWithGoogleIdToken(resp.credential);
-      if(out.status === "APPROVED"){
-        showStatus("");
-        location.replace(getNext());
-      }else if(out.status === "PENDING"){
-        showStatus("");
-        showErr("تم تسجيل طلبك للموافقة. سيتم إشعار الإدارة.");
-      }else if(out.status === "BLOCKED" || out.status === "REJECTED"){
-        showStatus("");
-        showErr("تم رفض الدخول لهذا الحساب.");
-      }else{
-        showStatus("");
-        showErr("تعذر تسجيل الدخول.");
-      }
-    }catch(e){
-      showStatus("");
-      showErr(e.message || "خطأ أثناء تسجيل الدخول");
+    function getNext(){
+      try{ return new URLSearchParams(location.search).get("next") || "dashboard.html"; }
+      catch(e){ return "dashboard.html"; }
     }
-  }
+    function showStatus(t){ if(statusEl){ statusEl.textContent=t||""; statusEl.style.display=t? "block":"none"; } }
+    function showErr(t){ if(errEl){ errEl.textContent=t||""; errEl.style.display=t? "block":"none"; } }
 
-  google.accounts.id.initialize({
-    client_id: cfg.GOOGLE_CLIENT_ID,
-    callback: handleCredential,
-    auto_select: false,
-    cancel_on_tap_outside: false
-  });
-  google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 320 });
-})();
-</script>
+    if (window.AxentroAuth && AxentroAuth.isAuthed()) {
+      location.replace(getNext());
+      return;
+    }
+
+    const cfg = (window.AxentroAuth && AxentroAuth.cfg) ? AxentroAuth.cfg : (window.AXENTRO_CONFIG||{});
+    if(!cfg.GAS_WEB_APP_URL || !cfg.GOOGLE_CLIENT_ID){
+      showErr("⚠️ لازم تضيف GAS_WEB_APP_URL و GOOGLE_CLIENT_ID داخل ملف config.js (إعداد مرة واحدة).");
+      return;
+    }
+
+    if(!window.google || !google.accounts || !google.accounts.id){
+      showErr("تعذر تحميل Google Login. جرّب تحديث الصفحة أو افتحها من متصفح Chrome.");
+      return;
+    }
+
+    window.handleCredential = async function(resp){
+      try{
+        showErr("");
+        showStatus("جاري تسجيل الدخول...");
+        const out = await AxentroAuth.loginWithGoogleIdToken(resp.credential);
+        if(out.status === "APPROVED"){
+          showStatus("");
+          location.replace(getNext());
+        } else if(out.status === "PENDING") {
+          showStatus("");
+          showErr("تم تسجيل طلبك للموافقة. انتظر موافقة الإدارة.");
+        } else {
+          showStatus("");
+          showErr(out.message || "تم رفض الدخول.");
+        }
+      } catch(e) {
+        showStatus("");
+        showErr(e && e.message ? e.message : String(e));
+      }
+    };
+
+    // Render Google button
+    google.accounts.id.initialize({
+      client_id: cfg.GOOGLE_CLIENT_ID,
+      callback: window.handleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    google.accounts.id.renderButton(btnWrap, {
+      type: "standard",
+      theme: "outline",
+      size: "large",
+      text: "continue_with",
+      shape: "pill",
+      width: 320
+    });
+  })();
+  </script>
 </body>
 </html>
