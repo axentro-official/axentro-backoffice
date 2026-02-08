@@ -236,63 +236,10 @@
 
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
+
 <script>
-  /* ============ Auth Gate ============ */
-  document.getElementById("logoutBtn").addEventListener("click", ()=>{
-    AxentroAuth.logout();
-      });
-
-  /* ============ Toast ============ */
-  const toast = document.getElementById("toast");
-  let toastTimer = null;
-  function showToast(msg){
-    toast.textContent = msg;
-    toast.classList.add("show");
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(()=> toast.classList.remove("show"), 1600);
-  }
-
-  /* ============ Highlight active page (لو فتحت الداش من جوه صفحة تانية) ============ */
-  (function highlight(){
-    // لو الداشبورد نفسها مفيش صفحة "current"، بس بنسيبها جاهزة لأي reuse
-    const here = location.pathname.split("/").pop()?.toLowerCase() || "";
-    document.querySelectorAll(".card a[href]").forEach(a=>{
-      const href = (a.getAttribute("href")||"").toLowerCase();
-      if(here && href === here){
-        a.closest(".card")?.classList.add("active");
-      }
-    });
-  })();
-
-  /* ============ Safe navigation: افحص الملف قبل الفتح ============ */
-  async function fileExists(url){
-    try{
-      const res = await fetch(url, { method:"HEAD", cache:"no-store" });
-      return res.ok;
-    }catch(e){
-      return false;
-    }
-  }
-
-  document.addEventListener("click", async (e)=>{
-    const a = e.target.closest(".card a[href]");
-    if(!a) return;
-
-    // فتح في نفس التبويب
-    e.preventDefault();
-
-    const href = a.getAttribute("href");
-    if(!href) return;
-
-    // ✅ لو عايز ترجع لسلوك 404 الطبيعي: احذف من هنا لحد قبل location.href
-    const ok = await fileExists(href);
-    if(!ok){
-      showToast("⚠️ الصفحة دي لسه مش جاهزة.\nأول ما ترفع الملف هتشتغل تلقائيًا.");
-      return;
-    }
-
-    location.href = href;
-  });
+  const _lb = document.getElementById("logoutBtn");
+  if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
 </script>
 </body>
 </html>

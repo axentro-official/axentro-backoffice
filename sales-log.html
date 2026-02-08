@@ -432,16 +432,6 @@
 <script>AxentroAuth.requireAuth();</script>
 <script>
 /* ================= AUTH GATE (موحّد) ================= */
-const OK_KEY = "AX_BO_OK";
-function requireAuth(){
-  if(sessionStorage.getItem(OK_KEY) !== "1"){
-    location.replace("login.html");
-    return false;
-  }
-  return true;
-}
-if(!requireAuth()) throw new Error("Not authenticated");
-
 document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
   AxentroAuth.logout();
       });
