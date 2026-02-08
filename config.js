@@ -1,7 +1,7 @@
-// Axentro Backoffice - Runtime Config (GitHub Pages)
-// 1) ضع رابط الـ Web App الخاص بـ Apps Script (ينتهي بـ /exec)
-// 2) ضع Google OAuth Client ID (ينتهي بـ apps.googleusercontent.com)
-// ملاحظة: لا تضع Client Secret هنا نهائيًا.
+window.AXENTRO_CONFIG = {
+  GAS_WEB_APP_URL: "https://script.google.com/macros/s/AKfycbyuNcLgIgoSH3kNUjGo9wQ2P4w25ifQsSK5XdhPCU4A0QxtpwZ2NOdt-KrpscwcP-iYew/exec",
+  GOOGLE_CLIENT_ID: "778615894643-sbacc4bv7nlb6a11a1v5gj86i94lvb5f.apps.googleusercontent.com"
+};
 
 window.AXENTRO_CONFIG = {
   GAS_WEB_APP_URL: "",
