@@ -272,6 +272,13 @@
       transform: translateX(-50%) translateY(-4px);
     }
   </style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+</script>
 </head>
 
 <body>
@@ -289,6 +296,7 @@
 
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
+      <button class="btn" id="saveSystemBtn" type="button">💾 حفظ في النظام</button>
       <button class="btn danger" id="resetBtn" type="button">🧹 مسح / فاتورة جديدة</button>
     </div>
   </div>
@@ -431,7 +439,7 @@ function showToast(msg){
 }
 
 /* ================= CONFIG ================= */
-const API_URL = "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec";
+const API_URL = (AxentroAuth && AxentroAuth.cfg && AxentroAuth.cfg.GAS_WEB_APP_URL) ? AxentroAuth.cfg.GAS_WEB_APP_URL : "";
 const IMG_PLACEHOLDER = "https://via.placeholder.com/600x400?text=No+Image";
 
 const QR_SRC_MAIN = "qr-links.png";
@@ -500,10 +508,8 @@ function loadProductsFromCache(){
   }catch(e){ return null; }
 }
 async function fetchProductsFromApi(){
-  const res = await fetch(API_URL,{cache:"no-store"});
-  if(!res.ok) throw new Error("HTTP " + res.status);
-  const data = await res.json();
-  return Array.isArray(data) ? data : [];
+  const data = await AxentroApi.getProducts();
+  return Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []);
 }
 async function loadProductsSmart(){
   const cached = loadProductsFromCache();
@@ -804,6 +810,7 @@ function getPurchaseData(){
   const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
   const items = rows.map((tr, idx)=>{
     const sku = (tr.querySelector('[data-field="sku"]')?.value || "").trim();
+    const barcode = (tr.querySelector('[data-field="barcode"]')?.value || "").trim();
     const name = (tr.querySelector('[data-field="name"]')?.value || "").trim();
     const qty = Math.max(0, money(tr.querySelector('[data-field="qty"]')?.value));
     const price = Math.max(0, money(tr.querySelector('[data-field="price"]')?.value));
@@ -814,7 +821,7 @@ function getPurchaseData(){
     const sub = Math.max(0, subRaw - disc);
     const skuName = (sku && name) ? `${sku} | ${name}` : (sku || name);
 
-    return { idx: idx + 1, sku, name, skuName, qty, price, disc, sub, subRaw };
+    return { idx: idx + 1, sku, barcode, name, skuName, qty, price, disc, sub, subRaw };
   }).filter(i => i.skuName || i.qty || i.price || i.disc);
 
   const totalBefore = items.reduce((s,i)=> s + money(i.subRaw), 0);
@@ -936,6 +943,13 @@ function buildA4Html(d){
   .qrText{font-size:12px;color:#334155;font-weight:900}
   .footer{margin-top:10px;text-align:center;color:#64748b;font-size:12px;line-height:1.6}
 </style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+</script>
 </head>
 <body>
 <div class="sheet">
@@ -1063,6 +1077,13 @@ function buildThermalHtml(mm, d){
   *{break-inside: avoid; page-break-inside: avoid;}
   html,body{height:auto}
 </style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+</script>
 </head>
 <body>
 <div class="paper">
@@ -1643,6 +1664,57 @@ if(draft){
     calcGrand();
   }
 }
+
+/* ================= SAVE TO SYSTEM (Apps Script) ================= */
+const saveSystemBtn = document.getElementById("saveSystemBtn");
+async function savePurchaseToSystem(){
+  try{
+    AxentroAuth.requireAuth();
+    const d = getPurchaseData();
+    // Build payload for Apps Script (FIFO lots)
+    const items = (d.items || []).map(i=>({
+      barcode: i.barcode || "",       // إن لم يوجد → السيرفر يولّد Internal Barcode
+      name: i.name || i.skuName || "",// الاسم مطلوب لو باركود جديد
+      category: "",
+      unit: "PCS",
+      qty: Number(i.qty||0),
+      unit_cost: Number(i.price||0)
+    })).filter(x => (x.barcode || x.name) && x.qty>0);
+
+    if(items.length === 0){
+      showToast("أضف أصناف أولاً");
+      return;
+    }
+
+    const payload = {
+      supplier: (d.supplierName || "").trim(),
+      invoice_date: (d.invDate || "") || null,
+      discount: Number(d.globalDiscount||0),
+      tax: 0,
+      notes: (d.note||"").trim(),
+      items
+    };
+
+    showToast("⏳ جاري الحفظ...");
+    const res = await AxentroApi.createPurchase(payload);
+    if(res && res.purchase_invoice_no){
+      showToast("✅ تم الحفظ: " + res.purchase_invoice_no);
+      // اكتب رقم الفاتورة في الحقل إن كان فارغ
+      const invNoEl = document.getElementById("invNo");
+      if(invNoEl && !invNoEl.value) invNoEl.value = res.purchase_invoice_no;
+    }else{
+      showToast("✅ تم الحفظ");
+    }
+  }catch(e){
+    showToast("❌ " + (e.message || "خطأ"));
+    // لو الجلسة انتهت
+    if(String(e.message||"").toLowerCase().includes("session")){
+      try{ AxentroAuth.logout(); }catch(_){}
+    }
+  }
+}
+if(saveSystemBtn) saveSystemBtn.addEventListener("click", savePurchaseToSystem);
+
 </script>
 </body>
 </html>

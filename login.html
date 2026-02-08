@@ -189,11 +189,10 @@
         </div>
       </div>
 
-      <label for="pass">رمز الدخول</label>
+      <label for="pass"></label>
 
       <div class="field">
-        <input id="pass" type="password" placeholder="••••••••" aria-label="رمز الدخول" autocomplete="current-password" />
-        <button class="iconBtn" id="togglePass" type="button" aria-label="إظهار أو إخفاء كلمة المرور">👁️</button>
+        <input id="pass" type="password" placeholder="••••••••" aria-label="<button class="iconBtn" id="togglePass" type="button" aria-label="إظهار أو إخفاء كلمة المرور">👁️</button>
       </div>
 
       <div class="mini">
@@ -219,127 +218,72 @@
   </footer>
 
 <script src="app.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="app.js"></script>
 <script>
-  /* ===== CONFIG ===== */
-  // كلمة المرور أصبحت مُدارة من app.js (SHA-256 hash) بدل ما تكون ظاهرة هنا.
+(function(){
+  "use strict";
+  // CONFIG: ضع القيم هنا أو في window.AXENTRO_CONFIG أعلى الصفحة.
+  window.AXENTRO_CONFIG = Object.assign({
+    GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+    GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+  }, window.AXENTRO_CONFIG||{});
 
-  const OK_KEY = "AX_BO_OK"; // ✅ موحّد لكل صفحات الإدارة
+  const statusEl = document.getElementById("statusMsg");
+  const errEl = document.getElementById("errMsg");
+  const btnWrap = document.getElementById("googleBtnWrap");
 
-  /* lock (بسيط ومحسّن) */
-  const FAILS_KEY = "AX_BO_FAILS";
-  const LOCK_UNTIL_KEY = "AX_BO_LOCK_UNTIL";
-  const MAX_FAILS = 5;
-  const LOCK_MINUTES = 10;
-
-  function nowMs(){ return Date.now(); }
-  function isLocked(){
-    const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
-    return until && nowMs() < until;
-  }
-  function lockRemainingText(){
-    const until = Number(localStorage.getItem(LOCK_UNTIL_KEY) || 0);
-    const diff = Math.max(0, until - nowMs());
-    const mins = Math.ceil(diff / 60000);
-    return `تم قفل الدخول مؤقتًا. حاول بعد ${mins} دقيقة.`;
-  }
-  function incFail(){
-    const n = Number(localStorage.getItem(FAILS_KEY) || 0) + 1;
-    localStorage.setItem(FAILS_KEY, String(n));
-    if(n >= MAX_FAILS){
-      localStorage.setItem(LOCK_UNTIL_KEY, String(nowMs() + LOCK_MINUTES*60000));
-    }
-    return n;
-  }
-  function resetFails(){
-    localStorage.removeItem(FAILS_KEY);
-    localStorage.removeItem(LOCK_UNTIL_KEY);
-  }
-
-  const passEl = document.getElementById("pass");
-  const btn = document.getElementById("loginBtn");
-  const err = document.getElementById("err");
-  const lockInfo = document.getElementById("lockInfo");
-  const togglePass = document.getElementById("togglePass");
-
-  
   function getNext(){
+    try{ return new URLSearchParams(location.search).get("next") || "dashboard.html"; }
+    catch(e){ return "dashboard.html"; }
+  }
+  function showStatus(t){ if(statusEl){ statusEl.textContent=t||""; statusEl.style.display=t? "block":"none"; } }
+  function showErr(t){ if(errEl){ errEl.textContent=t||""; errEl.style.display=t? "block":"none"; } }
+
+  if(AxentroAuth.isAuthed()){
+    location.replace(getNext());
+    return;
+  }
+
+  const cfg = AxentroAuth.cfg;
+  if(!cfg.GAS_WEB_APP_URL || !cfg.GOOGLE_CLIENT_ID){
+    showErr("⚠️ لم يتم ضبط GAS_WEB_APP_URL أو GOOGLE_CLIENT_ID بعد. راجع تعليمات الإعداد.");
+    return;
+  }
+
+  // Render Google button
+  window.handleCredential = async function(resp){
     try{
-      const params = new URLSearchParams(location.search);
-      const n = params.get("next");
-      return n ? n.replace(/[^a-zA-Z0-9\-_.]/g,"") : "";
-    }catch(e){ return ""; }
-  }
-
-function showErr(msg){
-    err.textContent = msg;
-    err.style.display = "block";
-  }
-  function clearErr(){
-    err.textContent = "";
-    err.style.display = "none";
-  }
-
-  function refreshLockUI(){
-    if(isLocked()){
-      lockInfo.textContent = lockRemainingText();
-      lockInfo.style.display = "block";
-      btn.disabled = true;
-    }else{
-      lockInfo.textContent = "";
-      lockInfo.style.display = "none";
-      btn.disabled = false;
+      showErr("");
+      showStatus("جاري تسجيل الدخول...");
+      const out = await AxentroAuth.loginWithGoogleIdToken(resp.credential);
+      if(out.status === "APPROVED"){
+        showStatus("");
+        location.replace(getNext());
+      }else if(out.status === "PENDING"){
+        showStatus("");
+        showErr("تم تسجيل طلبك للموافقة. سيتم إشعار الإدارة.");
+      }else if(out.status === "BLOCKED" || out.status === "REJECTED"){
+        showStatus("");
+        showErr("تم رفض الدخول لهذا الحساب.");
+      }else{
+        showStatus("");
+        showErr("تعذر تسجيل الدخول.");
+      }
+    }catch(e){
+      showStatus("");
+      showErr(e.message || "خطأ أثناء تسجيل الدخول");
     }
   }
 
-  async function doLogin(){
-    clearErr();
-    refreshLockUI();
-    if(isLocked()){
-      showErr(lockRemainingText());
-      return;
-    }
-
-    const v = String(passEl.value || "").trim();
-
-    if(!v){
-      showErr("اكتب رمز الدخول أولاً.");
-      passEl.focus();
-      return;
-    }
-
-        if(await AxentroAuth.loginWithPassword(v)) {
-      resetFails();
-      location.replace(getNext() || "dashboard.html");
-    }else{
-      const tries = incFail();
-      refreshLockUI();
-      if(isLocked()) showErr(lockRemainingText());
-      else showErr(`رمز الدخول غير صحيح. المتبقي قبل القفل: ${Math.max(0, MAX_FAILS - tries)}`);
-      passEl.select();
-      passEl.focus();
-    }
-  }
-
-  // إظهار/إخفاء كلمة المرور
-  togglePass.addEventListener("click", ()=>{
-    const isPwd = passEl.type === "password";
-    passEl.type = isPwd ? "text" : "password";
-    togglePass.textContent = isPwd ? "🙈" : "👁️";
-    passEl.focus();
+  google.accounts.id.initialize({
+    client_id: cfg.GOOGLE_CLIENT_ID,
+    callback: handleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: false
   });
-
-  btn.addEventListener("click", doLogin);
-  passEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doLogin(); });
-
-  // لو مسجل قبل كده، ودّيه للداش
-    if(AxentroAuth.isAuthed()){
-    location.replace(getNext() || "dashboard.html");
-  }else{
-    try{ passEl.focus(); }catch(e){}
-  }
-
-  // تحديث حالة القفل وقت الفتح
-  refreshLockUI();
+  google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 320 });
+})();
 </script>
 </body>
 </html>

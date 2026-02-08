@@ -1,94 +1,146 @@
-/* Axentro Backoffice - Shared App Logic (Auth + Helpers)
-   هدف الملف: منطق مشترك لكل الصفحات بدون تغيير الهوية البصرية.
-   ملاحظة مهمة: حماية الواجهة (Front-end) تمنع الدخول "العادي" فقط، لكنها ليست حماية سيرفر 100%.
-   عندما نربط Google Apps Script لاحقاً، سنجعل كل عمليات القراءة/الكتابة لا تعمل إلا بتوكين صحيح.
+/* Axentro Backoffice - Shared App Logic (Google Auth + API helpers)
+   ملاحظات:
+   - الواجهة على GitHub Pages "لا يمكن" حمايتها 100% لوحدها.
+   - الحماية الحقيقية هنا: كل قراءة/كتابة تتم عبر Google Apps Script الذي يطبق Whitelist/Blacklist.
+   - تسجيل الدخول: Google Identity Services (GIS) + Apps Script token verification.
 */
 (function(){
   "use strict";
 
-  const STORAGE_KEY = "axentro_auth_v1";
-  const LEGACY_OK_KEY = "AX_BO_OK";
+  // ====== Config ======
+  const DEFAULTS = {
+    // ضع رابط Web App بعد ما تنشر Apps Script كـ Web App
+    // مثال: https://script.google.com/macros/s/XXXX/exec
+    GAS_WEB_APP_URL: "",
+    // ضع Google OAuth Client ID الخاص بـ GIS
+    GOOGLE_CLIENT_ID: "",
+    // أين تُرسل إشعارات طلبات الدخول (على السيرفر)
+    // لا تحتاج هنا.
+  };
 
-  // ✅ بدل ما كلمة المرور تكون ظاهرة، نخزن Hash (SHA-256) للرمز.
-  // الافتراضي الحالي مطابق للكود القديم: 1407
-  const ALLOWED_PASSWORD_HASHES = new Set([
-    "a3346b8b4c26feb607f8a40699c934ef426dee5ceebf51f9f7209aa79c08a0da"
-  ]);
+  // يمكن لكل صفحة أن تضع قبل app.js:
+  // <script>window.AXENTRO_CONFIG={ GAS_WEB_APP_URL:"...", GOOGLE_CLIENT_ID:"..." };</script>
+  const CFG = Object.assign({}, DEFAULTS, (window.AXENTRO_CONFIG || {}));
 
-  async function sha256Hex(text){
-    const enc = new TextEncoder().encode(text);
-    const buf = await crypto.subtle.digest("SHA-256", enc);
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-  }
+  // ====== Session storage ======
+  const STORAGE_KEY = "axentro_session_v2"; // {token,email,role,expiresAt}
 
   function nowMs(){ return Date.now(); }
 
-  function readAuth(){
+  function getSession(){
     try{
       const raw = localStorage.getItem(STORAGE_KEY);
       if(!raw) return null;
-      const obj = JSON.parse(raw);
-      if(!obj || !obj.exp) return null;
-      if(nowMs() > obj.exp) return null;
-      try{ sessionStorage.setItem(LEGACY_OK_KEY, "1"); }catch(e){}
-      return obj;
+      const s = JSON.parse(raw);
+      if(!s || !s.token || !s.expiresAt) return null;
+      if(Number(s.expiresAt) <= nowMs()){
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return s;
     }catch(e){ return null; }
   }
 
-  function writeAuth(session){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
-    try{ sessionStorage.setItem(LEGACY_OK_KEY, "1"); }catch(e){}
+  function setSession(sess){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sess));
+    // legacy compatibility (بعض الصفحات القديمة)
+    try{ sessionStorage.setItem("AX_BO_OK", "1"); }catch(e){}
   }
 
-  function clearAuth(){
+  function clearSession(){
     localStorage.removeItem(STORAGE_KEY);
-    try{ sessionStorage.removeItem(LEGACY_OK_KEY); }catch(e){}
+    try{ sessionStorage.removeItem("AX_BO_OK"); }catch(e){}
   }
 
-  async function loginWithPassword(password, opts={}){
-    const pwd = String(password||"").trim();
-    if(!pwd) return false;
+  function buildNextParam(){
+    const url = new URL(location.href);
+    return encodeURIComponent(url.pathname.split("/").pop() || "dashboard.html");
+  }
 
-    // 12 ساعة افتراضيًا
-    const ttlHours = Number(opts.ttlHours || 12);
-    const hash = await sha256Hex(pwd);
+  function redirectToLogin(){
+    location.replace("login.html?next=" + buildNextParam());
+  }
 
-    if(!ALLOWED_PASSWORD_HASHES.has(hash)) return false;
-
-    writeAuth({
-      ok: true,
-      // token عشوائي للاستخدام لاحقًا مع الـ API
-      token: (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2) + String(nowMs())),
-      exp: nowMs() + ttlHours*60*60*1000
+  // ====== API helper ======
+  async function apiCall(action, payload){
+    if(!CFG.GAS_WEB_APP_URL){
+      throw new Error("GAS_WEB_APP_URL is not set in AXENTRO_CONFIG.");
+    }
+    const sess = getSession();
+    const body = Object.assign({}, payload || {}, {
+      action,
+      session_token: sess ? sess.token : null
     });
-    return true;
+
+    const res = await fetch(CFG.GAS_WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type":"application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok || data.ok === false){
+      const msg = data && (data.error || data.message) ? (data.error || data.message) : ("HTTP " + res.status);
+      const err = new Error(msg);
+      err.data = data;
+      throw err;
+    }
+    return data;
   }
 
-  function isAuthed(){
-    return !!readAuth();
-  }
+  // ====== Auth facade (keeps old API names) ======
+  const AxentroAuth = {
+    cfg: CFG,
 
-  function requireAuth(redirectUrl="login.html"){
-    if(isAuthed()) return true;
+    isAuthed(){
+      return !!getSession();
+    },
 
-    // مرّر الصفحة الحالية عشان بعد تسجيل الدخول يرجع لها
-    const next = encodeURIComponent(location.pathname.split("/").pop() || "dashboard.html");
-    location.replace(`${redirectUrl}?next=${next}`);
-    return false;
-  }
+    getSession(){
+      return getSession();
+    },
 
-  function logout(){
-    clearAuth();
-    location.replace("login.html");
-  }
+    requireAuth(){
+      if(!getSession()) redirectToLogin();
+    },
 
-  // expose
-  window.AxentroAuth = {
-    loginWithPassword,
-    isAuthed,
-    requireAuth,
-    logout,
-    // داخلي (للاستخدام لاحقًا مع الـ API)
-    _readAuth: readAuth
+    logout(){
+      clearSession();
+      redirectToLogin();
+    },
+
+    async loginWithGoogleIdToken(idToken){
+      // Returns: {status:'APPROVED'|'PENDING'|'BLOCKED'|'REJECTED', ...}
+      const data = await apiCall("auth_login", { id_token: idToken });
+      // When approved, server returns session_token + expires_in
+      if(data.status === "APPROVED" && data.session_token){
+        setSession({
+          token: data.session_token,
+          email: data.email,
+          role: data.role || "user",
+          expiresAt: nowMs() + (Number(data.expires_in || 3600) * 1000)
+        });
+      }
+      return data;
+    },
+
+    async me(){
+      return apiCall("auth_me", {});
+    }
   };
+
+  // ====== API facade ======
+  const AxentroApi = {
+    async getProducts(){
+      return apiCall("get_products", {});
+    },
+    async createPurchase(purchasePayload){
+      return apiCall("create_purchase", purchasePayload);
+    }
+  };
+
+  // Expose globally
+  window.AxentroAuth = AxentroAuth;
+  window.AxentroApi = AxentroApi;
+
 })();
