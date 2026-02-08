@@ -455,6 +455,8 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="app.js"></script>
+<script>AxentroAuth.requireAuth();</script>
 <script>
 /* ================= AUTH GATE ================= */
 const OK_KEY = "AX_BO_OK";
@@ -468,9 +470,8 @@ function requireAuth(){
 if(!requireAuth()) throw new Error("Not authenticated");
 
 document.getElementById("logoutBtn")?.addEventListener("click", ()=>{
-  sessionStorage.removeItem(OK_KEY);
-  location.replace("login.html");
-});
+  AxentroAuth.logout();
+      });
 
 /* ================= Toast ================= */
 const toast = document.getElementById("toast");

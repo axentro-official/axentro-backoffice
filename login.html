@@ -218,9 +218,11 @@
     <div class="line2">By Ahmed Hamouda</div>
   </footer>
 
+<script src="app.js"></script>
 <script>
   /* ===== CONFIG ===== */
-  const ADMIN_PASSWORD = "1407";
+  // كلمة المرور أصبحت مُدارة من app.js (SHA-256 hash) بدل ما تكون ظاهرة هنا.
+
   const OK_KEY = "AX_BO_OK"; // ✅ موحّد لكل صفحات الإدارة
 
   /* lock (بسيط ومحسّن) */
@@ -259,7 +261,16 @@
   const lockInfo = document.getElementById("lockInfo");
   const togglePass = document.getElementById("togglePass");
 
-  function showErr(msg){
+  
+  function getNext(){
+    try{
+      const params = new URLSearchParams(location.search);
+      const n = params.get("next");
+      return n ? n.replace(/[^a-zA-Z0-9\-_.]/g,"") : "";
+    }catch(e){ return ""; }
+  }
+
+function showErr(msg){
     err.textContent = msg;
     err.style.display = "block";
   }
@@ -280,7 +291,7 @@
     }
   }
 
-  function doLogin(){
+  async function doLogin(){
     clearErr();
     refreshLockUI();
     if(isLocked()){
@@ -296,10 +307,9 @@
       return;
     }
 
-    if(v === ADMIN_PASSWORD){
+        if(await AxentroAuth.loginWithPassword(v)) {
       resetFails();
-      sessionStorage.setItem(OK_KEY, "1");
-      location.replace("dashboard.html");
+      location.replace(getNext() || "dashboard.html");
     }else{
       const tries = incFail();
       refreshLockUI();
@@ -322,8 +332,8 @@
   passEl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doLogin(); });
 
   // لو مسجل قبل كده، ودّيه للداش
-  if(sessionStorage.getItem(OK_KEY) === "1"){
-    location.replace("dashboard.html");
+    if(AxentroAuth.isAuthed()){
+    location.replace(getNext() || "dashboard.html");
   }else{
     try{ passEl.focus(); }catch(e){}
   }

@@ -379,6 +379,8 @@
 
 <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
+<script src="app.js"></script>
+<script>AxentroAuth.requireAuth();</script>
 <script>
 /* ================= AUTH GATE (FIXED) ================= */
 const OK_KEY = "AX_BO_OK";
@@ -403,9 +405,8 @@ function showToast(msg){
 
 /* ================= Logout ================= */
 document.getElementById("logoutBtn").addEventListener("click", ()=>{
-  sessionStorage.removeItem(OK_KEY);
-  location.replace("login.html");
-});
+  AxentroAuth.logout();
+      });
 
 /* ================= CONFIG ================= */
 const API_URL = "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec";
