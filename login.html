@@ -210,9 +210,10 @@
 
   <script src="config.js"></script>
   <script src="app.js"></script>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client"></script>
   <script>
-  (function(){
+  (async function(){
     "use strict";
     const statusEl = document.getElementById("statusMsg");
     const errEl = document.getElementById("errMsg");
@@ -236,8 +237,18 @@
       return;
     }
 
-    if(!window.google || !google.accounts || !google.accounts.id){
-      showErr("تعذر تحميل Google Login. جرّب تحديث الصفحة أو افتحها من متصفح Chrome.");
+    async function waitForGIS(timeoutMs){
+      const start = Date.now();
+      while(Date.now() - start < timeoutMs){
+        if(window.google && google.accounts && google.accounts.id) return true;
+        await new Promise(r=>setTimeout(r, 120));
+      }
+      return false;
+    }
+
+    const gisOk = await waitForGIS(4000);
+    if(!gisOk){
+      showErr("تعذر تحميل Google Login. جرّب تحديث الصفحة أو افتحها من متصفح Chrome (وتأكد أن الإضافات مثل AdBlock لا تمنع accounts.google.com).");
       return;
     }
 
@@ -263,20 +274,25 @@
     };
 
     // Render Google button
-    google.accounts.id.initialize({
-      client_id: cfg.GOOGLE_CLIENT_ID,
-      callback: window.handleCredential,
-      auto_select: false,
-      cancel_on_tap_outside: true
-    });
-    google.accounts.id.renderButton(btnWrap, {
-      type: "standard",
-      theme: "outline",
-      size: "large",
-      text: "continue_with",
-      shape: "pill",
-      width: 320
-    });
+    try{
+      google.accounts.id.initialize({
+        client_id: cfg.GOOGLE_CLIENT_ID,
+        callback: window.handleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+      google.accounts.id.renderButton(btnWrap, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "pill",
+        width: 320
+      });
+    }catch(e){
+      showErr("Google Login لم يبدأ. راجع GOOGLE_CLIENT_ID في config.js (لازم ينتهي بـ apps.googleusercontent.com).\n" + (e && e.message ? e.message : String(e)));
+      return;
+    }
   })();
   </script>
 </body>
