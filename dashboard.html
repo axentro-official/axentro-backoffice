@@ -238,10 +238,6 @@
 <script>AxentroAuth.requireAuth();</script>
 <script>
   /* ============ Auth Gate ============ */
-  const OK_KEY = "AX_BO_OK";
-  if (sessionStorage.getItem(OK_KEY) !== "1") {
-    location.replace("login.html");
-  }
   document.getElementById("logoutBtn").addEventListener("click", ()=>{
     AxentroAuth.logout();
       });

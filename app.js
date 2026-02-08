@@ -7,6 +7,8 @@
   "use strict";
 
   const STORAGE_KEY = "axentro_auth_v1";
+  const LEGACY_OK_KEY = "AX_BO_OK";
+
   // ✅ بدل ما كلمة المرور تكون ظاهرة، نخزن Hash (SHA-256) للرمز.
   // الافتراضي الحالي مطابق للكود القديم: 1407
   const ALLOWED_PASSWORD_HASHES = new Set([
@@ -28,16 +30,19 @@
       const obj = JSON.parse(raw);
       if(!obj || !obj.exp) return null;
       if(nowMs() > obj.exp) return null;
+      try{ sessionStorage.setItem(LEGACY_OK_KEY, "1"); }catch(e){}
       return obj;
     }catch(e){ return null; }
   }
 
   function writeAuth(session){
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+    try{ sessionStorage.setItem(LEGACY_OK_KEY, "1"); }catch(e){}
   }
 
   function clearAuth(){
     localStorage.removeItem(STORAGE_KEY);
+    try{ sessionStorage.removeItem(LEGACY_OK_KEY); }catch(e){}
   }
 
   async function loginWithPassword(password, opts={}){
