@@ -1,1816 +1,527 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>فاتورة مشتريات — B.S Medical &amp; Aesthetic</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Axentro - فاتورة مشتريات</title>
+
+  <!-- Runtime config (same folder) -->
+  <script src="./config.js"></script>
+
+  <!-- QR/Barcode scanner -->
+  <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
 
   <style>
     :root{
-      --bg:#f7f7fb;
+      --bg:#f5f7fb;
       --card:#ffffff;
       --text:#0f172a;
       --muted:#64748b;
-      --stroke:rgba(15,23,42,.10);
-      --shadow: 0 18px 50px rgba(2,6,23,.12);
+      --border:rgba(15,23,42,.12);
+      --brand:#0ea5e9;
+      --danger:#ef4444;
+      --ok:#16a34a;
+      --shadow:0 12px 30px rgba(2,6,23,.10);
       --radius:18px;
-
-      --gold:#b08d57;
-      --gold2:#d7b97a;
-
-      --container-max:1100px;
+      --pad:16px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,"Noto Sans Arabic","Noto Kufi Arabic","Cairo",sans-serif;
+      background: radial-gradient(1000px 500px at 15% 5%, #fde68a22, transparent 60%),
+                  radial-gradient(1000px 500px at 85% 10%, #38bdf822, transparent 60%),
+                  var(--bg);
       color:var(--text);
-      background:
-        radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
-        radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
-        linear-gradient(180deg, #ffffff, var(--bg));
-      padding:18px;
-      min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      -webkit-font-smoothing:antialiased;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
-
-    .wrap{max-width:var(--container-max);margin:0 auto;width:100%;flex:1}
-
-    .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:12px 14px;border:1px solid var(--stroke);
-      border-radius:18px;background:rgba(255,255,255,.86);
-      box-shadow:var(--shadow);backdrop-filter:blur(10px);
-      flex-wrap:wrap;
+    .wrap{max-width:980px;margin:28px auto;padding:0 14px;}
+    .card{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:22px;
+      overflow:hidden;
+    }
+    .top{
+      display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;
       margin-bottom:16px;
     }
-    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .brand{
+      display:flex;gap:10px;align-items:center;
+    }
     .logo{
       width:44px;height:44px;border-radius:999px;
       display:grid;place-items:center;
-      background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
-      border:1px solid rgba(176,141,87,.35);
-      box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden;
-      padding:6px;
-      flex:0 0 auto;
+      border:1px solid #f59e0b55;background:#fff7ed;
+      font-weight:800;
     }
-    .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:900}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px}
-
-    .card{
-      background:rgba(255,255,255,.92);
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:16px;
-      margin-bottom:16px;
-    }
-
-    h2{margin:0 0 10px;font-weight:900}
-    label{font-size:12px;color:var(--muted);font-weight:900}
-    input, textarea{
-      width:100%;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid rgba(15,23,42,.14);
+    h1{margin:0;font-size:24px;letter-spacing:.2px}
+    .sub{color:var(--muted);margin-top:4px;font-size:13px}
+    .pill{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:8px 10px;border-radius:999px;border:1px solid var(--border);
       background:#fff;
-      color:var(--text);
-      outline:none;
-      box-shadow:0 8px 18px rgba(15,23,42,.05);
-    }
-    input::placeholder, textarea::placeholder{color:#94a3b8}
-    input:focus, textarea:focus{
-      border-color: rgba(176,141,87,.55);
-      box-shadow:0 10px 22px rgba(176,141,87,.14);
-    }
-    #invNo, #invDate, #invTime{ font-weight:1000; }
-
-    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .row1{display:grid;grid-template-columns:1fr;gap:10px}
-
-    @media (max-width:920px){
-      .row{grid-template-columns:repeat(2,1fr);}
-      .row2{grid-template-columns:repeat(1,1fr);}
-    }
-    @media (max-width:520px){
-      .row{grid-template-columns:repeat(1,1fr);}
-      input, textarea{ font-size:16px; }
-    }
-
-    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
-    table{
-      width:100%;
-      border-collapse:collapse;
+      color:var(--muted);
       font-size:13px;
-      min-width:980px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:14px;
+    }
+    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+    .sec-title{
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      margin:10px 0 10px;
+      font-weight:800;
+    }
+    .hint{color:var(--muted);font-size:12px;line-height:1.6}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){ .row{grid-template-columns:1fr} }
+    label{display:block;font-size:12px;color:var(--muted);margin:6px 2px}
+    input, select, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--border);
       background:#fff;
-      border-radius:12px;
+      outline:none;
+      font-size:14px;
+    }
+    textarea{min-height:86px;resize:vertical}
+    input:focus, textarea:focus, select:focus{border-color:#38bdf8aa; box-shadow:0 0 0 4px #38bdf822}
+    .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    button{
+      border:0;
+      border-radius:14px;
+      padding:11px 14px;
+      font-weight:700;
+      cursor:pointer;
+      background:#0f172a;
+      color:#fff;
+    }
+    button.secondary{background:#f1f5f9;color:#0f172a;border:1px solid var(--border)}
+    button.brand{background:var(--brand)}
+    button.danger{background:var(--danger)}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .msg{
+      margin:12px 0 0;
+      padding:12px 14px;
+      border-radius:14px;
+      border:1px solid var(--border);
+      background:#fff;
+      display:none;
+      font-size:13px;
+      line-height:1.6;
+    }
+    .msg.ok{display:block;border-color:#16a34a55;background:#16a34a10;color:#14532d}
+    .msg.err{display:block;border-color:#ef444455;background:#ef444410;color:#7f1d1d}
+    .tbl{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0 10px;
+      margin-top:8px;
+    }
+    .tbl th{
+      text-align:right;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      padding:6px 8px;
+    }
+    .tbl td{
+      background:#fff;
+      border:1px solid var(--border);
+      padding:10px 8px;
+      font-size:13px;
+    }
+    .tbl tr td:first-child{border-radius:14px 0 0 14px}
+    .tbl tr td:last-child{border-radius:0 14px 14px 0}
+    .mono{font-family:var(--mono);direction:ltr;text-align:left}
+    .totals{
+      margin-top:12px;
+      padding:14px;
+      border:1px dashed var(--border);
+      border-radius:14px;
+      background:#fff;
+    }
+    .trow{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+    .trow strong{font-size:14px}
+    .small{font-size:12px;color:var(--muted)}
+    /* Scanner modal */
+    .modal{
+      position:fixed;inset:0;display:none;place-items:center;
+      background:rgba(2,6,23,.55);
+      padding:18px;
+      z-index:9999;
+    }
+    .modal.open{display:grid}
+    .modal .box{
+      width:min(520px, 100%);
+      background:#fff;
+      border-radius:18px;
+      border:1px solid var(--border);
+      box-shadow:var(--shadow);
       overflow:hidden;
     }
-    th, td{
-      border:1px solid rgba(15,23,42,.10);
-      padding:8px;
-      text-align:center;
-      vertical-align:middle;
-    }
-    th{
-      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:1000;
-    }
-
-    .btn{
-      padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(176,141,87,.35);
-      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
-      color:var(--text);
-      font-weight:1000;
-      cursor:pointer;
-      touch-action: manipulation;
-    }
-    .btn:hover{filter:brightness(1.02)}
-    .btn:active{transform:translateY(1px)}
-    .btn.secondary{
-      border-color: rgba(15,23,42,.14);
-      background:#fff;
-      opacity:.95;
-    }
-    .btn.danger{
-      border-color: rgba(220,38,38,.25);
-      background: rgba(220,38,38,.06);
-      color:#991b1b;
-    }
-
-    .prod-cell{display:flex;gap:8px;align-items:center;justify-content:flex-start;flex-wrap:nowrap;}
-    .skuInput{width:140px;min-width:120px;text-align:center;font-weight:1000;}
-    .nameInput{flex:1;min-width:280px;}
-    .thumbMini{
-      width:44px;height:44px;border-radius:12px;
-      border:1px solid rgba(15,23,42,.12);
-      object-fit:cover;background:#fff;
-      flex:0 0 auto;
-    }
-    .delBtn{
-      padding:10px 12px;border-radius:12px;
-      border:1px solid rgba(15,23,42,.14);
-      background:#fff;color:var(--text);
-      cursor:pointer;font-weight:1000;
-    }
-
-    .totalBox{ margin-top:10px; width:100%; }
-    .totalLine{
+    .modal .hd{
+      padding:12px 14px;
       display:flex;align-items:center;justify-content:space-between;gap:10px;
-      padding:10px 12px;border:1px solid rgba(15,23,42,.10);
-      border-radius:12px;background:#fff;margin-top:8px;font-weight:1000;
+      border-bottom:1px solid var(--border);
+      font-weight:900;
     }
-    .totalLine .k{color:var(--muted);font-weight:900}
-    .totalLine.primary{
-      border-color: rgba(176,141,87,.35);
-      background: linear-gradient(135deg, rgba(176,141,87,.10), rgba(215,185,122,.08));
-    }
-
-    .amount-words{
-      margin-top:10px;font-weight:1000;color:var(--muted);
-      border-top:1px dashed rgba(15,23,42,.14);
-      padding-top:10px;
-      line-height:1.8;
-    }
-    .noteBox{
-      margin-top:10px;
-      padding-top:10px;
-      border-top:1px dashed rgba(15,23,42,.14);
-      font-weight:1000;
-      color:#334155;
-      line-height:1.8;
-    }
-
-    .extraBox{
-      display:grid;
-      grid-template-columns:1fr 1fr 1fr;
-      gap:10px;
-      margin-top:10px;
-    }
-    @media (max-width:920px){
-      .extraBox{grid-template-columns:1fr;}
-    }
-
-    .site-footer{
-      margin-top:auto;
-      padding:16px 16px 22px;
+    .modal .bd{padding:12px 14px}
+    #qr-reader{width:100%}
+    .foot{
       text-align:center;
       color:var(--muted);
-      border-top:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
-      backdrop-filter: blur(10px);
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      font-size:12px;
+      margin-top:14px;
     }
-    .site-footer .line1{ font-weight:1000; color:#334155; }
-    .site-footer .line2{ margin-top:6px; font-weight:900; }
-
-    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
-
-    /* Responsive table -> cards */
-    @media (max-width: 820px){
-      .table-wrap{ overflow:visible; }
-      table{ min-width:0; }
-      table, thead, tbody, th, td, tr{ display:block; width:100%; }
-      thead{ display:none; }
-      tbody tr{
-        border:1px solid rgba(15,23,42,.12);
-        background: #fff;
-        border-radius: 16px;
-        padding:10px;
-        margin-bottom:10px;
-        box-shadow: 0 10px 28px rgba(2,6,23,.06);
-      }
-      tbody td{ border:none; padding:8px 0; text-align:right; }
-      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
-      tbody td[data-label]::before{
-        content: attr(data-label);
-        display:block;
-        font-size:12px;color: var(--muted);
-        font-weight:1000;margin-bottom:6px;
-      }
-      .prod-cell{ flex-wrap:wrap; }
-      .nameInput{ min-width: 100%; }
-      .thumbMini{ width:52px; height:52px; }
-      tbody input{ width:100%; font-size:16px; text-align:center; font-weight:1000; }
-      .delBtn{ width:100%; }
-    }
-
-    /* Toast */
-    .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,.92);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 1000;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease;
-      z-index: 9999;
-      max-width: min(560px, 92vw);
-      text-align:center;
-      line-height:1.7;
-      white-space:pre-line;
-    }
-    .toast.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
-  
-/* ===== Barcode Scanner ===== */
-.scanBtn{
-  border:1px solid rgba(0,0,0,.12);
-  background:#fff;
-  border-radius:10px;
-  padding:8px 10px;
-  cursor:pointer;
-  font-size:14px;
-  line-height:1;
-}
-.scanBtn:active{transform:scale(.98);}
-.scannerModal{
-  position:fixed; inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,.55);
-  z-index:9999;
-  padding:16px;
-}
-.scannerModal.open{display:flex;}
-.scannerCard{
-  width:min(520px, 100%);
-  background:#fff;
-  border-radius:18px;
-  padding:14px;
-  box-shadow:0 18px 60px rgba(0,0,0,.35);
-}
-.scannerHeader{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  margin-bottom:10px;
-}
-.scannerTitle{font-weight:700;}
-.scannerCloseBtn{
-  border:0;
-  background:rgba(0,0,0,.06);
-  padding:8px 10px;
-  border-radius:12px;
-  cursor:pointer;
-}
-.qrReader{
-  width:100%;
-}
-.scannerHint{
-  margin-top:10px;
-  font-size:12px;
-  opacity:.75;
-}
-
-</style>
-<script>
-// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
-window.AXENTRO_CONFIG = Object.assign({
-  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
-  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
-}, window.AXENTRO_CONFIG||{});
-</script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
+  </style>
 </head>
 
 <body>
-<div class="wrap" id="app">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">
-        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+  <div class="wrap">
+    <div class="card">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">AX</div>
+          <div>
+            <h1>فاتورة مشتريات</h1>
+            <div class="sub">Purchase Invoice • إضافة منتجات يدويًا أو بالباركود</div>
+          </div>
+        </div>
+        <div class="pill" id="cfg-pill">Config: <span class="mono" id="cfg-state">…</span></div>
       </div>
-      <div>
-        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">إنشاء فاتورة مشتريات (Purchase Invoice)</div>
-      </div>
-    </div>
 
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
-      <button class="btn" id="saveSystemBtn" type="button">💾 حفظ في النظام</button>
-      <button class="btn danger" id="resetBtn" type="button">🧹 مسح / فاتورة جديدة</button>
-    </div>
-  </div>
-
-  <!-- ✅ Import Copy/Paste -->
-  <div class="card" id="importCard">
-    <h2>استيراد فاتورة مشتريات (Copy/Paste)</h2>
-    <textarea id="purchaseImport" rows="7" placeholder="الصق أي نص هنا (واتساب / فاتورة / إيميل / PDF منسوخ)...&#10;&#10;أمثلة صيغ مدعومة:&#10;Supplier: ABC Pharma | Ref: INV-8891&#10;SKU123 | Product Name | Qty 5 | Price 120 | Disc 10&#10;Product X × 3 @ 95&#10;Product Y - 2 - 140"></textarea>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="importPurchaseBtn" type="button">📥 استيراد إلى الجدول</button>
-      <button class="btn secondary" id="clearPurchaseImportBtn" type="button">مسح</button>
-    </div>
-
-    <div style="margin-top:10px;color:#64748b;font-weight:1000;line-height:1.8">
-      سيحاول النظام استخراج: اسم المورد / الهاتف / العنوان / مرجع المورد + الأصناف (SKU/اسم/كمية/سعر/خصم) من أي صياغة تقريبًا.
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>بيانات الفاتورة</h2>
-
-    <div class="row" role="region" aria-label="معلومات فاتورة المشتريات">
-      <div>
-        <label for="invNo">رقم فاتورة المشتريات</label>
-        <input id="invNo" readonly />
-      </div>
-      <div>
-        <label for="invDate">التاريخ</label>
-        <input id="invDate" readonly />
-      </div>
-      <div>
-        <label for="invTime">الوقت</label>
-        <input id="invTime" readonly />
-      </div>
-      <div>
-        <label for="refNo">مرجع / رقم فاتورة المورد (اختياري)</label>
-        <input id="refNo" placeholder="مثال: SUP-4589" />
-      </div>
-    </div>
-
-    <div style="margin-top:12px;">
-      <div class="row1">
+      <div class="grid">
+        <!-- Left: invoice + items -->
         <div>
-          <label for="supplierName">اسم المورد</label>
-          <input id="supplierName" placeholder="اسم المورد / الشركة" />
-        </div>
-        <div class="row2">
-          <div>
-            <label for="supplierPhone">هاتف المورد (اختياري)</label>
-            <input id="supplierPhone" placeholder="01xxxxxxxxx أو +201xxxxxxxxx" inputmode="tel" />
+          <div class="sec-title">بيانات الفاتورة <span class="hint">مطلوب: رقم الفاتورة + المورد + التاريخ</span></div>
+          <div class="row">
+            <div>
+              <label>رقم الفاتورة</label>
+              <input id="invNo" placeholder="مثال: PINV-20260209-001" />
+            </div>
+            <div>
+              <label>التاريخ</label>
+              <input id="invDate" type="date" />
+            </div>
           </div>
-          <div>
-            <label for="supplierAddress">عنوان المورد (اختياري)</label>
-            <input id="supplierAddress" placeholder="المحافظة / المنطقة / تفاصيل" />
+          <div class="row">
+            <div>
+              <label>المورد</label>
+              <input id="supplier" placeholder="اسم المورد" />
+            </div>
+            <div>
+              <label>مرجع / ملاحظة</label>
+              <input id="ref" placeholder="Ref / Note" />
+            </div>
+          </div>
+
+          <div style="height:8px"></div>
+
+          <div class="sec-title">الأصناف</div>
+
+          <div class="row">
+            <div>
+              <label>الباركود (اختياري)</label>
+              <input id="barcode" class="mono" placeholder="Scan / اكتب الباركود" inputmode="numeric" />
+            </div>
+            <div>
+              <label>اسم المنتج (لو مفيش باركود)</label>
+              <input id="name" placeholder="اسم المنتج" />
+            </div>
+          </div>
+
+          <div class="row">
+            <div>
+              <label>سعر الشراء</label>
+              <input id="cost" type="number" step="0.01" placeholder="0.00" />
+            </div>
+            <div>
+              <label>الكمية</label>
+              <input id="qty" type="number" step="1" placeholder="1" value="1" />
+            </div>
+          </div>
+
+          <div class="btns">
+            <button class="brand" id="scanBtn">📷 فتح الكاميرا (باركود)</button>
+            <button id="addBtn">＋ إضافة الصنف</button>
+            <button class="secondary" id="clearItemBtn">مسح حقول الصنف</button>
+          </div>
+
+          <div class="msg" id="msg"></div>
+
+          <table class="tbl" aria-label="items">
+            <thead>
+              <tr>
+                <th>الباركود</th>
+                <th>الاسم</th>
+                <th>سعر</th>
+                <th>كمية</th>
+                <th>إجمالي</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="itemsBody"></tbody>
+          </table>
+
+          <div class="totals">
+            <div class="trow"><span>الإجمالي قبل الخصم</span><strong id="subTotal">0.00</strong></div>
+            <div class="trow"><span>خصم</span><strong id="discount">0.00</strong></div>
+            <div class="trow"><span>ضريبة</span><strong id="tax">0.00</strong></div>
+            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0">
+            <div class="trow"><span>الإجمالي النهائي</span><strong id="grandTotal">0.00</strong></div>
+            <div class="small">ملاحظة: الحسابات هنا مبدئية. لو عايز ربط كامل مع الشيت (حفظ/ترقيم تلقائي/جلب من Products) هنركّبه بعد ما تثبت الواجهة.</div>
+          </div>
+
+          <div class="btns" style="margin-top:12px">
+            <button class="secondary" id="resetInvBtn">تفريغ الفاتورة</button>
+            <button class="brand" id="exportJsonBtn">تصدير JSON</button>
+          </div>
+        </div>
+
+        <!-- Right: paste/import -->
+        <div>
+          <div class="sec-title">استيراد (Copy/Paste)</div>
+          <div class="hint">
+            الصيغة: <span class="mono">barcode,name,cost,qty</span> لكل سطر.<br/>
+            لو المنتج بدون باركود اتركه فاضي: <span class="mono">,Name,10,2</span>
+          </div>
+          <label>بيانات (سطر لكل صنف)</label>
+          <textarea id="paste" placeholder="123456,Product A,10.5,2&#10;,Product No Barcode,7,1"></textarea>
+          <div class="btns">
+            <button class="secondary" id="importBtn">استيراد</button>
+            <button class="danger" id="clearListBtn">مسح الأصناف</button>
           </div>
         </div>
       </div>
+
+      <div class="foot">© Axentro • All Rights Reserved 2024</div>
     </div>
   </div>
 
-  <div class="card">
-    <h2>الأصناف</h2>
-
-    <div class="table-wrap" aria-live="polite">
-      <table id="itemsTable" role="table" aria-label="جدول أصناف المشتريات">
-        <thead>
-          <tr>
-            <th style="width:60px">#</th>
-            <th>SKU / المنتج</th>
-            <th>الكمية</th>
-            <th>سعر الشراء</th>
-            <th>خصم (جنيه)</th>
-            <th>الإجمالي</th>
-            <th>حذف</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <div style="display:flex;gap:12px;margin-top:12px;align-items:center;flex-wrap:wrap">
-      <button class="btn" id="addRowBtn" type="button">+ إضافة صنف</button>
-    </div>
-
-    <div class="extraBox">
-      <div>
-        <label for="globalDiscount">خصم خاص (جنيه)</label>
-        <input id="globalDiscount" type="number" step="0.01" min="0" placeholder="0 أو فاضي = بدون خصم خاص" />
+  <!-- Scanner modal -->
+  <div class="modal" id="scanModal" aria-hidden="true">
+    <div class="box">
+      <div class="hd">
+        <span>مسح باركود بالكاميرا</span>
+        <button class="secondary" id="closeScan">إغلاق</button>
       </div>
-      <div>
-        <label for="shippingFee">مصروفات شحن/نقل (جنيه)</label>
-        <input id="shippingFee" type="number" step="0.01" min="0" placeholder="0 أو فاضي = بدون شحن" />
-      </div>
-      <div>
-        <label for="invoiceNote">ملاحظة أسفل الفاتورة</label>
-        <input id="invoiceNote" placeholder="مثال: تم الاستلام بالكامل" />
+      <div class="bd">
+        <div class="hint" style="margin-bottom:10px">لو الكاميرا لا تعمل: تأكد أنك تستخدم <b>https</b> وسمحت بإذن الكاميرا.</div>
+        <div id="qr-reader"></div>
       </div>
     </div>
-
-    <div class="totalBox" id="totalsBox"></div>
-    <div class="amount-words" id="amountWords"></div>
-    <div class="noteBox" id="noteBox" style="display:none"></div>
   </div>
 
-  <div class="card" id="actionsCard">
-    <div class="row2">
-      <button class="btn" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
-      <button class="btn" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
-    </div>
-
-    <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn" id="printA4Btn" style="flex:1" type="button">🖨️ طباعة A4</button>
-      <button class="btn" id="savePdfA4Btn" style="flex:1" type="button">📄 حفظ PDF لـ A4</button>
-    </div>
-  </div>
-</div>
-
-<footer class="site-footer">
-  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-  <div class="line2">By Ahmed Hamouda</div>
-</footer>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
-
-<script src="config.js"></script>
-<script src="app.js"></script>
-<script>AxentroAuth.requireAuth();</script>
 <script>
-/* ================= AUTH GATE (موحّد) ================= */
-/* ================= TOAST ================= */
-const toast = document.getElementById("toast");
-let toastTimer = null;
-function showToast(msg){
-  toast.textContent = msg;
-  toast.classList.add("show");
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=> toast.classList.remove("show"), 1800);
-}
+(() => {
+  const cfg = (window.AXENTRO_CONFIG || {});
+  const ok = !!(cfg.GAS_WEB_APP_URL && cfg.GOOGLE_CLIENT_ID);
+  document.getElementById('cfg-state').textContent = ok ? 'OK' : 'MISSING';
+  document.getElementById('cfg-pill').style.borderColor = ok ? '#16a34a55' : '#ef444455';
+  document.getElementById('cfg-pill').style.background = ok ? '#16a34a10' : '#ef444410';
+  document.getElementById('cfg-pill').style.color = ok ? '#14532d' : '#7f1d1d';
 
-/* ================= CONFIG ================= */
-const API_URL = (AxentroAuth && AxentroAuth.cfg && AxentroAuth.cfg.GAS_WEB_APP_URL) ? AxentroAuth.cfg.GAS_WEB_APP_URL : "";
-const IMG_PLACEHOLDER = "https://via.placeholder.com/600x400?text=No+Image";
+  // defaults
+  const today = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('invDate').value = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
+  document.getElementById('invNo').value = `PINV-${today.getFullYear()}${pad(today.getMonth()+1)}${pad(today.getDate())}-${pad(Math.floor(Math.random()*99)+1)}`;
 
-const QR_SRC_MAIN = "qr-links.png";
-const QR_SRC_FALLBACK = "images/qr-links.png";
-
-const PROD_CACHE_KEY = "AX_PRODUCTS_CACHE_V1";
-const PROD_CACHE_TS  = "AX_PRODUCTS_CACHE_TS_V1";
-const CACHE_TTL_MS   = 10 * 60 * 1000;
-
-const DRAFT_KEY = "AX_PURCHASE_DRAFT_V1"; // ✅ حفظ تلقائي
-
-let PRODUCTS = [];
-let ROW_ID = 0;
-
-/* ================= HELPERS ================= */
-function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
-function formatDateEnglish(d){ return d.toLocaleDateString("en-GB").replaceAll("/", "-"); }
-function pad2(n){ return String(n).padStart(2,"0"); }
-
-function generatePurchaseNo(){
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = pad2(d.getMonth()+1);
-  const day = pad2(d.getDate());
-  const seq = String(Math.floor(Math.random()*900)+100);
-  return `PINV-BS-${y}${m}${day}-${seq}`;
-}
-
-function initInvoice(keepDraft=false){
-  const now = new Date();
-  document.getElementById("invDate").value = formatDateEnglish(now);
-  document.getElementById("invTime").value = now.toLocaleTimeString("en-US",{hour:'2-digit',minute:'2-digit',hour12:true});
-  document.getElementById("invNo").value = generatePurchaseNo();
-
-  if(!keepDraft){
-    document.getElementById("refNo").value = "";
-    document.getElementById("supplierName").value = "";
-    document.getElementById("supplierPhone").value = "";
-    document.getElementById("supplierAddress").value = "";
-    document.getElementById("globalDiscount").value = "";
-    document.getElementById("shippingFee").value = "";
-    document.getElementById("invoiceNote").value = "";
-    document.getElementById("purchaseImport").value = "";
-
-    document.querySelector("#itemsTable tbody").innerHTML = "";
-    ROW_ID = 0;
-    addRow(true);
-    refreshRowNumbers();
-  }
-  calcGrand();
-}
-
-/* ================= PRODUCTS + CACHE ================= */
-function saveProductsCache(list){
-  localStorage.setItem(PROD_CACHE_KEY, JSON.stringify(list));
-  localStorage.setItem(PROD_CACHE_TS, String(Date.now()));
-}
-function loadProductsFromCache(){
-  try{
-    const raw = localStorage.getItem(PROD_CACHE_KEY);
-    const ts = Number(localStorage.getItem(PROD_CACHE_TS) || 0);
-    if(!raw) return null;
-    const list = JSON.parse(raw);
-    if(!Array.isArray(list)) return null;
-    return { list, ts };
-  }catch(e){ return null; }
-}
-async function fetchProductsFromApi(){
-  const data = await AxentroApi.getProducts();
-  return Array.isArray(data.products) ? data.products : (Array.isArray(data) ? data : []);
-}
-async function loadProductsSmart(){
-  const cached = loadProductsFromCache();
-  const now = Date.now();
-  const hasCache = cached && cached.list && cached.list.length;
-  const cacheFresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
-
-  PRODUCTS = hasCache ? cached.list : [];
-  buildDataLists();
-
-  const doFetch = async ()=>{
-    try{
-      const fresh = await fetchProductsFromApi();
-      PRODUCTS = fresh;
-      saveProductsCache(fresh);
-      buildDataLists();
-      syncRowsWithProducts();
-    }catch(e){
-      console.warn("فشل تحميل الكتالوج", e);
-      showToast("تعذر تحديث الكتالوج الآن (تم استخدام آخر نسخة محفوظة إن وُجدت).");
-    }
+  const msgEl = document.getElementById('msg');
+  const showMsg = (type, text) => {
+    msgEl.className = 'msg ' + (type || '');
+    msgEl.textContent = text || '';
+    msgEl.style.display = text ? 'block' : 'none';
   };
 
-  if(cacheFresh) setTimeout(doFetch, 400);
-  else await doFetch();
-}
+  /** Items state **/
+  let items = []; // {barcode,name,cost,qty}
 
-function buildDataLists(){
-  let dlSku = document.getElementById("skuList");
-  if(!dlSku){
-    dlSku = document.createElement("datalist");
-    dlSku.id = "skuList";
-    document.body.appendChild(dlSku);
-  }
-  dlSku.innerHTML = "";
+  const fmt = (n) => (Number(n||0)).toFixed(2);
 
-  let dlName = document.getElementById("nameList");
-  if(!dlName){
-    dlName = document.createElement("datalist");
-    dlName.id = "nameList";
-    document.body.appendChild(dlName);
-  }
-  dlName.innerHTML = "";
-
-  PRODUCTS.forEach(p=>{
-    const id = String(p.id || "").trim();
-    const name = String(p.name || "").trim();
-    if(id){ const o = document.createElement("option"); o.value = id; dlSku.appendChild(o); }
-    if(name){ const o2 = document.createElement("option"); o2.value = name; dlName.appendChild(o2); }
-  });
-}
-
-function findBySku(sku){
-  const s = String(sku || "").trim().toLowerCase();
-  if(!s) return null;
-  return PRODUCTS.find(p => String(p.id || "").trim().toLowerCase() === s) || null;
-}
-function findByName(name){
-  const n = String(name || "").trim().toLowerCase();
-  if(!n) return null;
-  let hit = PRODUCTS.find(p => String(p.name || "").trim().toLowerCase() === n);
-  if(hit) return hit;
-  hit = PRODUCTS.find(p => String(p.name || "").trim().toLowerCase().includes(n));
-  return hit || null;
-}
-function resolveImageBySku(sku){
-  const s = String(sku || "").trim();
-  if(!s) return IMG_PLACEHOLDER;
-  return `images/${s}.webp`;
-}
-function resolvePurchasePriceFromProduct(p){
-  const candidates = [p?.cost_price, p?.purchase_price, p?.buy_price, p?.cost];
-  for(const c of candidates){
-    const n = Number(c);
-    if(isFinite(n) && n > 0) return n;
-  }
-  return 0;
-}
-
-/* ================= TABLE ROWS ================= */
-function refreshRowNumbers(){
-  const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
-  rows.forEach((tr, i)=>{
-    const cell = tr.querySelector('[data-field="idx"]');
-    if(cell) cell.textContent = String(i + 1);
-  });
-}
-
-function addRow(silentFocus=false){
-  ROW_ID++;
-  const tbody = document.querySelector("#itemsTable tbody");
-  const tr = document.createElement("tr");
-  tr.dataset.id = ROW_ID;
-
-  tr.innerHTML = `
-    <td data-label="#" data-field="idx" style="font-weight:1000">1</td>
-    <td data-label="SKU / المنتج">
-      <div class="prod-cell">
-        <img class="thumbMini" alt="صورة المنتج" src="${IMG_PLACEHOLDER}" onerror="this.onerror=null;this.src='${IMG_PLACEHOLDER}'">
-        <input class="skuInput" list="skuList" placeholder="SKU" inputmode="latin" autocomplete="off" data-field="sku" /><button type="button" class="scanBtn" title="مسح باركود" aria-label="مسح باركود">📷</button>
-        <input class="nameInput" list="nameList" placeholder="اسم المنتج" autocomplete="off" data-field="name" />
-      </div>
-    </td>
-    <td data-label="الكمية"><input type="number" min="1" value="1" data-field="qty"></td>
-    <td data-label="سعر الشراء"><input type="number" step="0.01" min="0" value="0" data-field="price"></td>
-    <td data-label="خصم (جنيه)"><input type="number" step="0.01" min="0" value="0" data-field="discount"></td>
-    <td data-label="الإجمالي" class="rowTotal" data-field="rowTotal">0.00</td>
-    <td data-label="حذف"><button type="button" class="delBtn" data-act="remove">✖ حذف</button></td>
-  `;
-
-  tbody.appendChild(tr);
-  refreshRowNumbers();
-  if(!silentFocus) tr.querySelector('[data-field="sku"]')?.focus();
-  syncRowThumb(tr);
-  calcRowByTr(tr);
-  return tr;
-}
-
-function removeRowByTr(tr){
-  tr?.remove();
-  refreshRowNumbers();
-  calcGrand();
-  scheduleDraftSave();
-}
-
-const itemsTbody = document.querySelector("#itemsTable tbody");
-itemsTbody.addEventListener("click", (ev)=>{
-  const btn = ev.target.closest("[data-act='remove']");
-  if(!btn) return;
-  removeRowByTr(btn.closest("tr"));
-});
-
-itemsTbody.addEventListener("input", (ev)=>{
-  const el = ev.target;
-  const tr = el.closest("tr");
-  if(!tr) return;
-
-  const field = el.getAttribute("data-field");
-  if(field === "qty" || field === "price" || field === "discount"){
-    calcRowByTr(tr);
-    scheduleDraftSave();
-    return;
-  }
-  if(field === "sku"){
-    const sku = String(el.value||"").trim();
-    const p = findBySku(sku);
-    if(p){
-      tr.querySelector('[data-field="name"]').value = String(p.name||"").trim();
-      const autoCost = resolvePurchasePriceFromProduct(p);
-      if(autoCost > 0){
-        const priceEl = tr.querySelector('[data-field="price"]');
-        if(money(priceEl.value) <= 0) priceEl.value = String(autoCost);
-      }
-    }
-    syncRowThumb(tr);
-    calcRowByTr(tr);
-    scheduleDraftSave();
-    return;
-  }
-  if(field === "name"){
-    const p2 = findByName(el.value);
-    if(p2){
-      tr.querySelector('[data-field="sku"]').value = String(p2.id||"").trim();
-      const autoCost = resolvePurchasePriceFromProduct(p2);
-      if(autoCost > 0){
-        const priceEl = tr.querySelector('[data-field="price"]');
-        if(money(priceEl.value) <= 0) priceEl.value = String(autoCost);
-      }
-    }
-    syncRowThumb(tr);
-    calcRowByTr(tr);
-    scheduleDraftSave();
-    return;
-  }
-});
-
-function syncRowThumb(tr){
-  const sku = String(tr.querySelector('[data-field="sku"]')?.value || "").trim();
-  const img = tr.querySelector("img.thumbMini");
-  if(!img) return;
-  img.src = sku ? resolveImageBySku(sku) : IMG_PLACEHOLDER;
-  img.onerror = function(){ this.onerror=null; this.src=IMG_PLACEHOLDER; };
-}
-
-function syncRowsWithProducts(){
-  const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
-  rows.forEach(tr=>{
-    const skuEl = tr.querySelector('[data-field="sku"]');
-    const nameEl = tr.querySelector('[data-field="name"]');
-    const priceEl = tr.querySelector('[data-field="price"]');
-    const sku = String(skuEl?.value||"").trim();
-    const name = String(nameEl?.value||"").trim();
-
-    if(sku && (!name || name === "—")){
-      const p = findBySku(sku);
-      if(p){
-        nameEl.value = String(p.name||"").trim();
-        const autoCost = resolvePurchasePriceFromProduct(p);
-        if(autoCost > 0 && money(priceEl.value) <= 0) priceEl.value = String(autoCost);
-      }
-    }else if(name && !sku){
-      const p2 = findByName(name);
-      if(p2){
-        skuEl.value = String(p2.id||"").trim();
-        const autoCost = resolvePurchasePriceFromProduct(p2);
-        if(autoCost > 0 && money(priceEl.value) <= 0) priceEl.value = String(autoCost);
-      }
-    }
-    syncRowThumb(tr);
-    calcRowByTr(tr);
-  });
-  refreshRowNumbers();
-  calcGrand();
-}
-
-/* ================= CALC ================= */
-function calcRowByTr(tr){
-  const qty = Math.max(0, money(tr.querySelector('[data-field="qty"]')?.value));
-  const price = Math.max(0, money(tr.querySelector('[data-field="price"]')?.value));
-  const discIn = Math.max(0, money(tr.querySelector('[data-field="discount"]')?.value));
-
-  const subRaw = Math.max(0, qty * price);
-  const disc = Math.max(0, Math.min(discIn, subRaw));
-  const sub = Math.max(0, subRaw - disc);
-
-  tr.querySelector('[data-field="rowTotal"]').textContent = sub.toFixed(2);
-  calcGrand();
-}
-
-function calcGrand(){
-  const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
-  let totalBefore = 0;
-  let rowDiscountSum = 0;
-
-  rows.forEach(tr=>{
-    const qty = Math.max(0, money(tr.querySelector('[data-field="qty"]')?.value));
-    const price = Math.max(0, money(tr.querySelector('[data-field="price"]')?.value));
-    const discIn = Math.max(0, money(tr.querySelector('[data-field="discount"]')?.value));
-
-    const subRaw = Math.max(0, qty * price);
-    const disc = Math.max(0, Math.min(discIn, subRaw));
-
-    totalBefore += subRaw;
-    rowDiscountSum += disc;
-  });
-
-  const afterRowDiscount = Math.max(0, totalBefore - rowDiscountSum);
-
-  const globalDiscountIn = money(document.getElementById("globalDiscount")?.value);
-  const globalDiscount = Math.max(0, Math.min(Math.max(0, globalDiscountIn), afterRowDiscount));
-
-  const afterAllDiscount = Math.max(0, afterRowDiscount - globalDiscount);
-
-  const shippingFeeIn = money(document.getElementById("shippingFee")?.value);
-  const shippingFee = Math.max(0, shippingFeeIn);
-
-  const finalTotal = afterAllDiscount + shippingFee;
-  const shippingText = shippingFee > 0 ? `${shippingFee.toFixed(2)} جنيه` : "بدون شحن";
-
-  document.getElementById("totalsBox").innerHTML = `
-    <div class="totalLine"><span class="k">الإجمالي قبل الخصم</span><span class="v">${totalBefore.toFixed(2)} جنيه</span></div>
-    <div class="totalLine"><span class="k">خصومات الأصناف</span><span class="v">${rowDiscountSum.toFixed(2)} جنيه</span></div>
-    <div class="totalLine"><span class="k">خصم خاص</span><span class="v">${globalDiscount.toFixed(2)} جنيه</span></div>
-    <div class="totalLine"><span class="k">الإجمالي قبل الشحن</span><span class="v">${afterAllDiscount.toFixed(2)} جنيه</span></div>
-    <div class="totalLine"><span class="k">مصروفات الشحن/النقل</span><span class="v">${shippingText}</span></div>
-    <div class="totalLine primary"><span class="k">الإجمالي</span><span class="v">${finalTotal.toFixed(2)} جنيه</span></div>
-  `;
-
-  document.getElementById("amountWords").textContent = numberToArabicWords(Math.round(finalTotal));
-
-  const note = String(document.getElementById("invoiceNote")?.value || "").trim();
-  const noteBox = document.getElementById("noteBox");
-  if(note){
-    noteBox.style.display = "block";
-    noteBox.textContent = note;
-  }else{
-    noteBox.style.display = "none";
-    noteBox.textContent = "";
-  }
-}
-
-/* ================= DATA ================= */
-function getPurchaseData(){
-  const invNo = document.getElementById("invNo").value || "";
-  const invDate = document.getElementById("invDate").value || "";
-  const invTime = document.getElementById("invTime").value || "";
-
-  const refNo = document.getElementById("refNo").value || "";
-
-  const supplierName = document.getElementById("supplierName").value || "";
-  const supplierPhone = document.getElementById("supplierPhone").value || "";
-  const supplierAddress = document.getElementById("supplierAddress").value || "";
-
-  const shippingFee = Math.max(0, money(document.getElementById("shippingFee")?.value));
-  const globalDiscountIn = Math.max(0, money(document.getElementById("globalDiscount")?.value));
-  const note = String(document.getElementById("invoiceNote")?.value || "").trim();
-
-  const rows = Array.from(document.querySelectorAll("#itemsTable tbody tr"));
-  const items = rows.map((tr, idx)=>{
-    const sku = (tr.querySelector('[data-field="sku"]')?.value || "").trim();
-    const barcode = (tr.querySelector('[data-field="barcode"]')?.value || "").trim();
-    const name = (tr.querySelector('[data-field="name"]')?.value || "").trim();
-    const qty = Math.max(0, money(tr.querySelector('[data-field="qty"]')?.value));
-    const price = Math.max(0, money(tr.querySelector('[data-field="price"]')?.value));
-    const discIn = Math.max(0, money(tr.querySelector('[data-field="discount"]')?.value));
-
-    const subRaw = Math.max(0, qty * price);
-    const disc = Math.max(0, Math.min(discIn, subRaw));
-    const sub = Math.max(0, subRaw - disc);
-    const skuName = (sku && name) ? `${sku} | ${name}` : (sku || name);
-
-    return { idx: idx + 1, sku, barcode, name, skuName, qty, price, disc, sub, subRaw };
-  }).filter(i => i.skuName || i.qty || i.price || i.disc);
-
-  const totalBefore = items.reduce((s,i)=> s + money(i.subRaw), 0);
-  const rowDiscountSum = items.reduce((s,i)=> s + money(i.disc), 0);
-
-  const afterRowDiscount = Math.max(0, totalBefore - rowDiscountSum);
-  const globalDiscount = Math.max(0, Math.min(globalDiscountIn, afterRowDiscount));
-  const afterAllDiscount = Math.max(0, afterRowDiscount - globalDiscount);
-
-  const finalTotal = afterAllDiscount + shippingFee;
-  const words = numberToArabicWords(Math.round(finalTotal));
-
-  return {
-    invNo, invDate, invTime,
-    refNo,
-    supplierName, supplierPhone, supplierAddress,
-    shippingFee, globalDiscount, note,
-    items,
-    totalBefore,
-    rowDiscountSum,
-    afterAllDiscount,
-    finalTotal,
-    words
+  const recalc = () => {
+    const sub = items.reduce((s,it)=>s + (Number(it.cost)||0)*(Number(it.qty)||0), 0);
+    const disc = 0; // placeholder
+    const tax = 0;  // placeholder
+    document.getElementById('subTotal').textContent = fmt(sub);
+    document.getElementById('discount').textContent = fmt(disc);
+    document.getElementById('tax').textContent = fmt(tax);
+    document.getElementById('grandTotal').textContent = fmt(sub - disc + tax);
   };
-}
 
-/* ================= PRINT HELPERS ================= */
-function openPrintWindow(html, title){
-  const w = window.open("", "_blank");
-  if(!w){ showToast("ممنوع فتح نافذة جديدة (Pop-up). فعّل السماح ثم جرّب."); return; }
-  w.document.open(); w.document.write(html); w.document.close();
-  try{ w.document.title = title || "فاتورة مشتريات"; }catch(e){}
-  w.onload = function(){ w.focus(); setTimeout(()=> w.print(), 250); };
-}
-
-function escapeHtml(str){
-  return String(str || "")
-    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-}
-
-function numberToArabicWords(number){
-  number = Number(number) || 0;
-  if(number === 0) return "صفر جنيه مصري فقط لا غير";
-  const ones = ["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
-  const tens = ["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
-  const hundreds = ["","مائة","مائتان","ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"];
-  function subThousand(n){
-    n = Number(n); if(n===0) return "";
-    let res=[]; const h=Math.floor(n/100); const rest=n%100;
-    if(h) res.push(hundreds[h]);
-    if(rest){
-      if(rest<20) res.push(ones[rest]);
-      else{
-        const t=Math.floor(rest/10), o=rest%10;
-        if(o) res.push(ones[o]+" و "+tens[t]); else res.push(tens[t]);
-      }
+  const render = () => {
+    const tb = document.getElementById('itemsBody');
+    tb.innerHTML = '';
+    for (let i=0;i<items.length;i++){
+      const it = items[i];
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td class="mono">${it.barcode || ''}</td>
+        <td>${escapeHtml(it.name || '')}</td>
+        <td class="mono">${fmt(it.cost)}</td>
+        <td class="mono">${Number(it.qty)||0}</td>
+        <td class="mono">${fmt((Number(it.cost)||0)*(Number(it.qty)||0))}</td>
+        <td><button class="danger" data-i="${i}" title="حذف">حذف</button></td>
+      `;
+      tb.appendChild(tr);
     }
-    return res.join(" و ");
-  }
-  let parts=[];
-  const million=Math.floor(number/1000000);
-  const thousand=Math.floor((number%1000000)/1000);
-  const rest=number%1000;
-  if(million){ if(million===1) parts.push("مليون"); else if(million===2) parts.push("مليونان"); else parts.push(subThousand(million)+" مليون"); }
-  if(thousand){ if(thousand===1) parts.push("ألف"); else if(thousand===2) parts.push("ألفان"); else parts.push(subThousand(thousand)+" ألف"); }
-  if(rest) parts.push(subThousand(rest));
-  return `${parts.join(" و ")} جنيه مصري فقط لا غير`;
-}
-
-/* ================= A4 ================= */
-function buildA4Html(d){
-  const docTitle = "فاتورة مشتريات";
-  const shippingText = (Number(d.shippingFee||0) > 0) ? `${Number(d.shippingFee).toFixed(2)} جنيه` : "بدون شحن";
-  const noteHtml = d.note ? `<div class="note">${escapeHtml(d.note)}</div>` : "";
-
-  const itemsHtml = d.items.length ? d.items.map(it => `
-    <tr>
-      <td>${it.idx}</td>
-      <td>${escapeHtml(it.skuName)}</td>
-      <td>${Number(it.qty||0)}</td>
-      <td>${Number(it.price||0).toFixed(2)}</td>
-      <td>${Number(it.disc||0).toFixed(2)}</td>
-      <td>${Number(it.sub||0).toFixed(2)}</td>
-    </tr>
-  `).join("") : `<tr><td colspan="6" style="padding:18px;text-align:center;color:#64748b">لا توجد أصناف</td></tr>`;
-
-  return `
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${docTitle} ${escapeHtml(d.invNo)}</title>
-<style>
-  :root{ --text:#0f172a; --muted:#64748b; --stroke: rgba(15,23,42,.10); }
-  @page { size: A4; margin: 10mm; }
-  body{font-family: Arial, Helvetica, sans-serif;color:var(--text);direction:rtl;margin:0;background:#fff;}
-  .sheet{max-width:900px;margin:0 auto;}
-  .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid var(--stroke);}
-  .header{display:flex;justify-content:space-between;align-items:center;gap:12px;}
-  .brand{display:flex;align-items:center;gap:12px}
-  .brand img{width:64px;height:64px;object-fit:contain}
-  h1{margin:0;font-weight:900}
-  .meta{font-size:14px;color:var(--muted); line-height:1.7}
-  .meta strong{color:#0f172a}
-  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
-  th,td{border:1px solid var(--stroke);padding:8px;text-align:center}
-  th{background:#f7f7fb;}
-  .totals{margin-top:12px;display:flex;flex-direction:column;gap:8px}
-  .tline{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--stroke);border-radius:10px;padding:10px 12px;background:#fff;font-weight:900}
-  .tline span:first-child{color:#64748b;font-weight:900}
-  .tline.primary{background:#f7f7fb;}
-  .amountWords{margin-top:10px;font-weight:900;color:#334155}
-  .note{margin-top:10px;border-top:1px dashed var(--stroke);padding-top:10px;font-weight:900;color:#334155}
-  .custGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
-  .custLine{border:1px dashed var(--stroke);border-radius:10px;padding:10px 12px}
-  .qrWrap{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
-  .qrWrap img{width:120px;height:120px;object-fit:contain;border:1px solid var(--stroke);border-radius:10px;padding:6px}
-  .qrText{font-size:12px;color:#334155;font-weight:900}
-  .footer{margin-top:10px;text-align:center;color:#64748b;font-size:12px;line-height:1.6}
-</style>
-<script>
-// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
-window.AXENTRO_CONFIG = Object.assign({
-  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
-  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
-}, window.AXENTRO_CONFIG||{});
-</script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
-</head>
-<body>
-<div class="sheet">
-
-  <div class="card header">
-    <div class="brand">
-      <img src="images/bslogo.webp" onerror="this.style.display='none'">
-      <div>
-        <h1>B.S Medical &amp; Aesthetic</h1>
-        <div class="meta">${docTitle}: <strong>${escapeHtml(d.invNo)}</strong></div>
-        <div class="meta">مرجع المورد: <strong>${escapeHtml(d.refNo || "—")}</strong></div>
-      </div>
-    </div>
-
-    <div class="meta" style="text-align:left">
-      <div>التاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
-      <div>الوقت: <strong>${escapeHtml(d.invTime)}</strong></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 8px;font-weight:900;">بيانات المورد</h3>
-    <div class="custGrid">
-      <div class="custLine"><strong>الاسم:</strong> ${escapeHtml(d.supplierName)}</div>
-      <div class="custLine"><strong>الهاتف:</strong> ${escapeHtml(d.supplierPhone)}</div>
-      <div class="custLine"><strong>العنوان:</strong> ${escapeHtml(d.supplierAddress)}</div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h3 style="margin:0 0 8px;font-weight:900;">الأصناف</h3>
-    <table>
-      <thead>
-        <tr><th>#</th><th>SKU / المنتج</th><th>الكمية</th><th>سعر الشراء</th><th>خصم</th><th>الإجمالي</th></tr>
-      </thead>
-      <tbody>${itemsHtml}</tbody>
-    </table>
-
-    <div class="totals">
-      <div class="tline"><span>الإجمالي قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>خصومات الأصناف</span><span>${Number(d.rowDiscountSum||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>خصم خاص</span><span>${Number(d.globalDiscount||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>الإجمالي قبل الشحن</span><span>${Number(d.afterAllDiscount||0).toFixed(2)} جنيه</span></div>
-      <div class="tline"><span>مصروفات الشحن/النقل</span><span>${shippingText}</span></div>
-      <div class="tline primary"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)} جنيه</span></div>
-    </div>
-
-    <div class="amountWords">${escapeHtml(d.words)}</div>
-    ${noteHtml}
-
-    <div class="qrWrap">
-      <img src="${QR_SRC_MAIN}" onerror="this.onerror=null;this.src='${QR_SRC_FALLBACK}'" alt="QR">
-      <div class="qrText">امسح الـ QR للتواصل / روابط Axentro</div>
-    </div>
-
-    <div class="footer">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
-  </div>
-
-</div>
-
-<!-- Barcode Scanner Modal -->
-<div id="scannerModal" class="scannerModal" aria-hidden="true">
-  <div class="scannerCard">
-    <div class="scannerHeader">
-      <div class="scannerTitle">مسح باركود</div>
-      <button type="button" id="scannerCloseBtn" class="scannerCloseBtn">إغلاق ✕</button>
-    </div>
-    <div id="qrReader" class="qrReader"></div>
-    <div class="scannerHint">وجّه الكاميرا على الباركود. سيتم إدخاله تلقائيًا.</div>
-  </div>
-</div>
-
-</body>
-</html>`;
-}
-
-function exportA4(){
-  const d = getPurchaseData();
-  openPrintWindow(buildA4Html(d), `فاتورة مشتريات ${d.invNo}`);
-}
-
-/* ================= THERMAL ================= */
-function buildThermalHtml(mm, d){
-  const widthMm = (mm === 58) ? 58 : 80;
-  const titleText = "فاتورة مشتريات";
-
-  const items = d.items.length ? d.items.map(it=>{
-    const name = (it.name || it.skuName || it.sku || "").trim();
-    const qty  = Number(it.qty || 0);
-    const price = Number(it.price || 0);
-    const disc  = Number(it.disc || 0);
-    const sub   = Number(it.sub || 0);
-
-    const left  = `Qty: ${qty} × ${price.toFixed(2)}`;
-    const right = (disc > 0.00001) ? `Disc: ${disc.toFixed(2)}` : "";
-
-    return `
-      <div class="item">
-        <div class="itemName">${it.idx}) ${escapeHtml(name)}</div>
-        <div class="itemMeta">
-          <span class="l">${left}</span>
-          ${right ? `<span class="r">${right}</span>` : `<span class="r"></span>`}
-        </div>
-        <div class="itemTotal"><span>Total</span><span>${sub.toFixed(2)}</span></div>
-      </div>
-      <div class="sep"></div>
-    `;
-  }).join("") : `<div class="m" style="text-align:center;margin:10px 0">لا توجد أصناف</div>`;
-
-  const noteBlock = d.note ? `<div class="sep"></div><div class="m">${escapeHtml(d.note)}</div>` : "";
-
-  return `
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${titleText} ${escapeHtml(d.invNo)}</title>
-<style>
-  @page { size: ${widthMm}mm auto; margin: 3mm; }
-  body{margin:0;font-family: Arial, Tahoma, sans-serif;color:#000;direction:rtl;background:#fff;}
-  .paper{ width:${widthMm}mm; margin:0 auto; padding:0; }
-  .center{text-align:center}
-  .b{font-weight:900;font-size:13px;line-height:1.45}
-  .m{font-weight:700;font-size:11px;line-height:1.55}
-  .sep{border-top:1px dashed #000;margin:8px 0}
-  .totRow{display:flex;justify-content:space-between;gap:8px;font-weight:900;font-size:12px}
-  .totMain{font-size:14px}
-  .qr{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px}
-  .qr img{width:${widthMm===58? 90:110}px;height:${widthMm===58? 90:110}px;object-fit:contain}
-  .foot{margin-top:8px;font-size:10px;color:#000;text-align:center;line-height:1.5}
-  .logo{width:${widthMm===58? 46:56}px;height:${widthMm===58? 46:56}px;object-fit:contain;display:block;margin:0 auto 6px}
-  .item{padding:6px 0}
-  .itemName{font-weight:900;font-size:12px;line-height:1.5}
-  .itemMeta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
-  .itemMeta .l,.itemMeta .r{direction:ltr;text-align:left;unicode-bidi:embed}
-  .itemTotal{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-weight:900;font-size:12px;direction:ltr;text-align:left;unicode-bidi:embed}
-  *{break-inside: avoid; page-break-inside: avoid;}
-  html,body{height:auto}
-</style>
-<script>
-// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
-window.AXENTRO_CONFIG = Object.assign({
-  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
-  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
-}, window.AXENTRO_CONFIG||{});
-</script>
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/html5-qrcode.min.js"></script>
-</head>
-<body>
-<div class="paper">
-  <div class="center">
-    <img class="logo" src="images/bslogo.webp" onerror="this.style.display='none'">
-    <div class="b">B.S Medical &amp; Aesthetic</div>
-    <div class="m">${titleText}: <strong>${escapeHtml(d.invNo)}</strong></div>
-    <div class="m">مرجع المورد: <strong>${escapeHtml(d.refNo || "—")}</strong></div>
-  </div>
-
-  <div class="sep"></div>
-  <div class="m">تاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
-  <div class="m">وقت: <strong>${escapeHtml(d.invTime)}</strong></div>
-
-  <div class="sep"></div>
-  <div class="b">بيانات المورد</div>
-  <div class="m">الاسم: ${escapeHtml(d.supplierName)}</div>
-  <div class="m">الهاتف: ${escapeHtml(d.supplierPhone)}</div>
-  <div class="m">العنوان: ${escapeHtml(d.supplierAddress)}</div>
-
-  <div class="sep"></div>
-  <div class="b">الأصناف</div>
-  <div class="sep"></div>
-
-  ${items}
-
-  <div class="sep"></div>
-  <div class="totRow"><span>قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>خصومات الأصناف</span><span>${Number(d.rowDiscountSum||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>خصم خاص</span><span>${Number(d.globalDiscount||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>قبل الشحن</span><span>${Number(d.afterAllDiscount||0).toFixed(2)}</span></div>
-  <div class="totRow"><span>الشحن/النقل</span><span>${Number(d.shippingFee||0) > 0 ? Number(d.shippingFee).toFixed(2) : "0.00"}</span></div>
-  <div class="totRow totMain"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)}</span></div>
-
-  <div class="sep"></div>
-  <div class="m">${escapeHtml(d.words)}</div>
-  ${noteBlock}
-
-  <div class="qr">
-    <img src="${QR_SRC_MAIN}" onerror="this.onerror=null;this.src='${QR_SRC_FALLBACK}'" alt="QR">
-    <div class="m">امسح الـ QR للتواصل / روابط Axentro</div>
-  </div>
-
-  <div class="foot">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
-</div>
-
-<!-- Barcode Scanner Modal -->
-<div id="scannerModal" class="scannerModal" aria-hidden="true">
-  <div class="scannerCard">
-    <div class="scannerHeader">
-      <div class="scannerTitle">مسح باركود</div>
-      <button type="button" id="scannerCloseBtn" class="scannerCloseBtn">إغلاق ✕</button>
-    </div>
-    <div id="qrReader" class="qrReader"></div>
-    <div class="scannerHint">وجّه الكاميرا على الباركود. سيتم إدخاله تلقائيًا.</div>
-  </div>
-</div>
-
-</body>
-</html>`;
-}
-
-function printThermal(mm){
-  const d = getPurchaseData();
-  openPrintWindow(buildThermalHtml(mm, d), `فاتورة مشتريات ${d.invNo}`);
-}
-
-/* ================= PDF (FIX WHITE PAGE) ================= */
-async function toDataURL(url){
-  try{
-    const abs = new URL(url, location.href).toString();
-    const res = await fetch(abs, { cache: "no-store" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const blob = await res.blob();
-    return await new Promise((resolve, reject)=>{
-      const r = new FileReader();
-      r.onload = ()=> resolve(r.result);
-      r.onerror = reject;
-      r.readAsDataURL(blob);
+    tb.querySelectorAll('button[data-i]').forEach(btn=>{
+      btn.addEventListener('click', () => {
+        const idx = Number(btn.getAttribute('data-i'));
+        items.splice(idx,1);
+        render(); recalc();
+      });
     });
-  }catch(e){ return null; }
-}
-async function inlineAllImages(root){
-  const imgs = Array.from(root.querySelectorAll("img"));
-  for(const img of imgs){
-    const src = img.getAttribute("src") || "";
-    if(!src || src.startsWith("data:")) continue;
-    let dataUrl = await toDataURL(src);
-    if(!dataUrl && (src.includes(QR_SRC_MAIN) || src === QR_SRC_MAIN)){
-      dataUrl = await toDataURL(QR_SRC_FALLBACK);
-    }
-    if(dataUrl) img.setAttribute("src", dataUrl);
-  }
-}
-function buildA4FragmentForPdf(d){
-  const full = buildA4Html(d);
-  const style = (full.match(/<style>([\s\S]*?)<\/style>/i) || [,""])[1];
-  const body  = (full.match(/<body[^>]*>([\s\S]*?)<\/body>/i) || [,""])[1];
-  return `<div><style>${style}</style>${body}</div>`;
-}
-async function savePdfA4(){
-  const d = getPurchaseData();
-  const safeKey = (d.refNo || d.invNo || "BS").replace(/[^\w-]+/g,"_");
-  const filename = `purchase_invoice_${safeKey}.pdf`;
-
-  const holder = document.createElement("div");
-  holder.style.position = "fixed";
-  holder.style.left = "-99999px";
-  holder.style.top = "0";
-  holder.style.width = "210mm";
-  holder.style.background = "#fff";
-  holder.style.zIndex = "-1";
-
-  holder.innerHTML = buildA4FragmentForPdf(d);
-  document.body.appendChild(holder);
-
-  await new Promise(r=> setTimeout(r, 150));
-  await inlineAllImages(holder);
-
-  const opt = {
-    margin: 10,
-    filename,
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" },
-    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
   };
 
-  try{
-    await html2pdf().set(opt).from(holder).save();
-    showToast("✅ تم حفظ PDF");
-  }catch(e){
-    console.error(e);
-    showToast("❌ فشل حفظ PDF");
-  }finally{
-    holder.remove();
-  }
-}
+  const genInternalBarcode = () => {
+    // internal code, not real EAN. unique enough for inventory tracking
+    const a = Date.now().toString(36).toUpperCase();
+    const b = Math.random().toString(36).slice(2,6).toUpperCase();
+    return `AX-${a}-${b}`;
+  };
 
-/* ================= DRAFT AUTOSAVE ================= */
-let draftTimer = null;
-function scheduleDraftSave(){
-  clearTimeout(draftTimer);
-  draftTimer = setTimeout(saveDraftNow, 450);
-}
-function saveDraftNow(){
-  try{
-    const d = getPurchaseData();
-    localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
-  }catch(e){}
-}
-function loadDraft(){
-  try{
-    const raw = localStorage.getItem(DRAFT_KEY);
-    if(!raw) return null;
-    const d = JSON.parse(raw);
-    if(!d || typeof d !== "object") return null;
-    return d;
-  }catch(e){ return null; }
-}
-function applyDraft(d){
-  if(!d) return false;
+  const addItem = (barcode, name, cost, qty) => {
+    barcode = (barcode||'').trim();
+    name = (name||'').trim();
+    cost = Number(cost||0);
+    qty = Number(qty||0);
 
-  if(d.invNo) document.getElementById("invNo").value = d.invNo;
-  if(d.invDate) document.getElementById("invDate").value = d.invDate;
-  if(d.invTime) document.getElementById("invTime").value = d.invTime;
-
-  document.getElementById("refNo").value = d.refNo || "";
-  document.getElementById("supplierName").value = d.supplierName || "";
-  document.getElementById("supplierPhone").value = d.supplierPhone || "";
-  document.getElementById("supplierAddress").value = d.supplierAddress || "";
-
-  document.getElementById("globalDiscount").value = (d.globalDiscount && d.globalDiscount > 0) ? String(d.globalDiscount) : "";
-  document.getElementById("shippingFee").value = (d.shippingFee && d.shippingFee > 0) ? String(d.shippingFee) : "";
-  document.getElementById("invoiceNote").value = d.note || "";
-
-  const tbody = document.querySelector("#itemsTable tbody");
-  tbody.innerHTML = "";
-  ROW_ID = 0;
-
-  const items = Array.isArray(d.items) ? d.items : [];
-  if(items.length){
-    items.forEach(it=>{
-      const tr = addRow(true);
-      tr.querySelector('[data-field="sku"]').value = it.sku || "";
-      tr.querySelector('[data-field="name"]').value = it.name || "";
-      tr.querySelector('[data-field="qty"]').value = String(it.qty ?? 1);
-      tr.querySelector('[data-field="price"]').value = String(it.price ?? 0);
-      tr.querySelector('[data-field="discount"]').value = String(it.disc ?? 0);
-      syncRowThumb(tr);
-      calcRowByTr(tr);
-    });
-  }else{
-    addRow(true);
-  }
-
-  refreshRowNumbers();
-  calcGrand();
-  return true;
-}
-
-function clearDraft(){
-  localStorage.removeItem(DRAFT_KEY);
-}
-
-/* ================= SUPER IMPORT (Copy/Paste) ================= */
-
-// Normalize + smart helpers
-function normalizeDigitsAndText(s){
-  return String(s||"")
-    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
-    .replace(/[٫]/g,".")
-    .replace(/[،]/g,",")
-    .replace(/\t/g," ")
-    .replace(/\u00A0/g," ")
-    .trim();
-}
-
-function stripCurrency(s){
-  return String(s||"")
-    .replace(/\b(egp|جنيه|ج|ج\.م|le|l\.e|£)\b/ig," ")
-    .replace(/\s{2,}/g," ")
-    .trim();
-}
-
-function extractPhoneAny(t){
-  const m = String(t||"").match(/(\+?2?01[0-9][0-9]\s?[-]?\s?[0-9]{3,4}\s?[-]?\s?[0-9]{3,4})/);
-  return m ? m[1].replace(/\s+/g," ").trim() : "";
-}
-
-function extractSupplierMetaSmart(fullText){
-  const t = normalizeDigitsAndText(fullText);
-
-  let supplierName = "";
-  let refNo = "";
-  let supplierAddress = "";
-  const supplierPhone = extractPhoneAny(t);
-
-  // Name patterns
-  let m = t.match(/(?:المورد|اسم\s*المورد|Supplier|Vendor|Company|الشركة)\s*[:：\-]\s*(.+)/i);
-  if(m && m[1]) supplierName = m[1].split(/\n/)[0].trim();
-
-  // Ref patterns
-  m = t.match(/(?:مرجع|Ref|Reference|Invoice\s*No|Inv\s*No|Bill\s*No|No\.?)\s*[:：#\-]\s*([A-Za-z0-9\-_/]{3,})/i);
-  if(m && m[1]) refNo = m[1].trim();
-
-  // Address patterns
-  m = t.match(/(?:العنوان|Address)\s*[:：\-]\s*(.+)/i);
-  if(m && m[1]) supplierAddress = m[1].split(/\n/)[0].trim();
-
-  // Fallback: first meaningful line as supplier if missing
-  if(!supplierName){
-    const lines = t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-    const first = lines.find(l =>
-      l.length >= 3 &&
-      l.length <= 80 &&
-      !/(qty|quantity|price|cost|amount|total|subtotal|grand|الكمية|السعر|الإجمالي|اجمالي)/i.test(l) &&
-      !/^\d+(\.\d+)?$/.test(l)
-    );
-    if(first) supplierName = first;
-  }
-
-  return { supplierName, supplierPhone, supplierAddress, refNo };
-}
-
-function parseNumbersInLine(line){
-  // returns all numbers as floats from a line
-  const t = stripCurrency(normalizeDigitsAndText(line));
-  const nums = t.match(/-?\d+(?:\.\d+)?/g) || [];
-  return nums.map(n=>Number(n)).filter(n=>isFinite(n));
-}
-
-function guessSku(line){
-  const t = normalizeDigitsAndText(line);
-  const m = t.match(/\b([A-Z]{2,}\d{1,}[A-Z0-9_-]*)\b/i);
-  return m ? m[1].toUpperCase() : "";
-}
-
-function cleanNameFromLine(line, sku){
-  let t = normalizeDigitsAndText(line);
-  if(sku) t = t.replace(new RegExp("\\b"+sku+"\\b","ig")," ");
-  t = t.replace(/(?:qty|quantity|الكمية|price|cost|amount|disc|discount|خصم|سعر|سعر\s*الشراء)\s*[:：]?\s*[-]?\d+(?:\.\d+)?/ig," ");
-  t = t.replace(/[@]\s*[-]?\d+(?:\.\d+)?/g," ");
-  t = stripCurrency(t);
-  t = t.replace(/[|]/g," ").replace(/[-]{2,}/g," ");
-  t = t.replace(/\s{2,}/g," ").trim();
-  // remove pure separators
-  return t;
-}
-
-function lineLooksLikeTotal(line){
-  return /(subtotal|grand\s*total|total\s*amount|total|الإجمالي|اجمالي|المجموع)/i.test(line);
-}
-
-function parseItemLineUltra(line){
-  const raw = normalizeDigitsAndText(line);
-  if(!raw) return null;
-
-  // skip meta lines
-  if(/^(المورد|اسم\s*المورد|Supplier|Vendor|Company|الشركة|العنوان|Address|Ref|مرجع|Invoice|Bill)/i.test(raw)) return null;
-  if(lineLooksLikeTotal(raw)) return null;
-
-  // If it is just a header row
-  if(/(item|description|qty|quantity|price|amount|sku|المنتج|الكمية|السعر|القيمة)/i.test(raw) && raw.length < 80){
-    // still might be item, but usually header; ignore
-    return null;
-  }
-
-  // Try pipe table format: SKU | NAME | QTY | PRICE | DISC
-  const parts = raw.split("|").map(s=>s.trim()).filter(Boolean);
-  let sku = "";
-  let name = "";
-  let qty = 0;
-  let price = 0;
-  let disc = 0;
-
-  if(parts.length >= 2){
-    const p0 = parts[0];
-    const p1 = parts[1];
-
-    sku = guessSku(p0) || guessSku(raw);
-    name = p1;
-
-    const allNums = parts.flatMap(p => parseNumbersInLine(p));
-    // heuristic: qty usually small int
-    // price medium, disc maybe last
-    if(allNums.length){
-      const ints = allNums.filter(n => Number.isInteger(n) && n > 0 && n <= 9999);
-      qty = ints.length ? ints[0] : 0;
-
-      // choose price as next number after qty, else largest
-      if(qty){
-        const idx = allNums.findIndex(n=>n===qty);
-        if(idx>=0 && allNums[idx+1]!=null) price = Number(allNums[idx+1]);
-      }
-      if(!price) price = Math.max(...allNums.filter(n=>n>=0));
-      // disc guess: smallest positive that isn't qty and isn't price (or last)
-      const candDisc = allNums.filter(n => n>=0 && n!==qty && n!==price);
-      disc = candDisc.length ? candDisc[candDisc.length-1] : 0;
+    if (!name && !barcode){
+      showMsg('err','لازم تدخل باركود أو اسم المنتج.');
+      return false;
     }
-  }else{
-    // Other formats
-    sku = guessSku(raw);
-    // qty formats
-    let m = raw.match(/(?:qty|quantity|الكمية)\s*[:：]?\s*(\d{1,6})/i);
-    if(m) qty = Number(m[1]);
-    if(!qty){
-      m = raw.match(/(\d{1,6})\s*(?:x|×)\s*/i);
-      if(m) qty = Number(m[1]);
-    }
+    if (!name) name = '(بدون اسم)';
+    if (!barcode) barcode = genInternalBarcode();
+    if (!(qty>0)) qty = 1;
 
-    // price formats
-    m = raw.match(/(?:price|cost|سعر|سعر\s*الشراء)\s*[:：]?\s*([-]?\d+(?:\.\d+)?)/i);
-    if(m) price = Number(m[1]);
-    if(!price){
-      m = raw.match(/[@]\s*([-]?\d+(?:\.\d+)?)/);
-      if(m) price = Number(m[1]);
-    }
-    if(!price){
-      m = raw.match(/([-]?\d+(?:\.\d+)?)\s*(?:جنيه|egp|le|l\.e|£)/i);
-      if(m) price = Number(m[1]);
-    }
+    items.push({barcode, name, cost, qty});
+    showMsg('ok', `تم إضافة: ${name} • ${barcode}`);
+    render(); recalc();
+    return true;
+  };
 
-    // discount formats
-    m = raw.match(/(?:disc|discount|خصم)\s*[:：]?\s*([-]?\d+(?:\.\d+)?)/i);
-    if(m) disc = Number(m[1]);
+  // UI actions
+  const $ = (id)=>document.getElementById(id);
 
-    name = cleanNameFromLine(raw, sku);
-  }
-
-  // If still no name, try from catalog by sku
-  if(!name && sku){
-    const p = findBySku(sku);
-    if(p) name = String(p.name||"").trim();
-    else name = sku;
-  }
-
-  // fallback: pull first text chunk before numbers
-  if(!name){
-    const tmp = raw.split(/[-\d]/)[0].trim();
-    if(tmp && tmp.length >= 2) name = tmp;
-  }
-
-  if(!sku && name){
-    const p2 = findByName(name);
-    if(p2) sku = String(p2.id||"").trim();
-  }
-
-  if(!qty || qty < 1) qty = 1;
-  if(!isFinite(price)) price = 0;
-  if(!isFinite(disc)) disc = 0;
-
-  // discard lines that are too short and have no meaningful text
-  if(!sku && (!name || name.length < 2)) return null;
-
-  // clamp
-  if(price < 0) price = 0;
-  if(disc < 0) disc = 0;
-
-  return { sku, name, qty, price, disc };
-}
-
-function splitTextIntoCandidateLines(text){
-  const t = normalizeDigitsAndText(text);
-  let lines = t.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-
-  // If single line huge, split by separators
-  if(lines.length <= 1 && t.length > 120){
-    lines = t.split(/[;]+/).map(x=>x.trim()).filter(Boolean);
-  }
-
-  // Also split lines containing many items separated by comma
-  const expanded = [];
-  for(const l of lines){
-    if((l.match(/,/g)||[]).length >= 2 && l.length > 60){
-      l.split(/,/).map(x=>x.trim()).filter(Boolean).forEach(x=>expanded.push(x));
-    }else{
-      expanded.push(l);
-    }
-  }
-
-  return expanded;
-}
-
-function mergeDuplicateItems(items){
-  const map = new Map();
-  for(const it of items){
-    const key = (String(it.sku||"").trim().toLowerCase() + "|" + String(it.name||"").trim().toLowerCase()).trim();
-    if(!key || key === "|") continue;
-
-    if(!map.has(key)){
-      map.set(key, { ...it });
-    }else{
-      const cur = map.get(key);
-      cur.qty = money(cur.qty) + money(it.qty);
-      // if current price is 0 and new has price, take it
-      if(money(cur.price) <= 0 && money(it.price) > 0) cur.price = money(it.price);
-      // sum discounts
-      cur.disc = money(cur.disc) + money(it.disc);
-      map.set(key, cur);
-    }
-  }
-  return Array.from(map.values());
-}
-
-function importPurchaseFromText(){
-  const ta = document.getElementById("purchaseImport");
-  const raw = String(ta?.value || "").trim();
-  if(!raw){ showToast("الصق النص أولاً."); return; }
-
-  const meta = extractSupplierMetaSmart(raw);
-
-  if(meta.refNo) document.getElementById("refNo").value = meta.refNo;
-  if(meta.supplierName) document.getElementById("supplierName").value = meta.supplierName;
-  if(meta.supplierPhone) document.getElementById("supplierPhone").value = meta.supplierPhone;
-  if(meta.supplierAddress) document.getElementById("supplierAddress").value = meta.supplierAddress;
-
-  const lines = splitTextIntoCandidateLines(raw);
-
-  // Parse candidates
-  let items = [];
-  for(const line of lines){
-    const it = parseItemLineUltra(line);
-    if(it) items.push(it);
-  }
-
-  // If weak result, try an additional pass: split by " - " or " | " if line is long
-  if(items.length < 2){
-    const more = [];
-    for(const l of lines){
-      if(l.length > 70 && (l.includes(" - ") || l.includes(" | "))){
-        l.split(/(?:\s-\s|\s\|\s)/).map(x=>x.trim()).filter(Boolean).forEach(x=>more.push(x));
-      }
-    }
-    for(const x of more){
-      const it = parseItemLineUltra(x);
-      if(it) items.push(it);
-    }
-  }
-
-  items = mergeDuplicateItems(items);
-
-  // If still no items, just save meta + toast
-  if(!items.length){
-    calcGrand();
-    scheduleDraftSave();
-    showToast("✅ تم ملء بيانات المورد\nلكن لم يتم استخراج أصناف بشكل واضح.");
-    return;
-  }
-
-  // Build table from items
-  const tbody = document.querySelector("#itemsTable tbody");
-  tbody.innerHTML = "";
-  ROW_ID = 0;
-
-  items.forEach(it=>{
-    const tr = addRow(true);
-
-    // sync with catalog if possible
-    let sku = String(it.sku||"").trim();
-    let name = String(it.name||"").trim();
-
-    let p = null;
-    if(sku) p = findBySku(sku);
-    if(!p && name) p = findByName(name);
-
-    if(p){
-      if(!sku) sku = String(p.id||"").trim();
-      if(!name) name = String(p.name||"").trim();
-    }
-
-    tr.querySelector('[data-field="sku"]').value = sku;
-    tr.querySelector('[data-field="name"]').value = name;
-    tr.querySelector('[data-field="qty"]').value = String(Math.max(1, Math.floor(money(it.qty) || 1)));
-
-    const priceEl = tr.querySelector('[data-field="price"]');
-    const discEl  = tr.querySelector('[data-field="discount"]');
-
-    // price: if import price is 0, try auto cost
-    let price = money(it.price);
-    if(price <= 0 && p){
-      const autoCost = resolvePurchasePriceFromProduct(p);
-      if(autoCost > 0) price = autoCost;
-    }
-    priceEl.value = String(Math.max(0, price));
-
-    discEl.value = String(Math.max(0, money(it.disc)));
-
-    syncRowThumb(tr);
-    calcRowByTr(tr);
+  $('addBtn').addEventListener('click', () => {
+    addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
   });
 
-  refreshRowNumbers();
-  calcGrand();
-  scheduleDraftSave();
+  $('clearItemBtn').addEventListener('click', () => {
+    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
+    showMsg('', '');
+    $('barcode').focus();
+  });
 
-  showToast(`✅ تم الاستيراد بنجاح\nعدد الأصناف: ${items.length}`);
-}
+  $('clearListBtn').addEventListener('click', () => {
+    items = [];
+    showMsg('', '');
+    render(); recalc();
+  });
 
-/* ================= BIND ================= */
-document.getElementById('addRowBtn')?.addEventListener('click', ()=>{
-  addRow(false);
-  scheduleDraftSave();
-});
+  $('resetInvBtn').addEventListener('click', () => {
+    items = [];
+    $('supplier').value=''; $('ref').value='';
+    showMsg('', '');
+    render(); recalc();
+  });
 
-["globalDiscount","shippingFee","invoiceNote","refNo","supplierName","supplierPhone","supplierAddress"]
-  .forEach(id=>{
-    document.getElementById(id)?.addEventListener("input", ()=>{
-      calcGrand();
-      scheduleDraftSave();
+  $('importBtn').addEventListener('click', () => {
+    const text = $('paste').value || '';
+    let okCount = 0, badCount=0;
+    text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const parts=line.split(',').map(s=>s.trim());
+      const [bc,nm,cs,qt]=parts;
+      const added = addItem(bc||'', nm||'', cs||0, qt||1);
+      if (added) okCount++; else badCount++;
+    });
+    showMsg(okCount? 'ok':'err', `استيراد: ${okCount} صنف${badCount? ' • فشل: '+badCount:''}`);
+  });
+
+  $('exportJsonBtn').addEventListener('click', async () => {
+    const payload = {
+      invoice: {
+        no: $('invNo').value.trim(),
+        date: $('invDate').value,
+        supplier: $('supplier').value.trim(),
+        ref: $('ref').value.trim(),
+      },
+      items: items.slice(),
+      totals: {
+        subTotal: Number($('subTotal').textContent)||0,
+        grandTotal: Number($('grandTotal').textContent)||0
+      }
+    };
+    await navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).catch(()=>{});
+    showMsg('ok', 'تم نسخ JSON إلى الحافظة (Clipboard).');
+  });
+
+  // Enter key adds item
+  ['barcode','name','cost','qty'].forEach(id=>{
+    $(id).addEventListener('keydown', (e)=>{
+      if (e.key === 'Enter'){
+        e.preventDefault();
+        $('addBtn').click();
+      }
     });
   });
 
-document.getElementById('printA4Btn')?.addEventListener('click', exportA4);
-document.getElementById('savePdfA4Btn')?.addEventListener('click', savePdfA4);
+  // Scanner
+  const modal = $('scanModal');
+  const openModal = () => { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); };
+  const closeModal = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
 
-document.getElementById('thermal80Btn')?.addEventListener('click', ()=> printThermal(80));
-document.getElementById('thermal58Btn')?.addEventListener('click', ()=> printThermal(58));
+  let qr = null;
 
-document.getElementById("resetBtn")?.addEventListener("click", ()=>{
-  clearDraft();
-  initInvoice(false);
-  showToast("✅ تم بدء فاتورة جديدة");
-  scheduleDraftSave();
-});
-
-// Import binds
-document.getElementById("importPurchaseBtn")?.addEventListener("click", importPurchaseFromText);
-document.getElementById("clearPurchaseImportBtn")?.addEventListener("click", ()=>{
-  const ta = document.getElementById("purchaseImport");
-  if(ta) ta.value = "";
-  showToast("تم المسح");
-});
-
-/* ================= BOOT ================= */
-initInvoice(true);
-loadProductsSmart();
-refreshRowNumbers();
-calcGrand();
-
-// Restore draft إن وُجد
-const draft = loadDraft();
-if(draft){
-  const ok = applyDraft(draft);
-  if(ok) showToast("✅ تم استرجاع آخر فاتورة محفوظة تلقائيًا");
-}else{
-  // لو مفيش Draft، ضيف صف واحد فقط
-  const tbody = document.querySelector("#itemsTable tbody");
-  if(tbody && tbody.children.length === 0){
-    addRow(true);
-    refreshRowNumbers();
-    calcGrand();
-  }
-}
-
-/* ================= SAVE TO SYSTEM (Apps Script) ================= */
-const saveSystemBtn = document.getElementById("saveSystemBtn");
-async function savePurchaseToSystem(){
-  try{
-    AxentroAuth.requireAuth();
-    const d = getPurchaseData();
-    // Build payload for Apps Script (FIFO lots)
-    const items = (d.items || []).map(i=>({
-      barcode: i.barcode || "",       // إن لم يوجد → السيرفر يولّد Internal Barcode
-      name: i.name || i.skuName || "",// الاسم مطلوب لو باركود جديد
-      category: "",
-      unit: "PCS",
-      qty: Number(i.qty||0),
-      unit_cost: Number(i.price||0)
-    })).filter(x => (x.barcode || x.name) && x.qty>0);
-
-    if(items.length === 0){
-      showToast("أضف أصناف أولاً");
+  const startScanner = async () => {
+    if (!window.Html5Qrcode){
+      showMsg('err','مكتبة الكاميرا لم تُحمّل. جرّب تحديث الصفحة.');
       return;
     }
+    if (!qr) qr = new Html5Qrcode("qr-reader");
+    openModal();
 
-    const payload = {
-      supplier: (d.supplierName || "").trim(),
-      invoice_date: (d.invDate || "") || null,
-      discount: Number(d.globalDiscount||0),
-      tax: 0,
-      notes: (d.note||"").trim(),
-      items
-    };
+    try{
+      await qr.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 260, height: 180 } },
+        (decodedText) => {
+          // on success
+          $('barcode').value = (decodedText||'').trim();
+          closeModal();
+          qr.stop().catch(()=>{});
+          $('name').focus();
+          showMsg('ok', 'تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
+        },
+        () => {}
+      );
+    }catch(err){
+      showMsg('err', 'تعذر تشغيل الكاميرا. امنح إذن الكاميرا أو جرّب متصفح Chrome.');
+      closeModal();
+    }
+  };
 
-    showToast("⏳ جاري الحفظ...");
-    const res = await AxentroApi.createPurchase(payload);
-    if(res && res.purchase_invoice_no){
-      showToast("✅ تم الحفظ: " + res.purchase_invoice_no);
-      // اكتب رقم الفاتورة في الحقل إن كان فارغ
-      const invNoEl = document.getElementById("invNo");
-      if(invNoEl && !invNoEl.value) invNoEl.value = res.purchase_invoice_no;
-    }else{
-      showToast("✅ تم الحفظ");
-    }
-  }catch(e){
-    showToast("❌ " + (e.message || "خطأ"));
-    // لو الجلسة انتهت
-    if(String(e.message||"").toLowerCase().includes("session")){
-      try{ AxentroAuth.logout(); }catch(_){}
-    }
+  $('scanBtn').addEventListener('click', (e)=>{ e.preventDefault(); startScanner(); });
+  $('closeScan').addEventListener('click', async (e)=>{ e.preventDefault(); closeModal(); if (qr){ await qr.stop().catch(()=>{}); } });
+
+  // helpers
+  function escapeHtml(str){
+    return String(str)
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'","&#039;");
   }
-}
-if(saveSystemBtn) saveSystemBtn.addEventListener("click", savePurchaseToSystem);
-
+})();
 </script>
-
-<!-- Barcode Scanner Modal -->
-<div id="scannerModal" class="scannerModal" aria-hidden="true">
-  <div class="scannerCard">
-    <div class="scannerHeader">
-      <div class="scannerTitle">مسح باركود</div>
-      <button type="button" id="scannerCloseBtn" class="scannerCloseBtn">إغلاق ✕</button>
-    </div>
-    <div id="qrReader" class="qrReader"></div>
-    <div class="scannerHint">وجّه الكاميرا على الباركود. سيتم إدخاله تلقائيًا.</div>
-  </div>
-</div>
-
 </body>
 </html>
