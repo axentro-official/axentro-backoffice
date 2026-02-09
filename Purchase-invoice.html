@@ -271,7 +271,30 @@
       opacity: 1;
       transform: translateX(-50%) translateY(-4px);
     }
-  </style>
+  
+
+/* ===== Barcode Scanner ===== */
+.barcode-cell{display:flex;gap:8px;align-items:center}
+.barcode-cell input{flex:1;min-width:120px}
+.scanBtn{padding:8px 10px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer}
+.scanBtn:active{transform:scale(.98)}
+.scanner-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:9999}
+.scanner-modal.hidden{display:none}
+.scanner-card{width:min(520px,92vw);background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.scanner-head{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:#0f172a;color:#fff}
+.scanner-close{background:transparent;border:none;color:#fff;font-size:18px;cursor:pointer}
+.scanner-body{position:relative;padding:12px;background:#000}
+.scanner-video{width:100%;height:auto;border-radius:12px;background:#000}
+.scanner-hint{position:absolute;left:12px;right:12px;bottom:16px;color:#fff;text-align:center;font-size:14px;background:rgba(0,0,0,.35);padding:6px 8px;border-radius:12px}
+.scanner-target{position:absolute;inset:12px;border:2px dashed rgba(255,255,255,.55);border-radius:14px;pointer-events:none}
+</style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+</script>
 </head>
 
 <body>
@@ -360,6 +383,7 @@
           <tr>
             <th style="width:60px">#</th>
             <th>SKU / المنتج</th>
+            <th style="width:180px">الباركود</th>
             <th>الكمية</th>
             <th>سعر الشراء</th>
             <th>خصم (جنيه)</th>
@@ -569,6 +593,20 @@ function findByName(name){
   hit = PRODUCTS.find(p => String(p.name || "").trim().toLowerCase().includes(n));
   return hit || null;
 }
+
+function findByBarcode(code){
+  const c = String(code || "").trim();
+  if(!c) return null;
+  // Try exact match on common fields
+  let hit = PRODUCTS.find(p => String(p.barcode || "").trim() === c);
+  if(hit) return hit;
+  hit = PRODUCTS.find(p => String(p.Barcode || "").trim() === c);
+  if(hit) return hit;
+  // Some sheets store barcode inside 'id' or 'sku' - keep it as fallback
+  hit = PRODUCTS.find(p => String(p.id || "").trim() === c);
+  return hit || null;
+}
+
 function resolveImageBySku(sku){
   const s = String(sku || "").trim();
   if(!s) return IMG_PLACEHOLDER;
@@ -607,6 +645,13 @@ function addRow(silentFocus=false){
         <input class="nameInput" list="nameList" placeholder="اسم المنتج" autocomplete="off" data-field="name" />
       </div>
     </td>
+
+    <td data-label="الباركود">
+      <div class="barcode-cell">
+        <input class="barcodeInput" placeholder="باركود" inputmode="numeric" autocomplete="off" data-field="barcode" />
+        <button type="button" class="scanBtn" title="فتح الكاميرا" data-act="scan">📷</button>
+      </div>
+    </td>
     <td data-label="الكمية"><input type="number" min="1" value="1" data-field="qty"></td>
     <td data-label="سعر الشراء"><input type="number" step="0.01" min="0" value="0" data-field="price"></td>
     <td data-label="خصم (جنيه)"><input type="number" step="0.01" min="0" value="0" data-field="discount"></td>
@@ -631,6 +676,14 @@ function removeRowByTr(tr){
 
 const itemsTbody = document.querySelector("#itemsTable tbody");
 itemsTbody.addEventListener("click", (ev)=>{
+  const scanBtn = ev.target.closest("[data-act='scan']");
+  if(scanBtn){
+    const tr = scanBtn.closest("tr");
+    const inp = tr ? tr.querySelector('[data-field="barcode"]') : null;
+    if(inp) openScannerForInput(inp);
+    return;
+  }
+
   const btn = ev.target.closest("[data-act='remove']");
   if(!btn) return;
   removeRowByTr(btn.closest("tr"));
@@ -642,6 +695,19 @@ itemsTbody.addEventListener("input", (ev)=>{
   if(!tr) return;
 
   const field = el.getAttribute("data-field");
+  if(field === "barcode"){
+    const code = String(el.value || '').trim();
+    if(code){
+      const p = findByBarcode(code);
+      if(p){
+        const skuInp = tr.querySelector('[data-field="sku"]');
+        const nameInp = tr.querySelector('[data-field="name"]');
+        if(skuInp) skuInp.value = p.id || '';
+        if(nameInp) nameInp.value = p.name || nameInp.value;
+      }
+    }
+  }
+
   if(field === "qty" || field === "price" || field === "discount"){
     calcRowByTr(tr);
     scheduleDraftSave();
@@ -937,6 +1003,172 @@ function buildA4Html(d){
   .qrText{font-size:12px;color:#334155;font-weight:900}
   .footer{margin-top:10px;text-align:center;color:#64748b;font-size:12px;line-height:1.6}
 </style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+
+
+// ===== Camera Barcode Scanner (BarcodeDetector + Quagga2 fallback) =====
+let __scannerInput = null;
+let __scannerStream = null;
+let __scannerRAF = null;
+let __scannerDetector = null;
+let __quaggaReady = false;
+
+function $(id){ return document.getElementById(id); }
+
+async function openScannerForInput(inputEl){
+  try{
+    __scannerInput = inputEl;
+    const modal = $("scannerModal");
+    const video = $("scannerVideo");
+    const hint  = $("scannerHint");
+    if(!modal || !video){
+      alert("لم يتم العثور على واجهة الماسح داخل الصفحة.");
+      return;
+    }
+    modal.classList.remove("hidden");
+
+    // Close handlers (once)
+    if(!$("scannerCloseBtn").__bound){
+      $("scannerCloseBtn").addEventListener("click", closeScanner);
+      modal.addEventListener("click", (e)=>{ if(e.target === modal) closeScanner(); });
+      $("scannerCloseBtn").__bound = true;
+    }
+
+    // Prefer BarcodeDetector when available
+    if("BarcodeDetector" in window){
+      hint.textContent = "وجّه الكاميرا للباركود…";
+      __scannerDetector = new BarcodeDetector({formats:["ean_13","ean_8","code_128","upc_a","upc_e","qr_code"]});
+
+      __scannerStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment" },
+        audio: false
+      });
+
+      video.srcObject = __scannerStream;
+      await video.play();
+
+      const tick = async ()=>{
+        if(!__scannerDetector) return;
+        try{
+          const codes = await __scannerDetector.detect(video);
+          if(codes && codes.length){
+            const val = codes[0].rawValue || codes[0].data || "";
+            if(val){
+              onScannerDetected(val);
+              return;
+            }
+          }
+        }catch(err){
+          // ignore frame errors
+        }
+        __scannerRAF = requestAnimationFrame(tick);
+      };
+      __scannerRAF = requestAnimationFrame(tick);
+      return;
+    }
+
+    // Fallback to Quagga2 (loads only if needed)
+    hint.textContent = "تحميل الماسح…";
+    await loadScriptOnce("https://unpkg.com/@ericblade/quagga2/dist/quagga.js");
+    hint.textContent = "وجّه الكاميرا للباركود…";
+
+    if(!window.Quagga){
+      alert("تعذر تحميل الماسح. جرّب تحديث Chrome.");
+      closeScanner();
+      return;
+    }
+
+    // Quagga uses its own video element inside target
+    const target = $("scannerTarget");
+    target.innerHTML = ""; // reset
+
+    window.Quagga.init({
+      inputStream: {
+        type: "LiveStream",
+        target: target,
+        constraints: { facingMode: "environment" }
+      },
+      decoder: {
+        readers: ["ean_reader","ean_8_reader","code_128_reader","upc_reader","upc_e_reader"]
+      },
+      locate: true
+    }, (err)=>{
+      if(err){
+        alert("خطأ في تشغيل الكاميرا: " + (err.message || err));
+        closeScanner();
+        return;
+      }
+      __quaggaReady = true;
+      window.Quagga.start();
+      window.Quagga.onDetected((res)=>{
+        const code = res && res.codeResult && res.codeResult.code;
+        if(code) onScannerDetected(code);
+      });
+    });
+
+  }catch(err){
+    alert("تعذر فتح الكاميرا. تأكد من السماح للكاميرا في المتصفح.");
+    closeScanner();
+  }
+}
+
+function onScannerDetected(code){
+  const val = String(code || "").trim();
+  if(!val) return;
+  if(__scannerInput){
+    __scannerInput.value = val;
+    __scannerInput.dispatchEvent(new Event("input", {bubbles:true}));
+    __scannerInput.dispatchEvent(new Event("change", {bubbles:true}));
+  }
+  closeScanner();
+}
+
+function closeScanner(){
+  const modal = $("scannerModal");
+  if(modal) modal.classList.add("hidden");
+
+  // Stop BarcodeDetector loop
+  if(__scannerRAF){
+    cancelAnimationFrame(__scannerRAF);
+    __scannerRAF = null;
+  }
+  __scannerDetector = null;
+
+  // Stop MediaStream
+  if(__scannerStream){
+    __scannerStream.getTracks().forEach(t=>t.stop());
+    __scannerStream = null;
+  }
+
+  // Stop Quagga
+  if(window.Quagga && __quaggaReady){
+    try{ window.Quagga.stop(); }catch(e){}
+    try{ window.Quagga.offDetected && window.Quagga.offDetected(); }catch(e){}
+    __quaggaReady = false;
+  }
+
+  // Cleanup target
+  const target = $("scannerTarget");
+  if(target) target.innerHTML = "";
+}
+
+let __loadedScripts = {};
+function loadScriptOnce(url){
+  return new Promise((resolve,reject)=>{
+    if(__loadedScripts[url]) return resolve();
+    const s = document.createElement("script");
+    s.src = url;
+    s.onload = ()=>{ __loadedScripts[url]=true; resolve(); };
+    s.onerror = ()=>reject(new Error("Failed to load: " + url));
+    document.head.appendChild(s);
+  });
+}
+</script>
 </head>
 <body>
 <div class="sheet">
@@ -996,6 +1228,21 @@ function buildA4Html(d){
   </div>
 
 </div>
+<!-- Barcode Scanner Modal -->
+<div id="scannerModal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-label="Barcode scanner">
+  <div class="scanner-card">
+    <div class="scanner-head">
+      <div>مسح باركود</div>
+      <button id="scannerCloseBtn" type="button" class="scanner-close">✕</button>
+    </div>
+    <div class="scanner-body">
+      <div id="scannerTarget" class="scanner-target"></div>
+      <video id="scannerVideo" class="scanner-video" playsinline></video>
+      <div id="scannerHint" class="scanner-hint">وجّه الكاميرا للباركود…</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>`;
 }
@@ -1064,6 +1311,13 @@ function buildThermalHtml(mm, d){
   *{break-inside: avoid; page-break-inside: avoid;}
   html,body{height:auto}
 </style>
+<script>
+// ضع رابط الـ Web App هنا (يمكنك أيضًا ضبطه مرة واحدة في كل الصفحات)
+window.AXENTRO_CONFIG = Object.assign({
+  GAS_WEB_APP_URL: window.AXENTRO_CONFIG?.GAS_WEB_APP_URL || "",
+  GOOGLE_CLIENT_ID: window.AXENTRO_CONFIG?.GOOGLE_CLIENT_ID || ""
+}, window.AXENTRO_CONFIG||{});
+</script>
 </head>
 <body>
 <div class="paper">
@@ -1109,6 +1363,21 @@ function buildThermalHtml(mm, d){
 
   <div class="foot">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
 </div>
+<!-- Barcode Scanner Modal -->
+<div id="scannerModal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-label="Barcode scanner">
+  <div class="scanner-card">
+    <div class="scanner-head">
+      <div>مسح باركود</div>
+      <button id="scannerCloseBtn" type="button" class="scanner-close">✕</button>
+    </div>
+    <div class="scanner-body">
+      <div id="scannerTarget" class="scanner-target"></div>
+      <video id="scannerVideo" class="scanner-video" playsinline></video>
+      <div id="scannerHint" class="scanner-hint">وجّه الكاميرا للباركود…</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>`;
 }
@@ -1696,5 +1965,20 @@ async function savePurchaseToSystem(){
 if(saveSystemBtn) saveSystemBtn.addEventListener("click", savePurchaseToSystem);
 
 </script>
+<!-- Barcode Scanner Modal -->
+<div id="scannerModal" class="scanner-modal hidden" role="dialog" aria-modal="true" aria-label="Barcode scanner">
+  <div class="scanner-card">
+    <div class="scanner-head">
+      <div>مسح باركود</div>
+      <button id="scannerCloseBtn" type="button" class="scanner-close">✕</button>
+    </div>
+    <div class="scanner-body">
+      <div id="scannerTarget" class="scanner-target"></div>
+      <video id="scannerVideo" class="scanner-video" playsinline></video>
+      <div id="scannerHint" class="scanner-hint">وجّه الكاميرا للباركود…</div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
