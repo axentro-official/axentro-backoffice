@@ -9,9 +9,7 @@
   <script src="./config.js"></script>
 
   <!-- QR/Barcode scanner -->
-  <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
-
-  <style>
+<style>
     :root{
       --bg:#f5f7fb;
       --card:#ffffff;
@@ -180,7 +178,20 @@
       font-size:12px;
       margin-top:14px;
     }
-  </style>
+  
+  #scanVideo{
+    width:100%;
+    max-height:60vh;
+    border-radius:12px;
+    background:#000;
+  }
+  .scan-hint{
+    margin-top:10px;
+    font-size:14px;
+    color:#6b7280;
+    text-align:center;
+  }
+</style>
 </head>
 
 <body>
@@ -314,7 +325,8 @@
       </div>
       <div class="bd">
         <div class="hint" style="margin-bottom:10px">لو الكاميرا لا تعمل: تأكد أنك تستخدم <b>https</b> وسمحت بإذن الكاميرا.</div>
-        <div id="qr-reader"></div>
+        <video id="scanVideo" playsinline></video>
+        <div class="scan-hint">وجّه الكاميرا إلى الباركود وسيتم التقاطه تلقائياً.</div>
       </div>
     </div>
   </div>
@@ -474,43 +486,89 @@
     });
   });
 
-  // Scanner
+  // Scanner (BarcodeDetector API - no external libs)
   const modal = $('scanModal');
   const openModal = () => { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); };
   const closeModal = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
 
-  let qr = null;
+  let scanStream = null;
+  let scanning = false;
+  let detector = null;
 
-  const startScanner = async () => {
-    if (!window.Html5Qrcode){
-      showMsg('err','مكتبة الكاميرا لم تُحمّل. جرّب تحديث الصفحة.');
+  async function stopScanner(){
+    scanning = false;
+    try{
+      const v = $('scanVideo');
+      if (v) v.pause();
+    }catch(_){}
+    if (scanStream){
+      try{ scanStream.getTracks().forEach(t=>t.stop()); }catch(_){}
+      scanStream = null;
+    }
+  }
+
+  async function startScanner(){
+    // Works on modern Chrome/Edge/Android (HTTPS required)
+    if (!('mediaDevices' in navigator) || !navigator.mediaDevices.getUserMedia){
+      showMsg('err','المتصفح لا يدعم تشغيل الكاميرا. جرّب متصفح Chrome.');
       return;
     }
-    if (!qr) qr = new Html5Qrcode("qr-reader");
+    if (!('BarcodeDetector' in window)){
+      showMsg('err','ميزة قراءة الباركود غير مدعومة على هذا المتصفح. جرّب Chrome مُحدَّث.');
+      return;
+    }
+
+    if (!detector){
+      try{
+        detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','itf','qr_code'] });
+      }catch(_){
+        detector = new BarcodeDetector();
+      }
+    }
+
     openModal();
+    await stopScanner();
 
     try{
-      await qr.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 260, height: 180 } },
-        (decodedText) => {
-          // on success
-          $('barcode').value = (decodedText||'').trim();
-          closeModal();
-          qr.stop().catch(()=>{});
-          $('name').focus();
-          showMsg('ok', 'تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
-        },
-        () => {}
-      );
+      const video = $('scanVideo');
+      scanStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: false
+      });
+      video.srcObject = scanStream;
+      await video.play();
+
+      scanning = true;
+      const tick = async () => {
+        if (!scanning) return;
+        try{
+          const codes = await detector.detect(video);
+          if (codes && codes.length){
+            const value = (codes[0].rawValue || '').trim();
+            if (value){
+              $('barcode').value = value;
+              await stopScanner();
+              closeModal();
+              $('name').focus();
+              showMsg('ok','تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
+              return;
+            }
+          }
+        }catch(_){}
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+
     }catch(err){
-      showMsg('err', 'تعذر تشغيل الكاميرا. امنح إذن الكاميرا أو جرّب متصفح Chrome.');
+      await stopScanner();
       closeModal();
+      showMsg('err','تعذر تشغيل الكاميرا. امنح إذن الكاميرا ثم أعد المحاولة.');
     }
-  };
+  }
 
   $('scanBtn').addEventListener('click', (e)=>{ e.preventDefault(); startScanner(); });
-  $('closeScan').addEventListener('click', async (e)=>{ e.preventDefault(); closeModal(); if (qr){ await qr.stop().catch(()=>{}); } });
+  $('closeScan').addEventListener('click', async (e)=>{ e.preventDefault(); closeModal(); await stopScanner(); });
+
 
   // helpers
   function escapeHtml(str){
