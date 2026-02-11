@@ -7,8 +7,9 @@
 
   <!-- Runtime config (same folder) -->
   <script src="./config.js"></script>
+  <!-- Shared app logic (Auth + API helpers) -->
+  <script src="./app.js"></script>
 
-  <!-- QR/Barcode scanner -->
 <style>
     :root{
       --bg:#f5f7fb;
@@ -63,13 +64,10 @@
       background:#fff;
       color:var(--muted);
       font-size:13px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr;
-      gap:14px;
-    }
-    @media (max-width:860px){ .grid{grid-template-columns:1fr} }
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;}
     .sec-title{
       display:flex;align-items:center;justify-content:space-between;gap:10px;
       margin:10px 0 10px;
@@ -113,6 +111,7 @@
       display:none;
       font-size:13px;
       line-height:1.6;
+      white-space:pre-line;
     }
     .msg.ok{display:block;border-color:#16a34a55;background:#16a34a10;color:#14532d}
     .msg.err{display:block;border-color:#ef444455;background:#ef444410;color:#7f1d1d}
@@ -145,51 +144,85 @@
       border-radius:14px;
       background:#fff;
     }
-    .trow{display:flex;justify-content:space-between;gap:10px;margin:6px 0}
+    .trow{display:flex;justify-content:space-between;gap:10px;margin:6px 0;align-items:center}
     .trow strong{font-size:14px}
+    .trow .val{min-width:140px;text-align:left;direction:ltr;font-family:var(--mono)}
     .small{font-size:12px;color:var(--muted)}
-    /* Scanner modal */
-    .modal{
-      position:fixed;inset:0;display:none;place-items:center;
-      background:rgba(2,6,23,.55);
-      padding:18px;
-      z-index:9999;
-    }
-    .modal.open{display:grid}
-    .modal .box{
-      width:min(520px, 100%);
-      background:#fff;
-      border-radius:18px;
-      border:1px solid var(--border);
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-    .modal .hd{
-      padding:12px 14px;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      border-bottom:1px solid var(--border);
-      font-weight:900;
-    }
-    .modal .bd{padding:12px 14px}
-    #qr-reader{width:100%}
     .foot{
       text-align:center;
       color:var(--muted);
       font-size:12px;
       margin-top:14px;
     }
-  
+
+  /* Scanner modal */
+  .modal{
+    position:fixed;inset:0;display:none;place-items:center;
+    background:rgba(2,6,23,.60);
+    padding:18px;
+    z-index:9999;
+  }
+  .modal.open{display:grid}
+  .modal .box{
+    width:min(720px, 100%);
+    background:#fff;
+    border-radius:18px;
+    border:1px solid var(--border);
+    box-shadow:var(--shadow);
+    overflow:hidden;
+  }
+  .modal .hd{
+    padding:12px 14px;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    border-bottom:1px solid var(--border);
+    font-weight:900;
+    flex-wrap:wrap;
+  }
+  .modal .bd{padding:12px 14px}
   #scanVideo{
     width:100%;
-    max-height:60vh;
+    max-height:65vh;
     border-radius:12px;
     background:#000;
+    display:block;
+  }
+  .scanWrap{
+    position:relative;
+    border-radius:12px;
+    overflow:hidden;
+    background:#000;
+  }
+  .scanOverlay{
+    position:absolute;inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .scanOverlay .frame{
+    width:min(420px, 78%);
+    aspect-ratio: 3 / 2;
+    border:2px solid rgba(255,255,255,.85);
+    border-radius:14px;
+    box-shadow:0 0 0 999px rgba(0,0,0,.20) inset;
   }
   .scan-hint{
     margin-top:10px;
-    font-size:14px;
+    font-size:13px;
     color:#6b7280;
     text-align:center;
+    line-height:1.6;
+  }
+  .scanControls{
+    margin-top:10px;
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .scanControls select{
+    max-width: 320px;
   }
 </style>
 </head>
@@ -202,20 +235,24 @@
           <div class="logo">AX</div>
           <div>
             <h1>فاتورة مشتريات</h1>
-            <div class="sub">Purchase Invoice • إضافة منتجات يدويًا أو بالباركود</div>
+            <div class="sub">Purchase Invoice • إضافة أصناف يدويًا أو بالباركود</div>
           </div>
         </div>
-        <div class="pill" id="cfg-pill">Config: <span class="mono" id="cfg-state">…</span></div>
+        <div class="pill" id="cfg-pill">
+          <span>Config:</span> <span class="mono" id="cfg-state">…</span>
+          <span style="opacity:.35">•</span>
+          <span>Account:</span> <span class="mono" id="user-state">…</span>
+        </div>
       </div>
 
       <div class="grid">
-        <!-- Left: invoice + items -->
         <div>
-          <div class="sec-title">بيانات الفاتورة <span class="hint">مطلوب: رقم الفاتورة + المورد + التاريخ</span></div>
+          <div class="sec-title">بيانات الفاتورة <span class="hint">المطلوب: المورد + التاريخ</span></div>
           <div class="row">
             <div>
               <label>رقم الفاتورة</label>
-              <input id="invNo" placeholder="مثال: PINV-20260209-001" />
+              <input id="invNo" class="mono" readonly />
+              <div class="small" style="margin-top:6px">سيتم ترقيم الفاتورة تلقائيًا عند الحفظ (مثال: PU001).</div>
             </div>
             <div>
               <label>التاريخ</label>
@@ -228,8 +265,8 @@
               <input id="supplier" placeholder="اسم المورد" />
             </div>
             <div>
-              <label>مرجع / ملاحظة</label>
-              <input id="ref" placeholder="Ref / Note" />
+              <label>ملاحظة</label>
+              <input id="ref" placeholder="ملاحظة / مرجع" />
             </div>
           </div>
 
@@ -243,7 +280,7 @@
               <input id="barcode" class="mono" placeholder="Scan / اكتب الباركود" inputmode="numeric" />
             </div>
             <div>
-              <label>اسم المنتج (لو مفيش باركود)</label>
+              <label>اسم المنتج (مطلوب لو بدون باركود)</label>
               <input id="name" placeholder="اسم المنتج" />
             </div>
           </div>
@@ -261,8 +298,7 @@
 
           <div class="btns">
             <button class="brand" id="scanBtn">📷 فتح الكاميرا (باركود)</button>
-            <button id="addBtn">＋ إضافة الصنف</button>
-            <button class="secondary" id="clearItemBtn">مسح حقول الصنف</button>
+            <button id="addBtn">＋ إضافة الأصناف</button>
           </div>
 
           <div class="msg" id="msg"></div>
@@ -282,32 +318,27 @@
           </table>
 
           <div class="totals">
-            <div class="trow"><span>الإجمالي قبل الخصم</span><strong id="subTotal">0.00</strong></div>
-            <div class="trow"><span>خصم</span><strong id="discount">0.00</strong></div>
-            <div class="trow"><span>ضريبة</span><strong id="tax">0.00</strong></div>
-            <hr style="border:none;border-top:1px solid var(--border);margin:10px 0">
-            <div class="trow"><span>الإجمالي النهائي</span><strong id="grandTotal">0.00</strong></div>
-            <div class="small">ملاحظة: الحسابات هنا مبدئية. لو عايز ربط كامل مع الشيت (حفظ/ترقيم تلقائي/جلب من Products) هنركّبه بعد ما تثبت الواجهة.</div>
+            <div class="trow"><span>الإجمالي قبل الخصم</span><strong class="val" id="subTotal">0.00</strong></div>
+
+            <div class="row" style="margin-top:10px">
+              <div>
+                <label>خصم</label>
+                <input id="discountIn" type="number" step="0.01" value="0" />
+              </div>
+              <div>
+                <label>ضريبة</label>
+                <input id="taxIn" type="number" step="0.01" value="0" />
+              </div>
+            </div>
+
+            <hr style="border:none;border-top:1px solid var(--border);margin:12px 0">
+            <div class="trow"><span>الإجمالي النهائي</span><strong class="val" id="grandTotal">0.00</strong></div>
+            <div class="small">ملاحظة: عند حفظ الفاتورة سيتم إنشاء المنتجات غير الموجودة تلقائيًا (لو أدخلت الاسم بدون باركود).</div>
           </div>
 
           <div class="btns" style="margin-top:12px">
-            <button class="secondary" id="resetInvBtn">تفريغ الفاتورة</button>
-            <button class="brand" id="exportJsonBtn">تصدير JSON</button>
-          </div>
-        </div>
-
-        <!-- Right: paste/import -->
-        <div>
-          <div class="sec-title">استيراد (Copy/Paste)</div>
-          <div class="hint">
-            الصيغة: <span class="mono">barcode,name,cost,qty</span> لكل سطر.<br/>
-            لو المنتج بدون باركود اتركه فاضي: <span class="mono">,Name,10,2</span>
-          </div>
-          <label>بيانات (سطر لكل صنف)</label>
-          <textarea id="paste" placeholder="123456,Product A,10.5,2&#10;,Product No Barcode,7,1"></textarea>
-          <div class="btns">
-            <button class="secondary" id="importBtn">استيراد</button>
-            <button class="danger" id="clearListBtn">مسح الأصناف</button>
+            <button class="secondary" id="resetInvBtn">تفريغ</button>
+            <button class="brand" id="saveBtn">💾 حفظ في النظام</button>
           </div>
         </div>
       </div>
@@ -321,18 +352,38 @@
     <div class="box">
       <div class="hd">
         <span>مسح باركود بالكاميرا</span>
-        <button class="secondary" id="closeScan">إغلاق</button>
+        <div class="btns" style="margin-top:0">
+          <button class="secondary" id="closeScan">إغلاق</button>
+        </div>
       </div>
       <div class="bd">
-        <div class="hint" style="margin-bottom:10px">لو الكاميرا لا تعمل: تأكد أنك تستخدم <b>https</b> وسمحت بإذن الكاميرا.</div>
-        <video id="scanVideo" playsinline></video>
-        <div class="scan-hint">وجّه الكاميرا إلى الباركود وسيتم التقاطه تلقائياً.</div>
+        <div class="hint" style="margin-bottom:10px">ملاحظة: الكاميرا تحتاج <b>HTTPS</b> + إذن الكاميرا. على اللابتوب/الموبايل أفضل تجربة على Chrome.</div>
+
+        <div class="scanWrap">
+          <video id="scanVideo" playsinline></video>
+          <div class="scanOverlay"><div class="frame"></div></div>
+        </div>
+
+        <div class="scanControls">
+          <div style="flex:1;min-width:220px">
+            <label>اختيار الكاميرا (لو متاح)</label>
+            <select id="cameraSelect"></select>
+          </div>
+          <div class="btns" style="margin-top:20px">
+            <button class="secondary" id="restartScan">إعادة تشغيل</button>
+          </div>
+        </div>
+
+        <div class="scan-hint">وجّه الباركود داخل الإطار وسيتم التقاطه تلقائيًا.</div>
       </div>
     </div>
   </div>
 
 <script>
 (() => {
+  // ===== Auth guard =====
+  try{ window.AxentroAuth?.requireAuth?.(); }catch(_){}
+
   const cfg = (window.AXENTRO_CONFIG || {});
   const ok = !!(cfg.GAS_WEB_APP_URL && cfg.GOOGLE_CLIENT_ID);
   document.getElementById('cfg-state').textContent = ok ? 'OK' : 'MISSING';
@@ -340,11 +391,14 @@
   document.getElementById('cfg-pill').style.background = ok ? '#16a34a10' : '#ef444410';
   document.getElementById('cfg-pill').style.color = ok ? '#14532d' : '#7f1d1d';
 
+  const sess = window.AxentroAuth?.getSession?.();
+  document.getElementById('user-state').textContent = sess?.email ? sess.email : '—';
+
   // defaults
   const today = new Date();
   const pad = n => String(n).padStart(2,'0');
   document.getElementById('invDate').value = `${today.getFullYear()}-${pad(today.getMonth()+1)}-${pad(today.getDate())}`;
-  document.getElementById('invNo').value = `PINV-${today.getFullYear()}${pad(today.getMonth()+1)}${pad(today.getDate())}-${pad(Math.floor(Math.random()*99)+1)}`;
+  document.getElementById('invNo').value = 'PU001';
 
   const msgEl = document.getElementById('msg');
   const showMsg = (type, text) => {
@@ -360,12 +414,13 @@
 
   const recalc = () => {
     const sub = items.reduce((s,it)=>s + (Number(it.cost)||0)*(Number(it.qty)||0), 0);
-    const disc = 0; // placeholder
-    const tax = 0;  // placeholder
+    const disc = Number(document.getElementById('discountIn').value || 0);
+    const tax  = Number(document.getElementById('taxIn').value || 0);
+
     document.getElementById('subTotal').textContent = fmt(sub);
-    document.getElementById('discount').textContent = fmt(disc);
-    document.getElementById('tax').textContent = fmt(tax);
     document.getElementById('grandTotal').textContent = fmt(sub - disc + tax);
+
+    document.getElementById('saveBtn').disabled = !(items.length > 0);
   };
 
   const render = () => {
@@ -373,9 +428,10 @@
     tb.innerHTML = '';
     for (let i=0;i<items.length;i++){
       const it = items[i];
+      const bcLabel = it.barcode ? it.barcode : '—';
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td class="mono">${it.barcode || ''}</td>
+        <td class="mono">${escapeHtml(bcLabel)}</td>
         <td>${escapeHtml(it.name || '')}</td>
         <td class="mono">${fmt(it.cost)}</td>
         <td class="mono">${Number(it.qty)||0}</td>
@@ -393,11 +449,12 @@
     });
   };
 
-  const genInternalBarcode = () => {
-    // internal code, not real EAN. unique enough for inventory tracking
-    const a = Date.now().toString(36).toUpperCase();
-    const b = Math.random().toString(36).slice(2,6).toUpperCase();
-    return `AX-${a}-${b}`;
+  const clearItemFields = () => {
+    document.getElementById('barcode').value = '';
+    document.getElementById('name').value = '';
+    document.getElementById('cost').value = '';
+    document.getElementById('qty').value = '1';
+    document.getElementById('barcode').focus();
   };
 
   const addItem = (barcode, name, cost, qty) => {
@@ -411,69 +468,20 @@
       return false;
     }
     if (!name) name = '(بدون اسم)';
-    if (!barcode) barcode = genInternalBarcode();
     if (!(qty>0)) qty = 1;
 
+    // NOTE: لو الباركود فاضي، السيرفر هيولد Internal Barcode تلقائيًا.
     items.push({barcode, name, cost, qty});
-    showMsg('ok', `تم إضافة: ${name} • ${barcode}`);
+    showMsg('ok', `تمت الإضافة: ${name}${barcode ? ' • '+barcode : ''}`);
     render(); recalc();
+    clearItemFields();
     return true;
   };
 
-  // UI actions
   const $ = (id)=>document.getElementById(id);
 
   $('addBtn').addEventListener('click', () => {
     addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
-  });
-
-  $('clearItemBtn').addEventListener('click', () => {
-    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
-    showMsg('', '');
-    $('barcode').focus();
-  });
-
-  $('clearListBtn').addEventListener('click', () => {
-    items = [];
-    showMsg('', '');
-    render(); recalc();
-  });
-
-  $('resetInvBtn').addEventListener('click', () => {
-    items = [];
-    $('supplier').value=''; $('ref').value='';
-    showMsg('', '');
-    render(); recalc();
-  });
-
-  $('importBtn').addEventListener('click', () => {
-    const text = $('paste').value || '';
-    let okCount = 0, badCount=0;
-    text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
-      const parts=line.split(',').map(s=>s.trim());
-      const [bc,nm,cs,qt]=parts;
-      const added = addItem(bc||'', nm||'', cs||0, qt||1);
-      if (added) okCount++; else badCount++;
-    });
-    showMsg(okCount? 'ok':'err', `استيراد: ${okCount} صنف${badCount? ' • فشل: '+badCount:''}`);
-  });
-
-  $('exportJsonBtn').addEventListener('click', async () => {
-    const payload = {
-      invoice: {
-        no: $('invNo').value.trim(),
-        date: $('invDate').value,
-        supplier: $('supplier').value.trim(),
-        ref: $('ref').value.trim(),
-      },
-      items: items.slice(),
-      totals: {
-        subTotal: Number($('subTotal').textContent)||0,
-        grandTotal: Number($('grandTotal').textContent)||0
-      }
-    };
-    await navigator.clipboard?.writeText(JSON.stringify(payload, null, 2)).catch(()=>{});
-    showMsg('ok', 'تم نسخ JSON إلى الحافظة (Clipboard).');
   });
 
   // Enter key adds item
@@ -486,7 +494,80 @@
     });
   });
 
-  // Scanner (BarcodeDetector API - no external libs)
+  $('resetInvBtn').addEventListener('click', () => {
+    items = [];
+    $('supplier').value='';
+    $('ref').value='';
+    $('discountIn').value='0';
+    $('taxIn').value='0';
+    showMsg('', '');
+    render(); recalc();
+    clearItemFields();
+    $('invNo').value = 'PU001';
+  });
+
+  ['discountIn','taxIn'].forEach(id=>{
+    $(id).addEventListener('input', recalc);
+  });
+
+  // ===== Save to system =====
+  $('saveBtn').addEventListener('click', async () => {
+    try{
+      $('saveBtn').disabled = true;
+
+      const supplier = $('supplier').value.trim();
+      if(!supplier){
+        showMsg('err','من فضلك أدخل اسم المورد.');
+        $('saveBtn').disabled = false;
+        return;
+      }
+
+      const invDate = $('invDate').value;
+      if(!invDate){
+        showMsg('err','من فضلك اختر تاريخ الفاتورة.');
+        $('saveBtn').disabled = false;
+        return;
+      }
+
+      const payload = {
+        supplier,
+        invoice_date: invDate,
+        discount: Number($('discountIn').value || 0),
+        tax: Number($('taxIn').value || 0),
+        notes: $('ref').value.trim(),
+        items: items.map(it => ({
+          barcode: (it.barcode || '').trim(),     // may be empty -> server generates internal barcode
+          name: (it.name || '').trim(),
+          qty: Number(it.qty || 0),
+          unit_cost: Number(it.cost || 0),
+          category: 'General',
+          unit: 'PCS'
+        }))
+      };
+
+      const res = await window.AxentroApi.createPurchase(payload);
+      const invNo = res.purchase_invoice_no || '';
+      if(invNo) $('invNo').value = invNo;
+
+      showMsg('ok', `تم حفظ الفاتورة بنجاح ✅\nرقم الفاتورة: ${invNo || '—'}`);
+
+      // Clear items only (keep supplier/date if you want)
+      items = [];
+      render(); recalc();
+      clearItemFields();
+
+    }catch(err){
+      const details = (err && err.message) ? err.message : String(err || 'Unknown error');
+      showMsg('err', 'فشل حفظ الفاتورة ❌\n' + details);
+      $('saveBtn').disabled = false;
+    }
+  });
+
+  // init
+  render(); recalc();
+  clearItemFields();
+
+  // ===== Scanner (BarcodeDetector + camera selection) =====
   const modal = $('scanModal');
   const openModal = () => { modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); };
   const closeModal = () => { modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); };
@@ -507,8 +588,34 @@
     }
   }
 
-  async function startScanner(){
-    // Works on modern Chrome/Edge/Android (HTTPS required)
+  async function listCameras_(){
+    const sel = $('cameraSelect');
+    sel.innerHTML = '';
+    try{
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const cams = devices.filter(d => d.kind === 'videoinput');
+      if(!cams.length){
+        const opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Camera (default)';
+        sel.appendChild(opt);
+        return;
+      }
+      cams.forEach((c, idx) => {
+        const opt = document.createElement('option');
+        opt.value = c.deviceId || '';
+        opt.textContent = c.label || ('Camera ' + (idx+1));
+        sel.appendChild(opt);
+      });
+    }catch(_){
+      const opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Camera (default)';
+      sel.appendChild(opt);
+    }
+  }
+
+  async function startScanner(deviceId){
     if (!('mediaDevices' in navigator) || !navigator.mediaDevices.getUserMedia){
       showMsg('err','المتصفح لا يدعم تشغيل الكاميرا. جرّب متصفح Chrome.');
       return;
@@ -531,14 +638,16 @@
 
     try{
       const video = $('scanVideo');
-      scanStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
-        audio: false
-      });
+      const constraints = deviceId
+        ? { video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio:false }
+        : { video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio:false };
+
+      scanStream = await navigator.mediaDevices.getUserMedia(constraints);
       video.srcObject = scanStream;
       await video.play();
 
       scanning = true;
+
       const tick = async () => {
         if (!scanning) return;
         try{
@@ -550,7 +659,7 @@
               await stopScanner();
               closeModal();
               $('name').focus();
-              showMsg('ok','تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
+              showMsg('ok','تمت قراءة الباركود ✅ أدخل الاسم/السعر ثم اضغط إضافة الأصناف.');
               return;
             }
           }
@@ -559,16 +668,38 @@
       };
       requestAnimationFrame(tick);
 
-    }catch(err){
+    }catch(_err){
       await stopScanner();
       closeModal();
       showMsg('err','تعذر تشغيل الكاميرا. امنح إذن الكاميرا ثم أعد المحاولة.');
     }
   }
 
-  $('scanBtn').addEventListener('click', (e)=>{ e.preventDefault(); startScanner(); });
-  $('closeScan').addEventListener('click', async (e)=>{ e.preventDefault(); closeModal(); await stopScanner(); });
+  $('scanBtn').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await listCameras_();
+    const deviceId = $('cameraSelect').value || '';
+    startScanner(deviceId);
+  });
 
+  $('restartScan').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    await listCameras_();
+    const deviceId = $('cameraSelect').value || '';
+    startScanner(deviceId);
+  });
+
+  $('closeScan').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    closeModal();
+    await stopScanner();
+  });
+
+  $('cameraSelect').addEventListener('change', ()=>{
+    if(!modal.classList.contains('open')) return;
+    const deviceId = $('cameraSelect').value || '';
+    startScanner(deviceId);
+  });
 
   // helpers
   function escapeHtml(str){
