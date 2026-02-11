@@ -138,6 +138,9 @@
     },
     async createPurchase(purchasePayload){
       return apiCall("create_purchase", purchasePayload);
+    },
+    async createSale(salePayload){
+      return apiCall("create_sale", salePayload);
     }
   };
 
