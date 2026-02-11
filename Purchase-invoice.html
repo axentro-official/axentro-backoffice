@@ -66,7 +66,7 @@
     }
     .grid{
       display:grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1.2fr .8fr;
       gap:14px;
     }
     @media (max-width:860px){ .grid{grid-template-columns:1fr} }
@@ -191,53 +191,6 @@
     color:#6b7280;
     text-align:center;
   }
-
-    .tbl-wrap{width:100%; overflow:auto; -webkit-overflow-scrolling:touch;}
-    .tbl{min-width:720px}
-    .switch{
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:#fff;
-      color:var(--muted);
-      font-size:13px;
-      user-select:none;
-    }
-    .switch input{width:auto; accent-color: var(--brand)}
-    @media (max-width:520px){
-      .card{padding:16px}
-      h1{font-size:20px}
-      .btns button{flex:1}
-      .switch{width:100%; justify-content:center}
-    }
-
-
-  .scan-wrap{position:relative}
-  .scan-target{
-    position:absolute;
-    inset:0;
-    pointer-events:none;
-    display:block;
-  }
-  .scan-target:before{
-    content:"";
-    position:absolute;
-    left:50%;
-    top:50%;
-    width:min(78vw, 420px);
-    height:min(34vh, 200px);
-    transform:translate(-50%,-50%);
-    border:3px solid rgba(14,165,233,.95);
-    border-radius:14px;
-    box-shadow:0 0 0 9999px rgba(0,0,0,.22);
-  }
-
-
-    #torchBtn[disabled]{opacity:.55; cursor:not-allowed}
-
 </style>
 </head>
 
@@ -308,19 +261,13 @@
 
           <div class="btns">
             <button class="brand" id="scanBtn">📷 فتح الكاميرا (باركود)</button>
-            <button class="ghost" id="torchBtn" type="button" title="تشغيل/إيقاف الفلاش" disabled>🔦 فلاش</button>
-
-            <label class="switch" title="فتح الكاميرا تلقائياً بعد إضافة الصنف">
-              <input id="autoScan" type="checkbox" checked />
-              <span>تشغيل المسح التلقائي بعد الإضافة</span>
-            </label>
             <button id="addBtn">＋ إضافة الصنف</button>
             <button class="secondary" id="clearItemBtn">مسح حقول الصنف</button>
           </div>
 
           <div class="msg" id="msg"></div>
 
-          <div class="tbl-wrap"><table class="tbl" aria-label="items">
+          <table class="tbl" aria-label="items">
             <thead>
               <tr>
                 <th>الباركود</th>
@@ -332,7 +279,7 @@
               </tr>
             </thead>
             <tbody id="itemsBody"></tbody>
-          </table></div>
+          </table>
 
           <div class="totals">
             <div class="trow"><span>الإجمالي قبل الخصم</span><strong id="subTotal">0.00</strong></div>
@@ -348,6 +295,20 @@
             <button class="brand" id="exportJsonBtn">تصدير JSON</button>
           </div>
         </div>
+
+        <!-- Right: paste/import -->
+        <div>
+          <div class="sec-title">استيراد (Copy/Paste)</div>
+          <div class="hint">
+            الصيغة: <span class="mono">barcode,name,cost,qty</span> لكل سطر.<br/>
+            لو المنتج بدون باركود اتركه فاضي: <span class="mono">,Name,10,2</span>
+          </div>
+          <label>بيانات (سطر لكل صنف)</label>
+          <textarea id="paste" placeholder="123456,Product A,10.5,2&#10;,Product No Barcode,7,1"></textarea>
+          <div class="btns">
+            <button class="secondary" id="importBtn">استيراد</button>
+            <button class="danger" id="clearListBtn">مسح الأصناف</button>
+          </div>
         </div>
       </div>
 
@@ -363,12 +324,8 @@
         <button class="secondary" id="closeScan">إغلاق</button>
       </div>
       <div class="bd">
-        <div class="scan-wrap">
         <div class="hint" style="margin-bottom:10px">لو الكاميرا لا تعمل: تأكد أنك تستخدم <b>https</b> وسمحت بإذن الكاميرا.</div>
         <video id="scanVideo" playsinline></video>
-          <canvas id="scanCanvas" style="display:none;"></canvas>
-          <div class="scan-target" aria-hidden="true"></div>
-        </div>
         <div class="scan-hint">وجّه الكاميرا إلى الباركود وسيتم التقاطه تلقائياً.</div>
       </div>
     </div>
@@ -466,57 +423,14 @@
   // UI actions
   const $ = (id)=>document.getElementById(id);
 
-  const clearItemFields = () => {
-    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
-    showMsg('', '');
-    $('barcode').focus();
-  };
-
-  
-
-  let torchOn = false;
-
-  const getVideoTrack = () => {
-    const stream = window.__scanStream;
-    if (!stream) return null;
-    const [track] = stream.getVideoTracks();
-    return track || null;
-  };
-
-  const updateTorchSupport = () => {
-    const btn = $('torchBtn');
-    if (!btn) return;
-    const track = getVideoTrack();
-    const caps = track?.getCapabilities?.();
-    const ok = !!caps?.torch;
-    btn.disabled = !ok;
-    if (!ok) { torchOn = false; btn.textContent = '🔦 فلاش'; }
-  };
-
-  const setTorch = async (on) => {
-    const track = getVideoTrack();
-    if (!track?.applyConstraints) return false;
-    try{
-      await track.applyConstraints({ advanced: [{ torch: !!on }] });
-      torchOn = !!on;
-      const btn = $('torchBtn');
-      if (btn) btn.textContent = torchOn ? '🔦 فلاش: تشغيل' : '🔦 فلاش';
-      return true;
-    }catch(_e){
-      return false;
-    }
-  };
-
-$('addBtn').addEventListener('click', async () => {
-    const added = addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
-    if (!added) return;
-    clearItemFields();
-    const auto = $('autoScan') ? $('autoScan').checked : true;
-    if (auto) await startScanner();
+  $('addBtn').addEventListener('click', () => {
+    addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
   });
 
   $('clearItemBtn').addEventListener('click', () => {
-    clearItemFields();
+    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
+    showMsg('', '');
+    $('barcode').focus();
   });
 
   $('clearListBtn').addEventListener('click', () => {
@@ -531,6 +445,12 @@ $('addBtn').addEventListener('click', async () => {
     showMsg('', '');
     render(); recalc();
   });
+
+  $('importBtn').addEventListener('click', () => {
+    const text = $('paste').value || '';
+    let okCount = 0, badCount=0;
+    text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const parts=line.split(',').map(s=>s.trim());
       const [bc,nm,cs,qt]=parts;
       const added = addItem(bc||'', nm||'', cs||0, qt||1);
       if (added) okCount++; else badCount++;
@@ -580,8 +500,6 @@ $('addBtn').addEventListener('click', async () => {
     try{
       const v = $('scanVideo');
       if (v) v.pause();
-    try{ await setTorch(false); }catch(_e){}
-    window.__scanStream = null;
     }catch(_){}
     if (scanStream){
       try{ scanStream.getTracks().forEach(t=>t.stop()); }catch(_){}
@@ -589,8 +507,8 @@ $('addBtn').addEventListener('click', async () => {
     }
   }
 
-  async async function startScanner(){
-    // Reliable scanning: center-crop + stable reads + strict numeric validation
+  async function startScanner(){
+    // Works on modern Chrome/Edge/Android (HTTPS required)
     if (!('mediaDevices' in navigator) || !navigator.mediaDevices.getUserMedia){
       showMsg('err','المتصفح لا يدعم تشغيل الكاميرا. جرّب متصفح Chrome.');
       return;
@@ -600,132 +518,48 @@ $('addBtn').addEventListener('click', async () => {
       return;
     }
 
-    const formats = ['ean_13','ean_8','upc_a','upc_e','itf','code_128'];
     if (!detector){
-      try{ detector = new BarcodeDetector({ formats }); }
-      catch(_){ detector = new BarcodeDetector(); }
+      try{
+        detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','upc_a','upc_e','itf','qr_code'] });
+      }catch(_){
+        detector = new BarcodeDetector();
+      }
     }
 
     openModal();
     await stopScanner();
 
-    const isValidBarcode = (value, formatHint) => {
-      const v = String(value || '').replace(/[^\d]/g,'').trim(); // numeric-only
-      if (!v) return null;
-
-      // Prefer standard product barcode lengths; reject noisy short reads
-      const len = v.length;
-      if (formatHint === 'ean_13' && len !== 13) return null;
-      if (formatHint === 'ean_8'  && len !== 8)  return null;
-      if (formatHint === 'upc_a'  && len !== 12) return null;
-      // upc_e can be 6 or 8 depending on representation
-      if (formatHint === 'upc_e'  && !(len === 6 || len === 8)) return null;
-      if (formatHint === 'itf'    && (len < 6 || len > 14 || (len % 2) === 1)) return null;
-
-      // Generic fallback
-      if (len < 6 || len > 14) return null;
-      return v;
-    };
-
     try{
       const video = $('scanVideo');
-      const canvas = $('scanCanvas');
-      const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
       scanStream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: { ideal: 'environment' },
-          width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          // Hint to reduce blur/noise on mobile cameras
-          focusMode: 'continuous',
-          exposureMode: 'continuous'
-        },
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false
       });
-
       video.srcObject = scanStream;
       await video.play();
 
       scanning = true;
-
-      let last = '';
-      let stable = 0;
-      let lastTick = 0;
-
-      const tick = async (ts) => {
+      const tick = async () => {
         if (!scanning) return;
-
-        // Throttle detection (heavier on CPU/camera). ~5 fps is enough.
-        if (ts - lastTick < 180){
-          requestAnimationFrame(tick);
-          return;
-        }
-        lastTick = ts;
-
         try{
-          const vw = video.videoWidth || 0;
-          const vh = video.videoHeight || 0;
-          if (!vw || !vh){
-            requestAnimationFrame(tick);
-            return;
-          }
-
-          // Center crop (reduces false positives from background numbers).
-          const cropW = Math.floor(vw * 0.78);
-          const cropH = Math.floor(vh * 0.35);
-          const sx = Math.floor((vw - cropW) / 2);
-          const sy = Math.floor((vh - cropH) / 2);
-
-          canvas.width = cropW;
-          canvas.height = cropH;
-          ctx.drawImage(video, sx, sy, cropW, cropH, 0, 0, cropW, cropH);
-
-          const codes = await detector.detect(canvas);
+          const codes = await detector.detect(video);
           if (codes && codes.length){
-            // Prefer the most "prominent" code (largest area if available)
-            const best = codes
-              .map(c => {
-                const pts = c.cornerPoints || [];
-                let area = 0;
-                if (pts.length >= 4){
-                  const xs = pts.map(p=>p.x), ys = pts.map(p=>p.y);
-                  area = (Math.max(...xs)-Math.min(...xs)) * (Math.max(...ys)-Math.min(...ys));
-                }
-                return { c, area };
-              })
-              .sort((a,b)=>b.area-a.area)[0].c;
-
-            const cleaned = isValidBarcode(best.rawValue, best.format);
-            if (cleaned){
-              if (cleaned === last) stable += 1;
-              else { last = cleaned; stable = 1; }
-
-              // Require same value multiple times to avoid noisy reads
-              if (stable >= 3){
-                $('barcode').value = cleaned;
-                await stopScanner();
-                closeModal();
-                $('name').focus();
-                showMsg('ok','تم قراءة الباركود بدقة. أدخل الاسم/السعر ثم اضغط إضافة.');
-                return;
-              }
-            }else{
-              last = ''; stable = 0;
+            const value = (codes[0].rawValue || '').trim();
+            if (value){
+              $('barcode').value = value;
+              await stopScanner();
+              closeModal();
+              $('name').focus();
+              showMsg('ok','تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
+              return;
             }
-          }else{
-            last = ''; stable = 0;
           }
-        }catch(_){
-          // ignore and keep scanning
-        }
-
+        }catch(_){}
         requestAnimationFrame(tick);
       };
-
       requestAnimationFrame(tick);
 
-    }catch(_err){
+    }catch(err){
       await stopScanner();
       closeModal();
       showMsg('err','تعذر تشغيل الكاميرا. امنح إذن الكاميرا ثم أعد المحاولة.');
