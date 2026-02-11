@@ -7,7 +7,6 @@
 
   <!-- Runtime config (same folder) -->
   <script src="./config.js"></script>
-  <script src="./app.js"></script>
 
   <!-- QR/Barcode scanner -->
 <style>
@@ -67,7 +66,7 @@
     }
     .grid{
       display:grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1.2fr .8fr;
       gap:14px;
     }
     @media (max-width:860px){ .grid{grid-template-columns:1fr} }
@@ -192,30 +191,6 @@
     color:#6b7280;
     text-align:center;
   }
-
-    .tbl-wrap{width:100%; overflow:auto; -webkit-overflow-scrolling:touch;}
-    .tbl{min-width:720px}
-    .switch{
-      display:inline-flex;
-      gap:10px;
-      align-items:center;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:var(--card);
-      color:var(--muted);
-      font-size:13px;
-      user-select:none;
-    }
-    .switch input{width:auto; accent-color: var(--brand)}
-    #torchBtn[disabled]{opacity:.55; cursor:not-allowed}
-    @media (max-width:520px){
-      .card{padding:16px}
-      h1{font-size:20px}
-      .btns button{flex:1}
-      .switch{width:100%; justify-content:center}
-    }
-
 </style>
 </head>
 
@@ -286,24 +261,13 @@
 
           <div class="btns">
             <button class="brand" id="scanBtn">📷 فتح الكاميرا (باركود)</button>
-            <button class="ghost" id="torchBtn" type="button" title="تشغيل/إيقاف الفلاش" disabled>🔦 فلاش</button>
-            <button class="ghost" id="switchCamBtn" type="button" title="تبديل الكاميرا">🔁 تبديل كاميرا</button>
-
-            <label class="switch" title="فتح الكاميرا تلقائياً بعد إضافة الصنف">
-              <input id="autoScan" type="checkbox" checked />
-              <span>تشغيل المسح التلقائي بعد الإضافة</span>
-            </label>
-            <label class="switch" title="تشغيل الفلاش تلقائياً عند فتح الكاميرا (إذا كان مدعوماً)">
-              <input id="autoTorch" type="checkbox" checked />
-              <span>تشغيل الفلاش تلقائياً</span>
-            </label>
             <button id="addBtn">＋ إضافة الصنف</button>
             <button class="secondary" id="clearItemBtn">مسح حقول الصنف</button>
           </div>
 
           <div class="msg" id="msg"></div>
 
-          <div class="tbl-wrap"><table class="tbl" aria-label="items">
+          <table class="tbl" aria-label="items">
             <thead>
               <tr>
                 <th>الباركود</th>
@@ -315,7 +279,7 @@
               </tr>
             </thead>
             <tbody id="itemsBody"></tbody>
-          </table></div>
+          </table>
 
           <div class="totals">
             <div class="trow"><span>الإجمالي قبل الخصم</span><strong id="subTotal">0.00</strong></div>
@@ -328,10 +292,23 @@
 
           <div class="btns" style="margin-top:12px">
             <button class="secondary" id="resetInvBtn">تفريغ الفاتورة</button>
-            <button class="brand" id="saveLogBtn">💾 حفظ في السجل</button>
             <button class="brand" id="exportJsonBtn">تصدير JSON</button>
           </div>
         </div>
+
+        <!-- Right: paste/import -->
+        <div>
+          <div class="sec-title">استيراد (Copy/Paste)</div>
+          <div class="hint">
+            الصيغة: <span class="mono">barcode,name,cost,qty</span> لكل سطر.<br/>
+            لو المنتج بدون باركود اتركه فاضي: <span class="mono">,Name,10,2</span>
+          </div>
+          <label>بيانات (سطر لكل صنف)</label>
+          <textarea id="paste" placeholder="123456,Product A,10.5,2&#10;,Product No Barcode,7,1"></textarea>
+          <div class="btns">
+            <button class="secondary" id="importBtn">استيراد</button>
+            <button class="danger" id="clearListBtn">مسح الأصناف</button>
+          </div>
         </div>
       </div>
 
@@ -446,59 +423,14 @@
   // UI actions
   const $ = (id)=>document.getElementById(id);
 
-  const clearItemFields = () => {
-    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
-    showMsg('', '');
-    $('barcode').focus();
-  };
-
-  
-
-  let torchOn = false;
-  let preferredFacingMode = 'environment';
-
-
-  const getVideoTrack = () => {
-    const stream = window.__scanStream;
-    if (!stream) return null;
-    const [track] = stream.getVideoTracks();
-    return track || null;
-  };
-
-  const updateTorchSupport = () => {
-    const btn = $('torchBtn');
-    if (!btn) return;
-    const track = getVideoTrack();
-    const caps = track?.getCapabilities?.();
-    const ok = !!caps?.torch;
-    btn.disabled = !ok;
-    if (!ok) { torchOn = false; btn.textContent = '🔦 فلاش'; }
-  };
-
-  const setTorch = async (on) => {
-    const track = getVideoTrack();
-    if (!track?.applyConstraints) return false;
-    try{
-      await track.applyConstraints({ advanced: [{ torch: !!on }] });
-      torchOn = !!on;
-      const btn = $('torchBtn');
-      if (btn) btn.textContent = torchOn ? '🔦 فلاش: تشغيل' : '🔦 فلاش';
-      return true;
-    }catch(_e){
-      return false;
-    }
-  };
-
-$('addBtn').addEventListener('click', async () => {
-    const added = addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
-    if (!added) return;
-    clearItemFields();
-    const auto = $('autoScan') ? $('autoScan').checked : true;
-    if (auto) await startScanner();
+  $('addBtn').addEventListener('click', () => {
+    addItem($('barcode').value, $('name').value, $('cost').value, $('qty').value);
   });
 
   $('clearItemBtn').addEventListener('click', () => {
-    clearItemFields();
+    $('barcode').value=''; $('name').value=''; $('cost').value=''; $('qty').value='1';
+    showMsg('', '');
+    $('barcode').focus();
   });
 
   $('clearListBtn').addEventListener('click', () => {
@@ -513,7 +445,13 @@ $('addBtn').addEventListener('click', async () => {
     showMsg('', '');
     render(); recalc();
   });
-const [bc,nm,cs,qt]=parts;
+
+  $('importBtn').addEventListener('click', () => {
+    const text = $('paste').value || '';
+    let okCount = 0, badCount=0;
+    text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).forEach(line=>{
+      const parts=line.split(',').map(s=>s.trim());
+      const [bc,nm,cs,qt]=parts;
       const added = addItem(bc||'', nm||'', cs||0, qt||1);
       if (added) okCount++; else badCount++;
     });
@@ -563,12 +501,10 @@ const [bc,nm,cs,qt]=parts;
       const v = $('scanVideo');
       if (v) v.pause();
     }catch(_){}
-    try{ await setTorch(false); }catch(_e){}
     if (scanStream){
       try{ scanStream.getTracks().forEach(t=>t.stop()); }catch(_){}
       scanStream = null;
     }
-    window.__scanStream = null;
   }
 
   async function startScanner(){
@@ -596,55 +532,26 @@ const [bc,nm,cs,qt]=parts;
     try{
       const video = $('scanVideo');
       scanStream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: preferredFacingMode } }, height: { ideal: 720 } },
+        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } },
         audio: false
       });
       video.srcObject = scanStream;
-      window.__scanStream = scanStream;
-      updateTorchSupport();
-    const autoTorch = $('autoTorch') ? $('autoTorch').checked : false;
-    if(autoTorch){
-      const track = getVideoTrack();
-      const caps = track?.getCapabilities?.();
-      if(caps?.torch) await setTorch(true);
-    }
       await video.play();
 
       scanning = true;
       const tick = async () => {
         if (!scanning) return;
         try{
-                    const vw = video.videoWidth || 0;
-          const vh = video.videoHeight || 0;
-          if (vw && vh){
-            const cw = Math.floor(vw * 0.7);
-            const ch = Math.floor(vh * 0.35);
-            cropCanvas.width = cw;
-            cropCanvas.height = ch;
-            const sx = Math.floor((vw - cw) / 2);
-            const sy = Math.floor((vh - ch) / 2);
-            cropCtx.drawImage(video, sx, sy, cw, ch, 0, 0, cw, ch);
-          }
-          const source = (cropCanvas.width && cropCanvas.height) ? cropCanvas : video;
-          const codes = await detector.detect(source);
+          const codes = await detector.detect(video);
           if (codes && codes.length){
-            const value = String((codes[0].rawValue || '')).trim();
-            const numeric = /^\d+$/.test(value);
-            const okLen = ACCEPT_NUMERIC_LENGTHS.has(value.length);
-            if (numeric && okLen){
-              if (value === lastScanValue) stableReads += 1; else { lastScanValue = value; stableReads = 1; }
-              if (stableReads >= 3){
-                $('barcode').value = value;
-                stableReads = 0; lastScanValue = '';
-                await setTorch(false);
-                await stopScanner();
-                closeModal();
-                $('name').focus();
-                showMsg('ok','تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
-                return;
-              }
-            }else{
-              stableReads = 0; lastScanValue = '';
+            const value = (codes[0].rawValue || '').trim();
+            if (value){
+              $('barcode').value = value;
+              await stopScanner();
+              closeModal();
+              $('name').focus();
+              showMsg('ok','تم قراءة الباركود. أدخل الاسم/السعر ثم اضغط إضافة.');
+              return;
             }
           }
         }catch(_){}
@@ -659,14 +566,7 @@ const [bc,nm,cs,qt]=parts;
     }
   }
 
-  $('scanBtn').addEventListener('click', (e)=>{ e.preventDefault(); 
-
-  $('torchBtn')?.addEventListener('click', async (e) => {
-    e.preventDefault();
-    await setTorch(!torchOn);
-  });
-
-startScanner(); });
+  $('scanBtn').addEventListener('click', (e)=>{ e.preventDefault(); startScanner(); });
   $('closeScan').addEventListener('click', async (e)=>{ e.preventDefault(); closeModal(); await stopScanner(); });
 
 
@@ -679,54 +579,7 @@ startScanner(); });
       .replaceAll('"','&quot;')
       .replaceAll("'","&#039;");
   }
-
-  const buildPurchasePayload = () => {
-    const invNo = $('invNo').value.trim();
-    const invDate = $('invDate').value;
-    const supplier = $('supplier').value.trim();
-    const ref = $('ref').value.trim();
-    const safeItems = (items || []).map(it => ({
-      barcode: String(it.barcode || '').trim(),
-      name: String(it.name || '').trim(),
-      cost: Number(it.cost || 0),
-      qty: Number(it.qty || 0),
-      total: Number(it.total || (Number(it.cost||0) * Number(it.qty||0)))
-    }));
-    const grandTotal = safeItems.reduce((a,b)=> a + (Number(b.total)||0), 0);
-    return {
-      inv_no: invNo,
-      inv_date: invDate,
-      supplier,
-      ref,
-      grand_total: grandTotal,
-      items: safeItems,
-      created_at: new Date().toISOString()
-    };
-  };
-
-  $('saveLogBtn')?.addEventListener('click', async () => {
-    try{
-      if(!(window.AxentroApi && window.AxentroApi.createPurchase)){
-        showMsg('⚠️ لم يتم تحميل app.js أو API غير متاح.', 'bad'); return;
-      }
-      if(!items || !items.length){
-        showMsg('أضف أصناف أولاً قبل الحفظ.', 'bad'); return;
-      }
-      const payload = buildPurchasePayload();
-      await window.AxentroApi.createPurchase(payload);
-      showMsg('✅ تم حفظ الفاتورة في السجل والشيت.', 'ok');
-    }catch(err){
-      showMsg('❌ فشل الحفظ: ' + (err?.message || 'Unknown error'), 'bad');
-    }
-  });
-
 })();
-
-
-  $('switchCamBtn')?.addEventListener('click', async () => {
-    preferredFacingMode = (preferredFacingMode === 'environment') ? 'user' : 'environment';
-    try{ await startScanner(); }catch(_e){}
-  });
 </script>
 </body>
 </html>
