@@ -139,8 +139,18 @@
     async createPurchase(purchasePayload){
       return apiCall("create_purchase", purchasePayload);
     },
+
+    // ===== Sales (in case the page needs it) =====
     async createSale(salePayload){
       return apiCall("create_sale", salePayload);
+    },
+
+    // ===== Inventory =====
+    async getInventoryView(){
+      return apiCall("get_inventory_view", {});
+    },
+    async rebuildInventoryView(){
+      return apiCall("rebuild_inventory_view", {});
     }
   };
 
