@@ -145,12 +145,24 @@
       return apiCall("create_sale", salePayload);
     },
 
+
+    // ===== Warehouses =====
+    async getWarehouses(){
+      return apiCall("get_warehouses", {});
+    },
+
+
     // ===== Inventory =====
     async getInventoryView(){
       return apiCall("get_inventory_view", {});
     },
     async rebuildInventoryView(){
       return apiCall("rebuild_inventory_view", {});
+    },
+
+    // ===== Products (Min Qty) =====
+    async updateProductMinQty(payload){
+      return apiCall("update_product_min_qty", payload);
     }
   };
 

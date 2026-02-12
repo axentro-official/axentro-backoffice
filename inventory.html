@@ -400,7 +400,7 @@
         <label>&nbsp;</label>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn" id="exportBtn" type="button">📤 تصدير CSV</button>
-          <button class="btn secondary" id="syncBtn" type="button">💾 تحديث من النظام</button>
+          <button class="btn secondary" id="openImportBtn" type="button">📥 استيراد</button>
         </div>
       </div>
     </div>
@@ -425,6 +425,7 @@
             <th style="min-width:130px">الكمية</th>
             <th style="min-width:140px">Min</th>
             <th style="min-width:140px">الحالة</th>
+            <th style="min-width:200px">إجراءات</th>
           </tr>
         </thead>
         <tbody id="invBody"></tbody>
@@ -444,214 +445,90 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<!-- Import Modal -->
+<div class="modalWrap" id="importModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="استيراد المخزون">
+    <div class="modalHead">
+      <div>📥 استيراد المخزون</div>
+      <button class="xbtn" id="closeImportBtn" type="button">✖</button>
+    </div>
+    <div class="modalBody">
+      <div class="hint" style="margin-top:0">
+        الصق <b>JSON Array</b> أو <b>CSV</b>.
+        <br>JSON مثال: <span dir="ltr">[{"sku":"101234","name":"Product","qty":10,"min":3},{"sku":"...","name":"...","qty":0}]</span>
+        <br>CSV مثال: <span dir="ltr">sku,name,qty,min,status</span>
+      </div>
+      <textarea id="importTa" rows="7" placeholder="الصق JSON/CSV هنا..."></textarea>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+        <button class="btn" id="importBtn" type="button">✅ استيراد</button>
+        <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
+        <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح المخزون المحلي</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modalWrap" id="editModal" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="تعديل المخزون">
+    <div class="modalHead">
+      <div>✏️ تعديل رصيد</div>
+      <button class="xbtn" id="closeEditBtn" type="button">✖</button>
+    </div>
+    <div class="modalBody">
+      <div class="row2">
+        <div>
+          <label>SKU</label>
+          <input id="editSku" readonly />
+        </div>
+        <div>
+          <label>اسم المنتج</label>
+          <input id="editName" readonly />
+        </div>
+      </div>
+
+      <div class="row3" style="margin-top:10px">
+        <div>
+          <label for="editQty">الكمية</label>
+          <input id="editQty" type="number" min="0" step="1" />
+        </div>
+        <div>
+          <label for="editMin">Min (تنبيه)</label>
+          <input id="editMin" type="number" min="0" step="1" placeholder="اختياري" />
+        </div>
+        <div>
+          <label for="editStatus">الحالة (اختياري)</label>
+          <select id="editStatus">
+            <option value="">تلقائي</option>
+            <option value="available">متاح</option>
+            <option value="low">منخفض</option>
+            <option value="out">نفد</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row1" style="margin-top:10px">
+        <div>
+          <label for="editNote">ملاحظة (اختياري)</label>
+          <input id="editNote" placeholder="مثال: جرد / إضافة شحنة..." />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
+        <button class="btn" id="saveEditBtn" type="button">💾 حفظ</button>
+        <button class="btn secondary" id="cancelEditBtn" type="button">إلغاء</button>
+      </div>
+
+      <div class="hint">
+        التعديل هنا <b>محلي</b> (LocalStorage) لحد ما تعمل Apps Script للتحديث على الشيت.
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
-
-<script>
-  (function(){
-    "use strict";
-
-    // ===== UI refs =====
-    const els = {
-      q: document.getElementById('q'),
-      stockState: document.getElementById('stockState'),
-      minQty: document.getElementById('minQty'),
-      sortBy: document.getElementById('sortBy'),
-      defaultMin: document.getElementById('defaultMin'),
-      refreshBtn: document.getElementById('refreshBtn'),
-      syncBtn: document.getElementById('syncBtn'),
-      clearFiltersBtn: document.getElementById('clearFiltersBtn'),
-      exportBtn: document.getElementById('exportBtn'),
-      countTxt: document.getElementById('countTxt'),
-      sumQtyTxt: document.getElementById('sumQtyTxt'),
-      lastSyncTxt: document.getElementById('lastSyncTxt'),
-      invBody: document.getElementById('invBody'),
-      emptyBox: document.getElementById('emptyBox'),
-      toast: document.getElementById('toast'),
-    };
-
-    let rawRows = []; // from Inventory_View
-
-    function toast(msg){
-      els.toast.textContent = msg;
-      els.toast.classList.add('show');
-      clearTimeout(toast._t);
-      toast._t = setTimeout(()=> els.toast.classList.remove('show'), 1800);
-    }
-
-    function num(v){
-      const n = Number(v);
-      return Number.isFinite(n) ? n : 0;
-    }
-
-    function getDefaultMin(){
-      const v = num(els.defaultMin.value);
-      return v < 0 ? 0 : v;
-    }
-
-    function statusFor(qty, min){
-      if(qty <= 0) return 'out';
-      if(qty <= min) return 'low';
-      return 'available';
-    }
-
-    function statusTag(st){
-      if(st === 'out') return {txt:'نفد', cls:'bad'};
-      if(st === 'low') return {txt:'منخفض', cls:'warn'};
-      return {txt:'متاح', cls:'ok'};
-    }
-
-    function formatDateTime(d){
-      try{
-        const dt = (d instanceof Date) ? d : new Date(d);
-        if(Number.isNaN(dt.getTime())) return '—';
-        return dt.toLocaleString('ar-EG');
-      }catch(e){
-        return '—';
-      }
-    }
-
-    function applyFilters(){
-      const q = String(els.q.value||'').trim().toLowerCase();
-      const st = els.stockState.value || 'all';
-      const minQty = num(els.minQty.value);
-      const sort = els.sortBy.value;
-      const defMin = getDefaultMin();
-
-      let rows = rawRows.map(r=>{
-        const qty = num(r.on_hand_qty);
-        const min = defMin;
-        const status = statusFor(qty, min);
-        return Object.assign({}, r, {qty, min, status});
-      });
-
-      if(q){
-        rows = rows.filter(r=>{
-          const sku = String(r.sku||'').toLowerCase();
-          const name = String(r.name||'').toLowerCase();
-          const barcode = String(r.barcode||'').toLowerCase();
-          return sku.includes(q) || name.includes(q) || barcode.includes(q);
-        });
-      }
-
-      if(minQty > 0){
-        rows = rows.filter(r=> r.qty >= minQty);
-      }
-
-      if(st !== 'all'){
-        rows = rows.filter(r=> r.status === st);
-      }
-
-      // sorting
-      rows.sort((a,b)=>{
-        if(sort === 'qty_desc') return (b.qty - a.qty);
-        if(sort === 'qty_asc') return (a.qty - b.qty);
-        const an = String(a.name||'');
-        const bn = String(b.name||'');
-        const cmp = an.localeCompare(bn, 'ar');
-        return sort === 'name_desc' ? -cmp : cmp;
-      });
-
-      render(rows);
-    }
-
-    function render(rows){
-      els.invBody.innerHTML = '';
-      els.emptyBox.style.display = rows.length ? 'none' : 'block';
-
-      let sum = 0;
-      rows.forEach((r, idx)=>{
-        sum += r.qty;
-        const tag = statusTag(r.status);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="center" data-label="#">${idx+1}</td>
-          <td class="small" data-label="SKU">${escapeHtml(r.sku||'')}</td>
-          <td class="left" data-label="اسم المنتج">${escapeHtml(r.name||'')}</td>
-          <td data-label="الكمية"><b>${r.qty}</b></td>
-          <td data-label="Min">${r.min}</td>
-          <td class="center" data-label="الحالة"><span class="tag ${tag.cls}">${tag.txt}</span></td>
-        `;
-        els.invBody.appendChild(tr);
-      });
-
-      els.countTxt.textContent = String(rows.length);
-      els.sumQtyTxt.textContent = String(sum);
-    }
-
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#39;');
-    }
-
-    async function loadInventory(){
-      const data = await AxentroApi.getInventoryView();
-      rawRows = Array.isArray(data.items) ? data.items : [];
-      els.lastSyncTxt.textContent = formatDateTime(new Date());
-      applyFilters();
-    }
-
-    async function rebuildAndLoad(){
-      toast('جاري تحديث Inventory_View...');
-      await AxentroApi.rebuildInventoryView();
-      await loadInventory();
-      toast('تم التحديث ✅');
-    }
-
-    function exportCsv(){
-      const rows = [...els.invBody.querySelectorAll('tr')].map(tr=>{
-        const tds = [...tr.querySelectorAll('td')].map(td=>td.textContent.trim());
-        return tds;
-      });
-      const header = ['#','sku','name','qty','min','status'];
-      const lines = [header, ...rows].map(r=> r.map(csvCell).join(','));
-      const blob = new Blob(["\uFEFF" + lines.join('\n')], {type:'text/csv;charset=utf-8'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = `inventory_${new Date().toISOString().slice(0,10)}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(()=> URL.revokeObjectURL(a.href), 800);
-    }
-
-    function csvCell(v){
-      const s = String(v ?? '');
-      if(/[\n\r,\"]/g.test(s)) return '"' + s.replaceAll('"','""') + '"';
-      return s;
-    }
-
-    // ===== events =====
-    ['input','change'].forEach(evt=>{
-      els.q.addEventListener(evt, applyFilters);
-      els.stockState.addEventListener(evt, applyFilters);
-      els.minQty.addEventListener(evt, applyFilters);
-      els.sortBy.addEventListener(evt, applyFilters);
-      els.defaultMin.addEventListener(evt, applyFilters);
-    });
-
-    els.refreshBtn.addEventListener('click', ()=>{ loadInventory().catch(err=> toast(err.message||'خطأ')); });
-    els.syncBtn.addEventListener('click', ()=>{ rebuildAndLoad().catch(err=> toast(err.message||'خطأ')); });
-    els.exportBtn.addEventListener('click', exportCsv);
-    els.clearFiltersBtn.addEventListener('click', ()=>{
-      els.q.value='';
-      els.stockState.value='all';
-      els.minQty.value='';
-      els.sortBy.value='name_asc';
-      applyFilters();
-    });
-
-    // init
-    loadInventory().catch(err=>{
-      toast('تعذر تحميل المخزون: ' + (err.message||'خطأ'));
-    });
-  })();
-</script>
 
 <script>
   const _lb = document.getElementById("logoutBtn");
