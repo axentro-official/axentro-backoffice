@@ -35,17 +35,19 @@
       min-height:100vh;
       display:flex;
       flex-direction:column;
+      justify-content:center;      /* ✅ رفع الفوتر لفوق (نخلي المحتوى متوازن) */
+      align-items:center;          /* ✅ */
       -webkit-font-smoothing:antialiased;
+      padding: 18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
     .wrap{
       width:min(980px, 92vw);
       margin:0 auto;
       padding:18px;
-      flex:1;
       display:grid;
       place-items:center;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
     .card{
@@ -58,6 +60,7 @@
     }
 
     .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .brand{display:flex;align-items:center;gap:12px}
     .logo{
       width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
@@ -66,8 +69,9 @@
       overflow:hidden; padding:7px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .t1{font-weight:1000;font-size:18px}
-    .t2{font-weight:900;color:var(--muted);font-size:12px;margin-top:2px}
+
+    .title{margin:0;font-weight:1000;font-size:18px;line-height:1.2}
+    .sub{margin:2px 0 0;font-weight:900;color:var(--muted);font-size:12px}
 
     label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
 
@@ -146,17 +150,54 @@
     }
 
     .site-footer{
-      margin-top:auto;
-      padding:16px 16px 22px;
+      margin-top:14px; /* ✅ بدل margin-top:auto */
+      padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
       border-top:1px solid var(--stroke);
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      border-radius:16px;
+      width:min(520px, 92vw);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    /* ✅ QR clickable + Scan me */
+    .qrBox{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+    }
+    .qrLink{
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    .qrLink img{
+      width:132px;
+      height:132px;
+      max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img,
+    .qrLink:active img{
+      transform:scale(1.03);
+      box-shadow:0 14px 34px rgba(2,6,23,.12);
+    }
+    .qrText{
+      font-size:12px;
+      font-weight:1000;
+      color:#334155;
+    }
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
 
@@ -178,7 +219,10 @@
     <section class="card" aria-label="Login card">
       <div class="head">
         <div class="brand">
-          <div class="logo">AX</div>
+          <!-- ✅ اللوجو بدل AX -->
+          <div class="logo">
+            <img src="assets/logo.png" alt="Logo">
+          </div>
           <div>
             <h1 class="title">Axentro Backoffice</h1>
             <p class="sub">تسجيل دخول الإدارة — عبر حساب Google</p>
@@ -206,6 +250,14 @@
   <footer class="site-footer">
     <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
     <div class="line2">By Ahmed Hamouda</div>
+
+    <!-- ✅ QR تحت الفوتر + clickable + Scan me -->
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-backoffice/" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code">
+        <span class="qrText">Scan me</span>
+      </a>
+    </div>
   </footer>
 
   <script src="config.js"></script>
