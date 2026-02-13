@@ -534,5 +534,190 @@
   const _lb = document.getElementById("logoutBtn");
   if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
 </script>
+<script>
+
+(function(){
+  "use strict";
+  AxentroAuth.requireAuth();
+
+  const $ = (id)=>document.getElementById(id);
+  const toast = (msg,type="ok")=>{
+    const t=$("toast"); if(!t) return alert(msg);
+    t.textContent=msg; t.className="toast " + type;
+    t.style.display="block";
+    clearTimeout(toast._tm);
+    toast._tm=setTimeout(()=>{t.style.display="none";},2500);
+  };
+
+  let rawItems = [];
+  let productsBySku = new Map();
+
+  function fmt(n){
+    const x = Number(n||0);
+    return (Math.round(x*100)/100).toString();
+  }
+  function normalizeStatus(s){
+    s = String(s||"").toUpperCase();
+    if(s==="LOW"||s==="OUT"||s==="OK") return s;
+    // allow Arabic
+    if(s.includes("منخفض")) return "LOW";
+    if(s.includes("منعدم")||s.includes("نفد")) return "OUT";
+    return "OK";
+  }
+  function statusLabel(s){
+    s=normalizeStatus(s);
+    if(s==="OUT") return {txt:"نفد", cls:"bad"};
+    if(s==="LOW") return {txt:"منخفض", cls:"warn"};
+    return {txt:"متوفر", cls:"ok"};
+  }
+
+  function getFilters(){
+    const q = ($("q")?.value||"").trim().toLowerCase();
+    const st = ($("stockState")?.value||"").trim().toUpperCase();
+    const minOnly = Number($("minQty")?.value||0);
+    const sortBy = ($("sortBy")?.value||"name_asc");
+    const defaultMin = Number($("defaultMin")?.value||0);
+    return {q, st, minOnly, sortBy, defaultMin};
+  }
+
+  function applyFilters(){
+    const {q, st, minOnly, sortBy, defaultMin} = getFilters();
+    let items = rawItems.map(it=>{
+      const onHand = Number(it.on_hand_qty||0);
+      const minQty = (it.min_qty==null || it.min_qty==="") ? null : Number(it.min_qty||0);
+      const minEff = (it.min_effective==null || it.min_effective==="") ? (minQty==null? defaultMin : minQty) : Number(it.min_effective||0);
+      const status = normalizeStatus(it.status || (onHand<=0?"OUT":(onHand<minEff?"LOW":"OK")));
+      return Object.assign({}, it, {onHand, minEff, status});
+    });
+
+    if(q){
+      items = items.filter(it=>{
+        return (String(it.sku||"").toLowerCase().includes(q) ||
+                String(it.name||"").toLowerCase().includes(q) ||
+                String(it.barcode||"").toLowerCase().includes(q));
+      });
+    }
+    if(st && st!=="ALL"){
+      items = items.filter(it=>it.status===st);
+    }
+    if(minOnly>0){
+      items = items.filter(it=>it.onHand <= minOnly);
+    }
+
+    // sorting
+    const cmpName = (a,b)=>String(a.name||"").localeCompare(String(b.name||""), "ar");
+    const cmpQty = (a,b)=>a.onHand-b.onHand;
+    if(sortBy==="name_desc") items.sort((a,b)=>-cmpName(a,b));
+    else if(sortBy==="qty_desc") items.sort((a,b)=>-cmpQty(a,b));
+    else if(sortBy==="qty_asc") items.sort(cmpQty);
+    else items.sort(cmpName);
+
+    render(items);
+  }
+
+  function render(items){
+    const body=$("invBody");
+    const empty=$("emptyBox");
+    body.innerHTML="";
+    let sum=0;
+    items.forEach(it=>sum+=Number(it.onHand||0));
+
+    $("countTxt").textContent = `${items.length} صنف`;
+    $("sumQtyTxt").textContent = `إجمالي الكميات: ${fmt(sum)}`;
+    $("lastSyncTxt").textContent = `آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+
+    if(items.length===0){
+      empty.style.display="block";
+      return;
+    }
+    empty.style.display="none";
+
+    for(const it of items){
+      const st = statusLabel(it.status);
+      const tr=document.createElement("tr");
+      tr.innerHTML = `
+        <td class="mono">${it.sku||""}</td>
+        <td>${it.name||""}</td>
+        <td class="mono">${fmt(it.onHand)}</td>
+        <td><span class="pill ${st.cls}">${st.txt}</span></td>
+        <td><button class="btn small" data-pid="${it.product_id||""}" data-sku="${it.sku||""}" data-name="${it.name||""}" data-min="${it.min_qty??""}" data-status="${it.status||""}">تعديل</button></td>
+      `;
+      body.appendChild(tr);
+    }
+
+    body.querySelectorAll("button[data-pid]").forEach(btn=>{
+      btn.addEventListener("click", ()=>openEdit(btn.dataset));
+    });
+  }
+
+  function openEdit(d){
+    $("editSku").value = d.sku || "";
+    $("editName").value = d.name || "";
+    $("editQty").value = ""; // read-only in v1
+    $("editMin").value = (d.min==null? "" : d.min);
+    $("editStatus").value = d.status || "";
+    $("editNote").value = "";
+    $("editModal").style.display="block";
+    $("saveEditBtn").onclick = async ()=>{
+      try{
+        const min = $("editMin").value;
+        await AxentroApi.updateProductMinQty({ product_id: d.pid, min_qty: min===""? "" : Number(min) });
+        toast("تم حفظ الحد الأدنى ✅","ok");
+        $("editModal").style.display="none";
+        await load();
+      }catch(e){
+        toast(e.message||"فشل الحفظ","bad");
+      }
+    };
+  }
+
+  async function load(){
+    try{
+      const res = await AxentroApi.getInventoryView();
+      rawItems = Array.isArray(res.items) ? res.items : [];
+      applyFilters();
+    }catch(e){
+      toast(e.message || "فشل تحميل المخزون","bad");
+    }
+  }
+
+  // events
+  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault(); AxentroAuth.logout();});
+  ["q","stockState","minQty","sortBy","defaultMin"].forEach(id=>{
+    $(id)?.addEventListener("input", ()=>applyFilters());
+    $(id)?.addEventListener("change", ()=>applyFilters());
+  });
+
+  $("refreshBtn")?.addEventListener("click", async ()=>{
+    try{
+      await AxentroApi.rebuildInventoryView();
+      toast("تم التحديث من النظام ✅","ok");
+      await load();
+    }catch(e){
+      toast(e.message||"فشل التحديث","bad");
+    }
+  });
+
+  $("clearFiltersBtn")?.addEventListener("click", ()=>{
+    if($("q")) $("q").value="";
+    if($("stockState")) $("stockState").value="ALL";
+    if($("minQty")) $("minQty").value="";
+    if($("sortBy")) $("sortBy").value="name_asc";
+    applyFilters();
+  });
+
+  // modal close
+  $("closeEditBtn")?.addEventListener("click", ()=>{$("editModal").style.display="none";});
+  $("cancelEditBtn")?.addEventListener("click", ()=>{$("editModal").style.display="none";});
+
+  // remove non-v1 buttons gracefully
+  $("exportBtn")?.addEventListener("click", ()=>toast("Export غير مفعّل في v1","warn"));
+  $("openImportBtn")?.addEventListener("click", ()=>toast("Import غير مفعّل في v1","warn"));
+  $("clearLocalBtn")?.addEventListener("click", ()=>toast("لا يوجد تخزين محلي هنا","warn"));
+
+  load();
+})();
+
+</script>
 </body>
 </html>

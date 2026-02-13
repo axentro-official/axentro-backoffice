@@ -163,7 +163,17 @@
     // ===== Products (Min Qty) =====
     async updateProductMinQty(payload){
       return apiCall("update_product_min_qty", payload);
-    }
+    },
+
+    // ===== Logs / Reports =====
+    async getPurchasesLog(){ return apiCall("get_purchases_log", {}); },
+    async getSalesLog(){ return apiCall("get_sales_log", {}); },
+    async getProfitSummary(){ return apiCall("get_profit_summary", {}); },
+    async getDashboardSummary(){ return apiCall("get_dashboard_summary", {}); },
+
+    // ===== Expenses =====
+    async getExpenses(){ return apiCall("get_expenses", {}); },
+    async createExpense(payload){ return apiCall("create_expense", payload); },
   };
 
   // Expose globally

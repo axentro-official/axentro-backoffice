@@ -598,5 +598,124 @@
   const _lb = document.getElementById("logoutBtn");
   if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
 </script>
+<script>
+
+(function(){
+  "use strict";
+  AxentroAuth.requireAuth();
+  const $=(id)=>document.getElementById(id);
+  const toast=(m,t="ok")=>{const el=$("toast"); if(!el) return alert(m); el.textContent=m; el.className="toast "+t; el.style.display="block"; clearTimeout(toast._tm); toast._tm=setTimeout(()=>el.style.display="none",2500);};
+  const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
+
+  let raw=[];
+  function parseDate(x){ const d=new Date(x); return isNaN(d)? null:d; }
+  function inRange(d,from,to){ if(!d) return false; if(from && d<from) return false; if(to && d>to) return false; return true; }
+
+  function apply(){
+    const q=($("q").value||"").trim().toLowerCase();
+    const from=$("fromDate").value? new Date($("fromDate").value+"T00:00:00"):null;
+    const to=$("toDate").value? new Date($("toDate").value+"T23:59:59"):null;
+    const sort=($("sortBy").value||"date_desc");
+    const cat=($("catFilter").value||"").trim().toLowerCase();
+    const minA=Number($("minAmount").value||"");
+    const maxA=Number($("maxAmount").value||"");
+
+    let items=raw.slice();
+    if(q){
+      items=items.filter(it=> String(it.category||"").toLowerCase().includes(q) || String(it.notes||"").toLowerCase().includes(q));
+    }
+    if(cat) items=items.filter(it=> String(it.category||"").toLowerCase()===cat);
+    items=items.filter(it=>{
+      const d=parseDate(it.expense_date);
+      if(!inRange(d,from,to)) return false;
+      const amt=Number(it.amount||0);
+      if($("minAmount").value!=="" && amt<minA) return false;
+      if($("maxAmount").value!=="" && amt>maxA) return false;
+      return true;
+    });
+
+    if(sort==="amount_desc") items.sort((a,b)=>Number(b.amount||0)-Number(a.amount||0));
+    else if(sort==="amount_asc") items.sort((a,b)=>Number(a.amount||0)-Number(b.amount||0));
+    else if(sort==="date_asc") items.sort((a,b)=>new Date(a.expense_date)-new Date(b.expense_date));
+    else items.sort((a,b)=>new Date(b.expense_date)-new Date(a.expense_date));
+
+    render(items);
+  }
+
+  function render(items){
+    const body=$("tbody"); body.innerHTML="";
+    const empty=$("emptyBox");
+    let sum=0; items.forEach(it=>sum+=Number(it.amount||0));
+    $("countTxt").textContent=`${items.length} بند`;
+    $("sumTxt").textContent=`الإجمالي: ${fmt(sum)}`;
+    $("lastSyncTxt").textContent=`آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+
+    if(items.length===0){ empty.style.display="block"; return; }
+    empty.style.display="none";
+
+    for(const it of items){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td class="mono">${new Date(it.expense_date).toLocaleDateString("ar-EG")}</td>
+        <td>${it.category||""}</td>
+        <td class="mono">${fmt(it.amount)}</td>
+        <td>${it.notes||""}</td>
+      `;
+      body.appendChild(tr);
+    }
+  }
+
+  async function load(){
+    try{
+      const res=await AxentroApi.getExpenses();
+      raw=Array.isArray(res.items)?res.items:[];
+      // populate category filter
+      const cats=[...new Set(raw.map(x=>String(x.category||"").trim()).filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
+      if($("catFilter")){
+        $("catFilter").innerHTML='<option value="">الكل</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join("");
+      }
+      apply();
+    }catch(e){ toast(e.message||"فشل تحميل المصروفات","bad"); }
+  }
+
+  $("addBtn")?.addEventListener("click", async ()=>{
+    try{
+      const date=$("exDate").value || "";
+      const cat=$("exCat").value || "General";
+      const amt=$("exAmount").value;
+      if(!amt) return toast("أدخل المبلغ","warn");
+      const pay=$("exPay").value||"";
+      const ref=$("exRef").value||"";
+      const note=$("exNote").value||"";
+      const notes=[pay?("الدفع: "+pay):"", ref?("مرجع: "+ref):"", note].filter(Boolean).join(" | ");
+      await AxentroApi.createExpense({ expense_date: date, category: cat, amount: Number(amt), notes });
+      toast("تم إضافة المصروف ✅","ok");
+      $("exAmount").value=""; $("exRef").value=""; $("exNote").value="";
+      await load();
+    }catch(e){ toast(e.message||"فشل الإضافة","bad"); }
+  });
+
+  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault();AxentroAuth.logout();});
+  ["q","fromDate","toDate","sortBy","catFilter","minAmount","maxAmount"].forEach(id=>{
+    $(id)?.addEventListener("input",apply);
+    $(id)?.addEventListener("change",apply);
+  });
+  $("refreshBtn")?.addEventListener("click",load);
+  $("clearFiltersBtn")?.addEventListener("click",()=>{
+    $("q").value=""; $("fromDate").value=""; $("toDate").value=""; $("minAmount").value=""; $("maxAmount").value="";
+    if($("catFilter")) $("catFilter").value="";
+    $("sortBy").value="date_desc";
+    apply();
+  });
+
+  $("openImportBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1","warn"));
+  $("exportBtn")?.addEventListener("click",()=>toast("Export غير مفعّل في v1","warn"));
+  $("clearLocalBtnTop")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+
+  load();
+})();
+
+</script>
 </body>
 </html>

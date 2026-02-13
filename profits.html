@@ -463,5 +463,102 @@
   const _lb = document.getElementById("logoutBtn");
   if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
 </script>
+<script>
+
+(function(){
+  "use strict";
+  AxentroAuth.requireAuth();
+  const $=(id)=>document.getElementById(id);
+  const toast=(m,t="ok")=>{const el=$("toast"); if(!el) return alert(m); el.textContent=m; el.className="toast "+t; el.style.display="block"; clearTimeout(toast._tm); toast._tm=setTimeout(()=>el.style.display="none",2500);};
+  const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
+
+  let sales=[], purchases=[], expenses=[];
+  function parseDate(x){ const d=new Date(x); return isNaN(d)? null:d; }
+  function inRange(d,from,to){ if(!d) return false; if(from && d<from) return false; if(to && d>to) return false; return true; }
+
+  function apply(){
+    const from=$("fromDate").value? new Date($("fromDate").value+"T00:00:00"):null;
+    const to=$("toDate").value? new Date($("toDate").value+"T23:59:59"):null;
+
+    const s=sales.filter(it=>inRange(parseDate(it.invoice_date),from,to));
+    const p=purchases.filter(it=>inRange(parseDate(it.invoice_date),from,to));
+    const e=expenses.filter(it=>inRange(parseDate(it.expense_date),from,to));
+
+    const revenue=s.reduce((a,x)=>a+Number(x.total||0),0);
+    const purchTotal=p.reduce((a,x)=>a+Number(x.total||0),0);
+    const expTotal=e.reduce((a,x)=>a+Number(x.amount||0),0);
+    const profit=s.reduce((a,x)=>a+Number(x.profit_total||0),0);
+    const net=profit-expTotal;
+
+    $("kpiSales").textContent=fmt(revenue);
+    $("kpiPurch").textContent=fmt(purchTotal);
+    $("kpiExp").textContent=fmt(expTotal);
+    $("kpiProfit").textContent=fmt(net);
+    $("kpiProfitHint").textContent = `ربح: ${fmt(profit)} - مصروفات: ${fmt(expTotal)}`;
+
+    $("salesCount").textContent = `${s.length} فاتورة`;
+    $("purchCount").textContent = `${p.length} فاتورة`;
+    $("expCount").textContent = `${e.length} بند`;
+    $("lastSyncTxt").textContent = `آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+
+    // summary table
+    const sb=$("summaryBody"); sb.innerHTML="";
+    const rows=[
+      ["إجمالي المبيعات", revenue],
+      ["إجمالي المشتريات", purchTotal],
+      ["إجمالي المصروفات", expTotal],
+      ["إجمالي الربح من المبيعات", profit],
+      ["صافي الربح", net],
+    ];
+    for(const r of rows){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${r[0]}</td><td class="mono">${fmt(r[1])}</td>`;
+      sb.appendChild(tr);
+    }
+
+    // details: sales invoices
+    const db=$("detailsBody"); db.innerHTML="";
+    if(s.length===0){ $("emptyBox").style.display="block"; return; }
+    $("emptyBox").style.display="none";
+    for(const it of s){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td class="mono">${it.sale_invoice_no||""}</td>
+        <td>${it.customer||""}</td>
+        <td class="mono">${new Date(it.invoice_date).toLocaleDateString("ar-EG")}</td>
+        <td class="mono">${fmt(it.total)}</td>
+        <td class="mono">${fmt(it.profit_total||0)}</td>
+      `;
+      db.appendChild(tr);
+    }
+  }
+
+  async function load(){
+    try{
+      const [slog, plog, ex] = await Promise.all([
+        AxentroApi.getSalesLog(),
+        AxentroApi.getPurchasesLog(),
+        AxentroApi.getExpenses()
+      ]);
+      sales = Array.isArray(slog.items)?slog.items:[];
+      purchases = Array.isArray(plog.items)?plog.items:[];
+      expenses = Array.isArray(ex.items)?ex.items:[];
+      apply();
+    }catch(e){ toast(e.message||"فشل تحميل بيانات الأرباح","bad"); }
+  }
+
+  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault();AxentroAuth.logout();});
+  ["fromDate","toDate","mode"].forEach(id=>{ $(id)?.addEventListener("change",apply); });
+  $("refreshBtn")?.addEventListener("click",load);
+  $("clearFiltersBtn")?.addEventListener("click",()=>{ $("fromDate").value=""; $("toDate").value=""; apply(); });
+
+  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1","warn"));
+  $("exportBtn")?.addEventListener("click",()=>toast("Export غير مفعّل في v1","warn"));
+  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+
+  load();
+})();
+
+</script>
 </body>
 </html>

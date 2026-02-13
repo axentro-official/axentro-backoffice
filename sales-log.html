@@ -797,5 +797,100 @@ document.getElementById("clearLocalBtn")?.addEventListener("click", clearLocal);
 /* ================= BOOT ================= */
 loadSalesSmart(false);
 </script>
+<script>
+
+(function(){
+  "use strict";
+  AxentroAuth.requireAuth();
+  const $=(id)=>document.getElementById(id);
+  const toast=(m,t="ok")=>{const el=$("toast"); if(!el) return alert(m); el.textContent=m; el.className="toast "+t; el.style.display="block"; clearTimeout(toast._tm); toast._tm=setTimeout(()=>el.style.display="none",2500);};
+  const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
+  let raw=[];
+
+  function parseDate(x){ const d=new Date(x); return isNaN(d)? null:d; }
+  function inRange(d,from,to){ if(!d) return false; if(from && d<from) return false; if(to && d>to) return false; return true; }
+
+  function apply(){
+    const q=($("q").value||"").trim().toLowerCase();
+    const from=$("fromDate").value? new Date($("fromDate").value+"T00:00:00"):null;
+    const to=$("toDate").value? new Date($("toDate").value+"T23:59:59"):null;
+    const minT=Number($("minTotal").value||"");
+    const maxT=Number($("maxTotal").value||"");
+    const sort=($("sortBy").value||"date_desc");
+
+    let items=raw.slice();
+    if(q){
+      items=items.filter(it=> String(it.sale_invoice_no||"").toLowerCase().includes(q) || String(it.customer||"").toLowerCase().includes(q));
+    }
+    items=items.filter(it=>{
+      const d=parseDate(it.invoice_date);
+      if(!inRange(d,from,to)) return false;
+      const tot=Number(it.total||0);
+      if(!isNaN(minT) && $("minTotal").value!=="" && tot<minT) return false;
+      if(!isNaN(maxT) && $("maxTotal").value!=="" && tot>maxT) return false;
+      return true;
+    });
+
+    if(sort==="total_desc") items.sort((a,b)=>Number(b.total||0)-Number(a.total||0));
+    else if(sort==="total_asc") items.sort((a,b)=>Number(a.total||0)-Number(b.total||0));
+    else if(sort==="date_asc") items.sort((a,b)=>new Date(a.invoice_date)-new Date(b.invoice_date));
+    else items.sort((a,b)=>new Date(b.invoice_date)-new Date(a.invoice_date));
+
+    render(items);
+  }
+
+  function render(items){
+    const body=$("logBody"); body.innerHTML="";
+    const empty=$("emptyBox");
+    let sum=0;
+    items.forEach(it=>sum+=Number(it.total||0));
+    $("countTxt").textContent = `${items.length} فاتورة`;
+    $("sumTxt").textContent = `الإجمالي: ${fmt(sum)}`;
+    $("lastSyncTxt").textContent = `آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+
+    if(items.length===0){ empty.style.display="block"; return; }
+    empty.style.display="none";
+
+    for(const it of items){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td class="mono">${it.sale_invoice_no||""}</td>
+        <td>${it.customer||""}</td>
+        <td class="mono">${new Date(it.invoice_date).toLocaleDateString("ar-EG")}</td>
+        <td class="mono">${fmt(it.total)}</td>
+        <td class="mono">${fmt(it.profit_total||0)}</td>
+      `;
+      body.appendChild(tr);
+    }
+  }
+
+  async function load(){
+    try{
+      const res=await AxentroApi.getSalesLog();
+      raw=Array.isArray(res.items)?res.items:[];
+      apply();
+    }catch(e){ toast(e.message||"فشل تحميل سجل المبيعات","bad");}
+  }
+
+  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault();AxentroAuth.logout();});
+  ["q","fromDate","toDate","sortBy","minTotal","maxTotal"].forEach(id=>{
+    $(id)?.addEventListener("input",apply);
+    $(id)?.addEventListener("change",apply);
+  });
+  $("refreshBtn")?.addEventListener("click",load);
+  $("clearFiltersBtn")?.addEventListener("click",()=>{
+    $("q").value=""; $("fromDate").value=""; $("toDate").value=""; $("minTotal").value=""; $("maxTotal").value="";
+    $("sortBy").value="date_desc"; apply();
+  });
+
+  // disable import/local buttons
+  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1","warn"));
+  $("clearImportBtn")?.addEventListener("click",()=>{ if($("importTa")) $("importTa").value=""; });
+  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+
+  load();
+})();
+
+</script>
 </body>
 </html>
