@@ -15,10 +15,12 @@
       --bad:#dc2626; --badSoft: rgba(220,38,38,.10);
       --container-max:1100px;
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
+      margin:0;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
@@ -26,7 +28,9 @@
         linear-gradient(180deg, #fff, var(--bg));
       padding:18px;
       min-height:100vh;
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
+      overflow-x:hidden;
     }
 
     .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
@@ -62,10 +66,9 @@
       padding:16px;
       margin-bottom:16px;
     }
-
     h2{margin:0 0 10px;font-weight:900}
     label{font-size:12px;color:var(--muted);font-weight:800}
-    input, select{
+    input, select, textarea{
       width:100%;
       padding:10px;
       border-radius:12px;
@@ -73,14 +76,17 @@
       background:#fff;
       color:var(--text);
       outline:none;
+      max-width:100%;
     }
-    input::placeholder{color:#94a3b8}
+    input::placeholder, textarea::placeholder{color:#94a3b8}
 
     .row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+    .row2{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
     .row3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
 
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
       .row3{grid-template-columns:repeat(1,1fr);}
     }
     @media (max-width:720px){
@@ -89,7 +95,7 @@
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
-      input, select{ font-size:16px; }
+      input, select, textarea{ font-size:16px; }
     }
 
     .btn{
@@ -102,11 +108,6 @@
       cursor:pointer;
       touch-action: manipulation;
       white-space:nowrap;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn.secondary{
@@ -137,7 +138,7 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      min-width:980px;
+      min-width:1120px;
       background:#fff;
       border-radius:12px;
       overflow:hidden;
@@ -154,7 +155,18 @@
       font-weight:900;
     }
     td.left{ text-align:right; white-space:normal; }
-    td.money{ direction:ltr; text-align:left; unicode-bidi:embed; font-weight:900; }
+
+    .tag{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
+    }
+    .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
 
     .empty{
       margin-top:10px;
@@ -193,7 +205,7 @@
         font-weight:900;
         margin-bottom:6px;
       }
-      td.money{ text-align:left; }
+      tbody button{ width:100%; }
     }
 
     .site-footer{
@@ -280,7 +292,7 @@
     <div class="row" role="region" aria-label="فلترة سجل المبيعات">
       <div>
         <label for="q">بحث سريع</label>
-        <input id="q" placeholder="ابحث بـ رقم الفاتورة / اسم العميل..." autocomplete="off" />
+        <input id="q" placeholder="ابحث بـ رقم الفاتورة / Order ID / اسم العميل / رقم الهاتف..." autocomplete="off" />
       </div>
       <div>
         <label for="fromDate">من تاريخ</label>
@@ -303,26 +315,44 @@
 
     <div class="row3" style="margin-top:10px">
       <div>
-        <label for="minTotal">إجمالي من</label>
-        <input id="minTotal" type="number" min="0" step="0.01" placeholder="0.00" />
+        <label for="minTotal">إجمالي من (اختياري)</label>
+        <input id="minTotal" type="number" min="0" step="0.01" placeholder="0" />
       </div>
       <div>
-        <label for="maxTotal">إجمالي إلى</label>
-        <input id="maxTotal" type="number" min="0" step="0.01" placeholder="0.00" />
+        <label for="maxTotal">إجمالي إلى (اختياري)</label>
+        <input id="maxTotal" type="number" min="0" step="0.01" placeholder="0" />
       </div>
       <div>
         <label>&nbsp;</label>
-        <div style="display:flex; gap:10px; flex-wrap:wrap">
-          <button class="btn secondary" id="clearFiltersBtn" type="button">مسح الفلاتر</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn" id="refreshBtn" type="button">🔄 تحديث السجل</button>
+          <button class="btn secondary" id="clearFiltersBtn" type="button">مسح الفلاتر</button>
         </div>
       </div>
     </div>
 
     <div class="pillRow">
       <div class="pill"><span class="k">عدد النتائج:</span> <span id="countTxt">0</span></div>
-      <div class="pill"><span class="k">إجمالي المبيعات:</span> <span id="sumTxt">0.00</span></div>
+      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span></div>
       <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
+    </div>
+  </div>
+
+  <div class="card" id="importCard">
+    <h2>استيراد يدوي (اختياري)</h2>
+    <div style="color:var(--muted);font-weight:900;line-height:1.8">
+      لو الـ API بتاع السجل لسه مش جاهز: الصق هنا سجل بصيغة <b>JSON Array</b> أو <b>CSV</b>.
+      <br>JSON مثال:
+      <span dir="ltr">[{"invNo":"SALE-...","date":"2026-02-01","time":"10:30 AM","orderId":"123","custName":"...","custPhone":"...","finalTotal":1500,"itemsCount":3}]</span>
+      <br>CSV مثال:
+      <span dir="ltr">invNo,date,time,orderId,custName,custPhone,finalTotal,itemsCount</span>
+    </div>
+
+    <textarea id="importTa" rows="5" placeholder="الصق JSON/CSV هنا..."></textarea>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+      <button class="btn" id="importBtn" type="button">📥 استيراد للسجل المحلي</button>
+      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
+      <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح السجل المحلي</button>
     </div>
   </div>
 
@@ -335,10 +365,13 @@
           <tr>
             <th style="width:60px">#</th>
             <th style="min-width:220px">رقم الفاتورة</th>
-            <th style="min-width:220px">العميل</th>
             <th style="min-width:140px">التاريخ</th>
+            <th style="min-width:140px">الوقت</th>
+            <th style="min-width:140px">Order ID</th>
+            <th style="min-width:220px">العميل</th>
+            <th style="min-width:160px">الهاتف</th>
+            <th style="min-width:140px">عدد الأصناف</th>
             <th style="min-width:160px">الإجمالي</th>
-            <th style="min-width:160px">الربح</th>
           </tr>
         </thead>
         <tbody id="logBody"></tbody>
@@ -371,150 +404,342 @@
 
   const $ = (id)=>document.getElementById(id);
 
+  // ===== Toast =====
   const toastEl = $("toast");
-  function toast(msg){
+  function showToast(msg){
     if(!toastEl) return alert(msg);
     toastEl.textContent = msg;
     toastEl.classList.add("show");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(()=>toastEl.classList.remove("show"), 2200);
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
   }
 
+  // ===== Logout =====
   $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  function toNum(v){
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function money(n){ return (Number(n||0)).toFixed(2); }
-  function esc(s){
-    return String(s||"")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function parseDateSafe(x){
-    const d = new Date(String(x||"").slice(0,10));
-    return isNaN(d) ? null : d;
-  }
-  function todayISO(){
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${yyyy}-${mm}-${dd}`;
+  // ===== Config =====
+  const SALES_LOG_API_URL =
+    "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=sales_log";
+
+  const LOCAL_LOG_KEY = "AX_SALES_LOG_LOCAL_V1";
+  const CACHE_KEY = "AX_SALES_LOG_CACHE_V1";
+  const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V1";
+  const CACHE_TTL_MS = 3 * 60 * 1000;
+
+  let RAW = [];
+  let VIEW = [];
+
+  // ===== Helpers =====
+  function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
+  function norm(s){ return String(s||"").trim().toLowerCase(); }
+
+  function toISODateMaybe(val){
+    const s = String(val||"").trim();
+    if(!s) return "";
+    if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m){
+      const dd = String(m[1]).padStart(2,"0");
+      const mm = String(m[2]).padStart(2,"0");
+      const yy = String(m[3]);
+      return `${yy}-${mm}-${dd}`;
+    }
+
+    const d = new Date(s);
+    if(!isNaN(d.getTime())){
+      const y = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${y}-${mm}-${dd}`;
+    }
+    return "";
   }
 
-  // ===== state =====
-  // Expected API item: { sale_invoice_no, customer, invoice_date, total, profit_total }
-  let raw = [];
+  function fmtMoney(n){ return `${money(n).toFixed(2)} جنيه`; }
 
-  function normalizeItems(list){
-    return (Array.isArray(list)? list : []).map((it)=>{
-      const sale_invoice_no = String(it.sale_invoice_no || it.invoice_no || it.invNo || "").trim();
-      const customer = String(it.customer || it.customer_name || it.custName || "").trim();
-      const invoice_date = String(it.invoice_date || it.date || it.invDate || "").slice(0,10);
-      const total = toNum(it.total);
-      const profit_total = toNum(it.profit_total || it.profit || 0);
-      return { sale_invoice_no, customer, invoice_date, total, profit_total };
-    }).filter(x => x.sale_invoice_no || x.customer || x.invoice_date || x.total || x.profit_total);
+  function setLastSync(ts){
+    const el = $("lastSyncTxt");
+    if(!el) return;
+    if(!ts){ el.textContent = "—"; return; }
+    const d = new Date(ts);
+    el.textContent = d.toLocaleString("ar-EG");
   }
 
-  function apply(){
-    const q = String($("q")?.value || "").trim().toLowerCase();
-    const from = $("fromDate")?.value ? new Date($("fromDate").value + "T00:00:00") : null;
-    const to   = $("toDate")?.value ? new Date($("toDate").value + "T23:59:59") : null;
-    const minTActive = $("minTotal")?.value !== "";
-    const maxTActive = $("maxTotal")?.value !== "";
-    const minT = toNum($("minTotal")?.value);
-    const maxT = toNum($("maxTotal")?.value);
-    const sort = String($("sortBy")?.value || "date_desc");
+  function saveCache(list){
+    try{
+      localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+      localStorage.setItem(CACHE_TS, String(Date.now()));
+    }catch(e){}
+  }
+  function loadCache(){
+    try{
+      const raw = localStorage.getItem(CACHE_KEY);
+      const ts  = Number(localStorage.getItem(CACHE_TS) || 0);
+      if(!raw) return null;
+      const list = JSON.parse(raw);
+      if(!Array.isArray(list)) return null;
+      return { list, ts };
+    }catch(e){ return null; }
+  }
 
-    let items = raw.slice();
+  function saveLocal(list){
+    try{ localStorage.setItem(LOCAL_LOG_KEY, JSON.stringify(list)); }catch(e){}
+  }
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(LOCAL_LOG_KEY);
+      if(!raw) return [];
+      const list = JSON.parse(raw);
+      return Array.isArray(list) ? list : [];
+    }catch(e){ return []; }
+  }
 
-    if(q){
-      items = items.filter(it=>{
-        return String(it.sale_invoice_no||"").toLowerCase().includes(q)
-          || String(it.customer||"").toLowerCase().includes(q);
+  async function fetchSalesLog(){
+    const res = await fetch(SALES_LOG_API_URL, { cache:"no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    if(Array.isArray(data)) return data;
+
+    if(data && typeof data === "object"){
+      if(Array.isArray(data.data)) return data.data;
+      if(Array.isArray(data.items)) return data.items;
+      if(Array.isArray(data.rows)) return data.rows;
+    }
+    return [];
+  }
+
+  function normalizeRow(r){
+    const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.id || "";
+    const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.day || "");
+    const time  = r.time || r.invTime || r.invoice_time || "";
+    const orderId = r.orderId || r.order_id || r.order || "";
+    const custName = r.custName || r.customer || r.customer_name || r.name || "";
+    const custPhone = r.custPhone || r.phone || r.customer_phone || "";
+    const itemsCount = Number(r.itemsCount ?? r.items_count ?? r.count ?? (Array.isArray(r.items)? r.items.length : 0) ?? 0) || 0;
+    const finalTotal = money(r.finalTotal ?? r.total ?? r.grandTotal ?? r.amount ?? 0);
+
+    return {
+      invNo: String(invNo||"").trim(),
+      date,
+      time: String(time||"").trim(),
+      orderId: String(orderId||"").trim(),
+      custName: String(custName||"").trim(),
+      custPhone: String(custPhone||"").trim(),
+      itemsCount,
+      finalTotal
+    };
+  }
+
+  async function loadSalesSmart(force=false){
+    const cached = loadCache();
+    const now = Date.now();
+    const hasCache = cached && cached.list && cached.list.length;
+    const fresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
+
+    const local = loadLocal();
+    const localNorm = local.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
+    if(localNorm.length){
+      RAW = localNorm;
+      saveCache(localNorm);
+      setLastSync(cached?.ts || Date.now());
+      applyFiltersAndRender();
+    }
+
+    if(hasCache){
+      RAW = cached.list.map(normalizeRow);
+      setLastSync(cached.ts);
+      applyFiltersAndRender();
+    }
+
+    if(!force && fresh){
+      setTimeout(()=> refreshFromNet(false), 300);
+    }else{
+      await refreshFromNet(true);
+    }
+  }
+
+  async function refreshFromNet(showMsg){
+    try{
+      const list = await fetchSalesLog();
+      const normed = list.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
+      RAW = normed;
+      saveCache(normed);
+      setLastSync(Date.now());
+      applyFiltersAndRender();
+      if(showMsg) showToast("✅ تم تحديث سجل المبيعات");
+    }catch(e){
+      console.warn(e);
+      if(showMsg) showToast("⚠️ تعذر تحميل السجل الآن.\nتم عرض آخر نسخة محفوظة إن وُجدت.");
+    }
+  }
+
+  function getFilters(){
+    return {
+      q: norm($("q")?.value),
+      fromDate: $("fromDate")?.value || "",
+      toDate: $("toDate")?.value || "",
+      minTotal: money($("minTotal")?.value),
+      maxTotal: money($("maxTotal")?.value),
+      sortBy: $("sortBy")?.value || "date_desc"
+    };
+  }
+
+  function applyFilters(){
+    const f = getFilters();
+    let arr = Array.isArray(RAW) ? [...RAW] : [];
+    arr = arr.map(normalizeRow);
+
+    if(f.q){
+      arr = arr.filter(r=>{
+        const hay = [r.invNo, r.orderId, r.custName, r.custPhone, r.date, r.time].map(norm).join(" ");
+        return hay.includes(f.q);
       });
     }
 
-    items = items.filter(it=>{
-      const d = parseDateSafe(it.invoice_date);
-      if(from && (!d || d < from)) return false;
-      if(to && (!d || d > to)) return false;
+    if(f.fromDate) arr = arr.filter(r => r.date && r.date >= f.fromDate);
+    if(f.toDate)   arr = arr.filter(r => r.date && r.date <= f.toDate);
 
-      const tot = toNum(it.total);
-      if(minTActive && tot < minT) return false;
-      if(maxTActive && tot > maxT) return false;
-      return true;
-    });
+    if(f.minTotal > 0) arr = arr.filter(r => money(r.finalTotal) >= f.minTotal);
+    if(f.maxTotal > 0) arr = arr.filter(r => money(r.finalTotal) <= f.maxTotal);
 
-    if(sort==="total_desc") items.sort((a,b)=> toNum(b.total)-toNum(a.total));
-    else if(sort==="total_asc") items.sort((a,b)=> toNum(a.total)-toNum(b.total));
-    else if(sort==="date_asc") items.sort((a,b)=> (parseDateSafe(a.invoice_date)||0) - (parseDateSafe(b.invoice_date)||0));
-    else items.sort((a,b)=> (parseDateSafe(b.invoice_date)||0) - (parseDateSafe(a.invoice_date)||0));
+    const byDate = (a,b)=>{
+      const ad = a.date || "";
+      const bd = b.date || "";
+      if(ad !== bd) return ad.localeCompare(bd);
+      return norm(a.invNo).localeCompare(norm(b.invNo));
+    };
+    const byTotal = (a,b)=> money(a.finalTotal) - money(b.finalTotal);
 
-    render(items);
+    switch(f.sortBy){
+      case "date_asc":   arr.sort(byDate); break;
+      case "date_desc":  arr.sort((a,b)=> -byDate(a,b)); break;
+      case "total_asc":  arr.sort(byTotal); break;
+      case "total_desc": arr.sort((a,b)=> -byTotal(a,b)); break;
+    }
+
+    VIEW = arr;
   }
 
-  function render(items){
-    const body = $("logBody");
+  function escapeHtml(str){
+    return String(str || "")
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  }
+
+  function render(){
+    const tbody = $("logBody");
     const empty = $("emptyBox");
-    if(body) body.innerHTML = "";
+    if(!tbody) return;
 
-    let sum = 0;
-    for(const it of items) sum += toNum(it.total);
+    tbody.innerHTML = "";
+    const list = Array.isArray(VIEW) ? VIEW : [];
 
-    $("countTxt").textContent = String(items.length);
-    $("sumTxt").textContent = money(sum);
-    $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
+    const count = list.length;
+    const sum = list.reduce((s,r)=> s + money(r.finalTotal), 0);
+    $("countTxt").textContent = String(count);
+    $("sumTxt").textContent = sum.toFixed(2);
 
-    if(!items.length){
+    if(!count){
       if(empty) empty.style.display = "block";
       return;
+    }else{
+      if(empty) empty.style.display = "none";
     }
-    if(empty) empty.style.display = "none";
 
-    items.forEach((it, idx)=>{
+    list.forEach((r, idx)=>{
       const tr = document.createElement("tr");
-      const d = it.invoice_date ? new Date(it.invoice_date) : null;
-      const dateTxt = d && !isNaN(d) ? d.toLocaleDateString("ar-EG") : (it.invoice_date || "—");
-
       tr.innerHTML = `
         <td data-label="#" style="font-weight:900">${idx+1}</td>
-        <td data-label="رقم الفاتورة" class="left">${esc(it.sale_invoice_no || "—")}</td>
-        <td data-label="العميل" class="left">${esc(it.customer || "—")}</td>
-        <td data-label="التاريخ" class="money">${esc(dateTxt)}</td>
-        <td data-label="الإجمالي" class="money">${money(it.total)} EGP</td>
-        <td data-label="الربح" class="money">${money(it.profit_total)} EGP</td>
+        <td data-label="رقم الفاتورة" class="left">
+          <div style="font-weight:900">${escapeHtml(r.invNo || "—")}</div>
+          <div style="font-size:12px;color:#64748b;font-weight:900">Order: ${escapeHtml(r.orderId || "—")}</div>
+        </td>
+        <td data-label="التاريخ">${escapeHtml(r.date || "—")}</td>
+        <td data-label="الوقت">${escapeHtml(r.time || "—")}</td>
+        <td data-label="Order ID">${escapeHtml(r.orderId || "—")}</td>
+        <td data-label="العميل" class="left">
+          <div style="font-weight:900">${escapeHtml(r.custName || "—")}</div>
+        </td>
+        <td data-label="الهاتف">${escapeHtml(r.custPhone || "—")}</td>
+        <td data-label="عدد الأصناف">
+          <span class="tag ok">${Number(r.itemsCount||0)}</span>
+        </td>
+        <td data-label="الإجمالي">
+          <span class="tag">${fmtMoney(r.finalTotal)}</span>
+        </td>
       `;
-      body.appendChild(tr);
+      tbody.appendChild(tr);
     });
   }
 
-  async function load(){
-    try{
-      const res = await AxentroApi.getSalesLog();
-      const items = (res && Array.isArray(res.items)) ? res.items : [];
-      raw = normalizeItems(items);
-      apply();
-      toast("✅ تم تحديث سجل المبيعات");
-    }catch(e){
-      toast("❌ فشل تحميل سجل المبيعات");
-    }
+  function applyFiltersAndRender(){
+    applyFilters();
+    render();
   }
 
-  // ===== Bind =====
-  $("refreshBtn")?.addEventListener("click", load);
+  // ===== Import manual =====
+  function parseCSV(text){
+    const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
+    if(lines.length < 2) return [];
+    const header = lines[0].split(",").map(h=>h.trim());
+    const out = [];
+    for(let i=1;i<lines.length;i++){
+      const cells = lines[i].split(",").map(c=>c.trim());
+      const obj = {};
+      header.forEach((h, idx)=> obj[h] = cells[idx] ?? "");
+      out.push(obj);
+    }
+    return out;
+  }
 
-  ["q","fromDate","toDate","sortBy","minTotal","maxTotal"].forEach(id=>{
-    $(id)?.addEventListener("input", apply);
-    $(id)?.addEventListener("change", apply);
-  });
+  function importManual(){
+    const ta = $("importTa");
+    const raw = String(ta?.value || "").trim();
+    if(!raw){ showToast("الصق بيانات للاستيراد أولاً"); return; }
 
+    let list = [];
+    try{
+      if(raw.startsWith("[") || raw.startsWith("{")){
+        const j = JSON.parse(raw);
+        if(Array.isArray(j)) list = j;
+        else if(j && typeof j === "object"){
+          if(Array.isArray(j.data)) list = j.data;
+          else if(Array.isArray(j.items)) list = j.items;
+          else list = [j];
+        }
+      }else{
+        list = parseCSV(raw);
+      }
+    }catch(e){
+      showToast("❌ صيغة غير صحيحة.\nجرّب JSON Array أو CSV.");
+      return;
+    }
+
+    const normed = list.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
+    if(!normed.length){
+      showToast("⚠️ لم يتم العثور على بيانات صالحة للاستيراد.");
+      return;
+    }
+
+    saveLocal(normed);
+    RAW = normed;
+    saveCache(normed);
+    setLastSync(Date.now());
+    applyFiltersAndRender();
+    showToast("✅ تم استيراد السجل المحلي");
+  }
+
+  function clearLocal(){
+    localStorage.removeItem(LOCAL_LOG_KEY);
+    RAW = [];
+    VIEW = [];
+    applyFiltersAndRender();
+    showToast("✅ تم مسح السجل المحلي");
+  }
+
+  // ===== UI events =====
+  $("refreshBtn")?.addEventListener("click", ()=> loadSalesSmart(true));
   $("clearFiltersBtn")?.addEventListener("click", ()=>{
     $("q").value = "";
     $("fromDate").value = "";
@@ -522,18 +747,21 @@
     $("minTotal").value = "";
     $("maxTotal").value = "";
     $("sortBy").value = "date_desc";
-    apply();
-    toast("✅ تم مسح الفلاتر");
+    applyFiltersAndRender();
+    showToast("✅ تم مسح الفلاتر");
   });
 
-  // defaults (اختياري: اليوم كـ toDate)
-  try{
-    // لو عايزها فاضية سيبها
-    // $("toDate").value = todayISO();
-  }catch(e){}
+  ["q","fromDate","toDate","minTotal","maxTotal","sortBy"].forEach(id=>{
+    $(id)?.addEventListener("input", applyFiltersAndRender);
+    $(id)?.addEventListener("change", applyFiltersAndRender);
+  });
 
-  // boot
-  load();
+  $("importBtn")?.addEventListener("click", importManual);
+  $("clearImportBtn")?.addEventListener("click", ()=>{ $("importTa").value = ""; });
+  $("clearLocalBtn")?.addEventListener("click", clearLocal);
+
+  // ===== BOOT =====
+  loadSalesSmart(false);
 
 })();
 </script>
