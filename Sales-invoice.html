@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>فاتورة مبيعات — Axentro Backoffice</title>
+  <title>فاتورة مبيعات — B.S Medical & Aesthetic</title>
 
   <style>
     :root{
@@ -253,8 +253,8 @@
         <img src="assets/logo.png" alt="BS Logo" onerror="this.onerror=null;this.src='images/bslogo.webp'">
       </div>
       <div>
-        <div class="brandTitle">Axentro Backoffice</div>
-        <div class="brandSub">فاتورة مبيعات — حفظ مباشر في النظام</div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">فاتورة مبيعات <span style="opacity:.7">(Sales Invoice)</span></div>
       </div>
     </div>
 
@@ -336,6 +336,13 @@
           <button class="btn secondary" id="scanBtn" type="button">📷 مسح</button>
         </div>
       </div>
+
+      <div>
+        <label for="productSearch" style="margin-top:10px">بحث باسم الصنف (اختياري)</label>
+        <input id="productSearch" list="productNameList" placeholder="اكتب اسم الصنف للبحث..." autocomplete="off" />
+        <datalist id="productNameList"></datalist>
+      </div>
+
       <div>
         <label for="qty">الكمية</label>
         <input id="qty" type="number" step="1" min="1" value="1" />
@@ -475,12 +482,30 @@
 
   // ===== Products cache (by barcode) =====
   let productsByBarcode = new Map();
+  let productsList = [];
 
   async function loadProducts() {
     try {
       const res = await AxentroApi.getProducts();
       if(res && res.ok && Array.isArray(res.products)) {
-        productsByBarcode = new Map(res.products.map(p=>[String(p.barcode), p]));
+        productsList = res.products.slice();
+        productsByBarcode = new Map(productsList.map(p=>[String(p.barcode), p]));
+
+        // Build datalist for name search (optional)
+        if(productNameList){
+          const seen = new Set();
+          productNameList.innerHTML = "";
+          for(const p of productsList){
+            const name = String(p?.name || "").trim();
+            if(!name) continue;
+            const k = name.toLowerCase();
+            if(seen.has(k)) continue;
+            seen.add(k);
+            const opt = document.createElement("option");
+            opt.value = name;
+            productNameList.appendChild(opt);
+          }
+        }
       }
     } catch(e) {
       // ignore
@@ -551,12 +576,42 @@
   const productNameInp = document.getElementById('productName');
 
   function fillProductNameByBarcode() {
-    const b = String(barcodeInp.value||'').trim();
+    const b = String(barcodeInp.value || "").trim();
     const p = productsByBarcode.get(b);
-    productNameInp.value = p ? (p.name || '') : '';
+    if (p) {
+      productNameInp.value = p.name || "";
+      if (productSearchInp) productSearchInp.value = p.name || "";
+    } else {
+      productNameInp.value = "";
+      // لا نمسح حقل البحث بالاسم (قد يكون المستخدم يكتب)
+    }
   }
 
   barcodeInp.addEventListener('input', fillProductNameByBarcode);
+
+  if (productSearchInp) {
+    const applyNameSearch = () => {
+      const q = String(productSearchInp.value || "").trim();
+      if (!q) return;
+      const ql = q.toLowerCase();
+
+      let hit = productsList.find(p => String(p?.name || "").trim().toLowerCase() === ql);
+      if (!hit) hit = productsList.find(p => String(p?.name || "").trim().toLowerCase().includes(ql));
+
+      if (hit && hit.barcode) {
+        barcodeInp.value = String(hit.barcode);
+        fillProductNameByBarcode();
+      }
+    };
+
+    productSearchInp.addEventListener('change', applyNameSearch);
+    productSearchInp.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        applyNameSearch();
+      }
+    });
+  }
   barcodeInp.addEventListener('change', fillProductNameByBarcode);
 
   function resetItemInputs() {
