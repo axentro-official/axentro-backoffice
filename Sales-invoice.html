@@ -552,6 +552,50 @@
     setTimeout(()=>toastEl.classList.remove('show'), 2200);
   }
 
+  // ===== ✅ Scan Success Sound (WebAudio) =====
+  let _scanAudioCtx = null;
+  async function playScanSound(){
+    try{
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if(!AudioCtx) return;
+
+      if(!_scanAudioCtx) _scanAudioCtx = new AudioCtx();
+      if(_scanAudioCtx.state === "suspended"){
+        await _scanAudioCtx.resume();
+      }
+
+      const ctx = _scanAudioCtx;
+      const now = ctx.currentTime;
+
+      // “Chime” احترافي بسيط (نغمتين قصيرتين)
+      const o1 = ctx.createOscillator();
+      const g1 = ctx.createGain();
+      o1.type = "sine";
+      o1.frequency.setValueAtTime(880, now);
+      o1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
+      g1.gain.setValueAtTime(0.0001, now);
+      g1.gain.exponentialRampToValueAtTime(0.22, now + 0.01);
+      g1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
+      o1.connect(g1).connect(ctx.destination);
+      o1.start(now);
+      o1.stop(now + 0.13);
+
+      const o2 = ctx.createOscillator();
+      const g2 = ctx.createGain();
+      o2.type = "sine";
+      o2.frequency.setValueAtTime(660, now + 0.10);
+      o2.frequency.exponentialRampToValueAtTime(990, now + 0.18);
+      g2.gain.setValueAtTime(0.0001, now + 0.10);
+      g2.gain.exponentialRampToValueAtTime(0.18, now + 0.11);
+      g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.23);
+      o2.connect(g2).connect(ctx.destination);
+      o2.start(now + 0.10);
+      o2.stop(now + 0.24);
+    }catch(e){
+      // ignore
+    }
+  }
+
   const elMsg = {
     ok: document.getElementById('msgOk'),
     warn: document.getElementById('msgWarn'),
@@ -1033,9 +1077,19 @@
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
+  // ===== ✅ Invoice time for all prints =====
+  function getNowTimeHHMM(){
+    const d = new Date();
+    const hh = String(d.getHours()).padStart(2,'0');
+    const mm = String(d.getMinutes()).padStart(2,'0');
+    return `${hh}:${mm}`;
+  }
+
   function getInvoiceData(){
     const invNo = document.getElementById('invNo').value || "";
     const invDate = document.getElementById('invDate').value || "";
+    const invTime = getNowTimeHHMM();
+
     const custName = document.getElementById('customerName').value || "";
     const custPhone = document.getElementById('customerPhone').value || "";
     const custAddress = document.getElementById('customerAddress').value || "";
@@ -1056,7 +1110,7 @@
     const finalTotal = afterDiscount + shipping;
 
     return {
-      invNo, invDate,
+      invNo, invDate, invTime,
       custName, custPhone, custAddress,
       payMethod,
       discount, shipping,
@@ -1136,6 +1190,7 @@
     </div>
     <div class="meta" style="text-align:left">
       <div>التاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
+      <div>الوقت: <strong>${escapeHtml(d.invTime)}</strong></div>
     </div>
   </div>
 
@@ -1210,23 +1265,24 @@
 <title>فاتورة ${escapeHtml(d.invNo)}</title>
 <style>
   @page { size: ${widthMm}mm auto; margin: 3mm; }
+  html,body{ height:auto !important; }
   body{margin:0;font-family: Arial, Tahoma, sans-serif;color:#000;direction:rtl;background:#fff;}
-  .paper{ width:${widthMm}mm; margin:0 auto; }
-  .center{text-align:center}
+  .paper{ width:${widthMm}mm; margin:0 auto; page-break-inside: avoid; break-inside: avoid; }
+  .center{text-align:center; page-break-inside: avoid; break-inside: avoid;}
   .b{font-weight:900;font-size:13px;line-height:1.45}
   .m{font-weight:700;font-size:11px;line-height:1.55}
-  .sep{border-top:1px dashed #000;margin:8px 0}
-  .totRow{display:flex;justify-content:space-between;gap:8px;font-weight:900;font-size:12px}
+  .sep{border-top:1px dashed #000;margin:8px 0; page-break-inside: avoid; break-inside: avoid;}
+  .totRow{display:flex;justify-content:space-between;gap:8px;font-weight:900;font-size:12px; page-break-inside: avoid; break-inside: avoid;}
   .totMain{font-size:14px}
-  .foot{margin-top:8px;font-size:10px;color:#000;text-align:center;line-height:1.5}
-  .item{padding:6px 0}
+  .foot{margin-top:8px;font-size:10px;color:#000;text-align:center;line-height:1.5; page-break-inside: avoid; break-inside: avoid;}
+  .item{padding:6px 0; page-break-inside: avoid; break-inside: avoid;}
   .item .name{font-weight:900;font-size:12px;line-height:1.5}
   .item .meta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
   .item .meta .l,.item .meta .r{direction:ltr;text-align:left;unicode-bidi:embed}
 
-  .logoWrap{display:flex;justify-content:center;margin-bottom:6px}
+  .logoWrap{display:flex;justify-content:center;margin-bottom:6px; page-break-inside: avoid; break-inside: avoid;}
   .logoWrap img{width:34px;height:34px;object-fit:contain}
-  .qrWrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px}
+  .qrWrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px; page-break-inside: avoid; break-inside: avoid;}
   .qrWrap img{width:90px;height:90px;object-fit:contain}
 </style>
 </head>
@@ -1239,6 +1295,7 @@
     <div class="b">B.S Medical &amp; Aesthetic</div>
     <div class="m">فاتورة مبيعات: <strong>${escapeHtml(d.invNo)}</strong></div>
     <div class="m">التاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
+    <div class="m">الوقت: <strong>${escapeHtml(d.invTime)}</strong></div>
   </div>
 
   <div class="sep"></div>
@@ -1354,6 +1411,10 @@
               barcodeInp.value = raw;
               fillProductNameByBarcode();
               closeSuggest();
+
+              // ✅ صوت احترافي عند نجاح الاسكان
+              playScanSound();
+
               toast("✅ تم التقاط الكود");
               await stopCamera();
               hideModal();
@@ -1372,6 +1433,8 @@
 
   scanBtn.addEventListener('click', async ()=>{
     try{
+      // (اختياري) تهيئة الصوت مبكرًا على gesture المستخدم
+      try{ await playScanSound(); }catch(e){}
       showModal();
       await startCamera();
     }catch(e){
