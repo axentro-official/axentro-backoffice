@@ -206,7 +206,7 @@
     }
     .miniBar span{color:var(--muted); font-weight:900;}
 
-    /* ✅ Table wrapper: يحافظ على الشكل على الموبايل */
+    /* ✅ Table wrapper: Desktop/tablet */
     .tableWrap{
       overflow:auto;
       border-radius:14px;
@@ -218,7 +218,7 @@
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 820px; /* ✅ عشان الموبايل يعمل scroll بدل ما يبوظ */
+      min-width: 820px; /* ✅ desktop/tablet: scroll */
     }
     th, td{
       padding:10px 10px;
@@ -261,7 +261,7 @@
       backdrop-filter: blur(10px);
       border-radius:16px;
       width:min(520px, 94vw);
-      margin-inline:auto; /* ✅ ده اللي كان ناقص عندك */
+      margin-inline:auto;
       box-shadow: var(--shadow);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
@@ -303,6 +303,143 @@
     }
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
+
+    /* =========================================================
+       ✅ Mobile layout (زي شكل فاتورة المشتريات) بدون ما نبوظ Desktop
+       ========================================================= */
+    @media (max-width: 720px){
+      body{ padding: 12px; padding-bottom: calc(12px + env(safe-area-inset-bottom)); }
+
+      .container{
+        width: 100%;
+        margin-inline: 0;
+        gap: 12px;
+      }
+
+      /* Topbar: Card centered */
+      .topbar{
+        flex-direction:column;
+        align-items:stretch;
+        gap:10px;
+        padding:12px;
+        border-radius: 18px;
+      }
+
+      .brand{
+        justify-content:space-between;
+        width:100%;
+        min-width:0;
+      }
+      .brand h1{ font-size:13px; }
+      .brand p{ font-size:12px; }
+
+      .actions{
+        width:100%;
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:10px;
+      }
+      .actions .btn{
+        width:100%;
+        border-radius: 16px;
+        padding: 12px 12px;
+        font-size: 13px;
+      }
+
+      /* Cards centered like invoice */
+      .grid{ grid-template-columns: 1fr; }
+      .card{
+        width: 100%;
+        max-width: 560px;
+        margin-inline:auto;
+        border-radius: 18px;
+        padding: 12px;
+      }
+
+      /* Filters: single column */
+      .filters{ grid-template-columns: 1fr; }
+
+      .toolbar{
+        display:grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap:10px;
+      }
+      .toolbar .btn{
+        width:100%;
+        border-radius: 16px;
+        padding: 12px 10px;
+      }
+
+      /* Table -> Cards */
+      .tableWrap{
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        border-radius: 0;
+      }
+
+      table{
+        min-width: 0;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      thead{ display:none; }
+
+      tbody{ display:block; }
+      tr{
+        display:block;
+        background: rgba(255,255,255,.92);
+        border:1px solid var(--stroke);
+        border-radius: 18px;
+        box-shadow: 0 12px 30px rgba(15,23,42,.08);
+        padding: 12px;
+        margin-bottom: 12px;
+      }
+
+      td{
+        display:flex;
+        justify-content:space-between;
+        align-items:flex-start;
+        gap:12px;
+        padding: 8px 0;
+        border:0;
+        white-space: normal;
+      }
+
+      td::before{
+        content: attr(data-label);
+        color: var(--muted);
+        font-weight: 900;
+        font-size: 12px;
+        flex: 0 0 auto;
+      }
+
+      td[colspan]{
+        display:block;
+        text-align:center;
+        padding: 6px 0;
+      }
+
+      /* Action button full width on mobile */
+      td[data-label="إجراء"]{
+        justify-content:flex-start;
+      }
+      td[data-label="إجراء"] .btn{
+        width:100%;
+        padding: 12px 12px;
+        border-radius: 16px;
+      }
+
+      /* Footer centered */
+      .site-footer{
+        width: 100%;
+        max-width: 560px;
+        margin-inline:auto;
+        border-radius: 18px;
+      }
+    }
   </style>
 </head>
 
@@ -416,7 +553,6 @@
       <div class="line2">By Ahmed Hamouda</div>
 
       <div class="qrBox">
-        <!-- ✅ خلي اللينك بتاع صفحة الـ links -->
         <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
           <img src="assets/qr.png" alt="QR Code">
           <span class="qrText">Scan me</span>
@@ -553,15 +689,17 @@
           const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
           const st = String(it._status || "");
           const pid = esc(it.product_id || "");
+
+          /* ✅ data-label علشان Mobile Cards */
           return `
             <tr>
-              <td>${idx+1}</td>
-              <td>${sku}</td>
-              <td>${name}</td>
-              <td>${qty}</td>
-              <td>${minEff}</td>
-              <td>${statusPill(st)}</td>
-              <td>
+              <td data-label="#">${idx+1}</td>
+              <td data-label="SKU">${sku}</td>
+              <td data-label="اسم المنتج">${name}</td>
+              <td data-label="الكمية">${qty}</td>
+              <td data-label="Min">${minEff}</td>
+              <td data-label="الحالة">${statusPill(st)}</td>
+              <td data-label="إجراء">
                 <button class="btn" type="button" data-edit-min="${pid}">تعديل</button>
               </td>
             </tr>
