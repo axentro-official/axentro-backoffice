@@ -87,6 +87,10 @@
     @media (max-width:720px){
       .topbar{flex-direction:column;align-items:stretch}
       .topbar a,.topbar button{width:100%}
+
+      /* ✅ التعديل الوحيد: خلي أزرار الداشبورد والخروج يفضلوا جنب بعض */
+      .topbar .topActions a,
+      .topbar .topActions button{ width:auto; }
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
@@ -280,7 +284,7 @@
       </div>
     </div>
 
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+    <div class="topActions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
