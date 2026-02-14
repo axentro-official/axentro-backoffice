@@ -30,7 +30,9 @@
       min-height:100vh;
       display:flex;
       flex-direction:column;
-      overflow-x:hidden;
+
+      /* ✅ مهم: ما نققصش الصفحة لو عنصر طلع برا */
+      overflow-x: visible;
     }
 
     .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
@@ -46,7 +48,8 @@
       flex-wrap:wrap;
       margin-bottom:16px;
     }
-    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+
+    .brand{display:flex; align-items:center; gap:12px; min-width:0;}
     .logo{
       width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
@@ -58,17 +61,12 @@
     .brandTitle{font-weight:900}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
-    /* ✅ هنا ضمان الأزرار جنب بعض */
+    /* ✅ Top actions مثل صفحاتنا */
     .topActions{
       display:flex;
       gap:10px;
       align-items:center;
       flex-wrap:wrap;
-    }
-    .topActions .btn{
-      flex: 1 1 180px;   /* نفس المقاس تقريبًا */
-      min-width: 150px;
-      text-align:center;
     }
 
     .card{
@@ -103,13 +101,19 @@
       .row3{grid-template-columns:repeat(1,1fr);}
     }
 
-    /* ✅ بدل ما نخلي الأزرار 100% (وتنزل تحت بعض) */
     @media (max-width:720px){
       .topbar{flex-direction:column;align-items:stretch}
-      .topActions{width:100%}
+
+      /* ✅ هنا الإصلاح: زرارين جنب بعض دايمًا */
+      .topActions{
+        display:grid;
+        grid-template-columns:1fr 1fr;
+        gap:10px;
+        width:100%;
+      }
       .topActions .btn{
-        flex: 1 1 0;
-        min-width: 0;
+        width:100%;
+        text-align:center;
       }
     }
 
@@ -153,13 +157,7 @@
     }
     .pill .k{color:var(--muted);font-weight:900}
 
-    .table-wrap{
-      overflow:auto;
-      margin-top:10px;
-      border-radius:12px;
-      max-width:100%;
-      -webkit-overflow-scrolling:touch;
-    }
+    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px;-webkit-overflow-scrolling:touch}
     table{
       width:100%;
       border-collapse:collapse;
@@ -358,7 +356,7 @@
 
     <div class="pillRow">
       <div class="pill"><span class="k">عدد النتائج:</span> <span id="countTxt">0</span></div>
-      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span> <span style="color:#64748b;font-weight:900">جنيه</span></div>
+      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span></div>
       <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
     </div>
   </div>
@@ -429,7 +427,6 @@
 
   const $ = (id)=>document.getElementById(id);
 
-  // ===== Toast =====
   const toastEl = $("toast");
   function showToast(msg){
     if(!toastEl) return alert(msg);
@@ -439,10 +436,8 @@
     showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
   }
 
-  // ===== Logout =====
   $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  // ===== Config =====
   const SALES_LOG_API_URL =
     "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=sales_log";
 
@@ -454,7 +449,6 @@
   let RAW = [];
   let VIEW = [];
 
-  // ===== Helpers =====
   function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
   function norm(s){ return String(s||"").trim().toLowerCase(); }
 
@@ -698,10 +692,7 @@
     });
   }
 
-  function applyFiltersAndRender(){
-    applyFilters();
-    render();
-  }
+  function applyFiltersAndRender(){ applyFilters(); render(); }
 
   function parseCSV(text){
     const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
@@ -741,10 +732,7 @@
     }
 
     const normed = list.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
-    if(!normed.length){
-      showToast("⚠️ لم يتم العثور على بيانات صالحة للاستيراد.");
-      return;
-    }
+    if(!normed.length){ showToast("⚠️ لم يتم العثور على بيانات صالحة للاستيراد."); return; }
 
     saveLocal(normed);
     RAW = normed;
@@ -780,7 +768,7 @@
   });
 
   $("importBtn")?.addEventListener("click", importManual);
-  $("clearImportBtn")?.addEventListener("click", ()=>{ const ta=$("importTa"); if(ta) ta.value = ""; });
+  $("clearImportBtn")?.addEventListener("click", ()=>{ const ta=$("importTa"); if(ta) ta.value=""; });
   $("clearLocalBtn")?.addEventListener("click", clearLocal);
 
   loadSalesSmart(false);
