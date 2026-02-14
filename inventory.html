@@ -1,9 +1,10 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>المخزون — Axentro</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>المخزون — Axentro Backoffice</title>
+
   <style>
     :root{
       --bg:#ffffff;
@@ -18,18 +19,19 @@
       --goldSoft: rgba(212,175,55,.18);
       --goldSoft2: rgba(184,134,11,.12);
 
-      --bad:#dc2626;
-      --badSoft: rgba(220,38,38,.07);
       --ok:#16a34a;
-      --okSoft: rgba(22,163,74,.08);
+      --okSoft: rgba(22,163,74,.10);
+
       --warn:#f59e0b;
-      --warnSoft: rgba(245,158,11,.10);
+      --warnSoft: rgba(245,158,11,.12);
+
+      --bad:#dc2626;
+      --badSoft: rgba(220,38,38,.10);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      display:flex;flex-direction:column;min-height:100vh;
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
       color:var(--text);
@@ -37,24 +39,18 @@
         radial-gradient(900px 480px at 10% 10%, var(--goldSoft), transparent 60%),
         radial-gradient(760px 520px at 90% 20%, rgba(15,23,42,.05), transparent 60%),
         linear-gradient(180deg, var(--bg), #f7f8fb);
+      min-height:100vh;
       -webkit-font-smoothing:antialiased;
       padding: 18px;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
     .container{
-      flex:1;
-      width:min(980px, 92vw);
-      margin:0 auto;
-      padding:0;
-    }
-
-    .card{
-      background:rgba(255,255,255,.92);
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:14px;
+      width:min(1180px, 94vw);
+      margin-inline:auto;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
     }
 
     .topbar{
@@ -62,16 +58,20 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom:14px;
+      flex-wrap:wrap;
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
-      min-width:0;
+      gap:10px;
+      min-width: 220px;
     }
-
     .logo{
       width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
@@ -80,59 +80,71 @@
       overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-
-    .brandText{min-width:0}
-    .brandText .t1{margin:0;font-weight:1000;font-size:14px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .brandText .t2{margin:2px 0 0;font-weight:900;color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand h1{margin:0;font-size:14px;font-weight:1000;line-height:1.1}
+    .brand p{margin:2px 0 0;font-size:12px;color:var(--muted);font-weight:900}
 
     .actions{
       display:flex;
-      gap:8px;
+      gap:10px;
+      align-items:center;
       flex-wrap:wrap;
-      justify-content:flex-start;
     }
-
     .btn{
-      padding:10px 12px;
-      border-radius:14px;
+      appearance:none;
       border:1px solid var(--stroke);
       background:rgba(255,255,255,.92);
       box-shadow:0 8px 18px rgba(15,23,42,.06);
-      cursor:pointer;
+      padding:10px 12px;
+      border-radius:14px;
       font-weight:1000;
-      color:#0f172a;
-      text-decoration:none;
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
+      cursor:pointer;
       touch-action: manipulation;
+      color:var(--text);
+      font-size:13px;
+      line-height:1;
+      white-space:nowrap;
     }
     .btn:active{transform:translateY(1px)}
     .btn.primary{
-      border:1px solid rgba(212,175,55,.55);
+      border-color: rgba(212,175,55,.55);
       background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
       box-shadow:0 12px 22px rgba(212,175,55,.14);
     }
+    .btn.danger{
+      border-color: rgba(220,38,38,.25);
+      background: rgba(220,38,38,.06);
+      color:#991b1b;
+    }
 
-    .grid{display:grid;grid-template-columns:1fr;gap:14px}
-    .sectionTitle{margin:0 0 10px;font-size:14px;font-weight:1000}
-    .muted{color:var(--muted);font-weight:900;font-size:12px}
-
-    .filters{
+    .grid{
       display:grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap:10px;
-      margin-top:10px;
+      gap:14px;
+      grid-template-columns: 1fr;
     }
-    @media (max-width:860px){
-      .filters{grid-template-columns: repeat(2, minmax(0,1fr));}
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 380px 1fr; align-items:start; }
     }
 
-    label{display:block;font-size:12px;color:var(--muted);margin:6px 0 6px;font-weight:900}
-
-    input,select{
-      width:100%;
+    .card{
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
       padding:12px;
+    }
+
+    .card h2{
+      margin:0 0 10px 0;
+      font-size:14px;
+      font-weight:1000;
+    }
+    .muted{color:var(--muted); font-weight:900; font-size:12px}
+
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
+
+    input, select{
+      width:100%;
+      padding:11px 12px;
       border-radius:14px;
       border:1px solid var(--stroke);
       background:rgba(255,255,255,.95);
@@ -141,131 +153,122 @@
       font-size:14px;
     }
     @media (max-width:720px){ input,select{font-size:16px;} }
-
-    input:focus,select:focus{
+    input:focus, select:focus{
       border-color: rgba(212,175,55,.65);
       box-shadow:0 10px 22px rgba(212,175,55,.14);
+    }
+
+    .filters{
+      display:grid;
+      gap:10px;
+      grid-template-columns: 1fr;
+    }
+    @media (min-width: 420px){
+      .filters{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 980px){
+      .filters{ grid-template-columns: 1fr; }
     }
 
     .toolbar{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:12px;
+      margin-top:10px;
     }
 
     .msg{
-      display:none;
       margin-top:10px;
       padding:10px 12px;
       border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(15,23,42,.03);
       font-weight:1000;
+      font-size:12px;
       line-height:1.7;
-      border:1px solid transparent;
+      display:none;
       word-break:break-word;
     }
-    .msg.ok{display:block;border-color:rgba(22,163,74,.22);background:var(--okSoft);color:#14532d}
-    .msg.err{display:block;border-color:rgba(220,38,38,.22);background:var(--badSoft);color:#991b1b}
+    .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
+    .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
+    .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
     .tableWrap{
       overflow:auto;
-      border-radius:16px;
+      border-radius:14px;
       border:1px solid var(--stroke);
+      background:#fff;
     }
-
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 860px;
-      background:rgba(255,255,255,.92);
+      min-width: 760px;
     }
-    th,td{
-      padding:12px 10px;
-      border-bottom:1px solid rgba(15,23,42,.06);
-      font-weight:900;
-      font-size:12px;
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid #eef1f6;
+      font-size:13px;
       vertical-align:middle;
-      word-break:break-word;
+      white-space:nowrap;
     }
     th{
-      background:rgba(15,23,42,.03);
-      color:#0f172a;
       position:sticky;
       top:0;
+      background:#fbfbfd;
+      font-weight:1000;
       z-index:1;
-      text-align:center;
     }
-    td{text-align:center}
-
     tr:last-child td{border-bottom:none}
-    .small{color:var(--muted);font-weight:900}
 
-    .tag{
+    .pill{
       display:inline-flex;
       align-items:center;
+      gap:6px;
       padding:6px 10px;
       border-radius:999px;
-      border:1px solid rgba(15,23,42,.12);
-      background:rgba(255,255,255,.85);
+      border:1px solid var(--stroke);
       font-weight:1000;
       font-size:12px;
-      gap:6px;
-      white-space:nowrap;
     }
-    .tag.ok{border-color:rgba(22,163,74,.22); background:var(--okSoft); color:#14532d}
-    .tag.warn{border-color:rgba(245,158,11,.25); background:var(--warnSoft); color:#7c2d12}
-    .tag.bad{border-color:rgba(220,38,38,.22); background:var(--badSoft); color:#991b1b}
+    .pill.ok{border-color: rgba(22,163,74,.25); background: var(--okSoft); color:#14532d;}
+    .pill.low{border-color: rgba(245,158,11,.28); background: var(--warnSoft); color:#7c2d12;}
+    .pill.out{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
-    .mini{
-      margin-top:10px;
+    .miniBar{
       display:flex;
+      justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
-      justify-content:space-between;
-      color:#334155;
-      font-weight:900;
+      margin-top:10px;
       font-size:12px;
-    }
-    .mini b{font-weight:1000;color:#0f172a}
-
-    .editBtn{
-      padding:8px 10px;
-      border-radius:12px;
-      border:1px solid rgba(212,175,55,.55);
-      background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
-      cursor:pointer;
       font-weight:1000;
-      box-shadow:0 10px 18px rgba(212,175,55,.10);
-      touch-action: manipulation;
+      color:#334155;
     }
-    .editBtn:active{transform:translateY(1px)}
+    .miniBar span{color:var(--muted); font-weight:900;}
 
-    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
-
-    /* Prevent per-letter wrapping for SKU/Barcode on narrow screens */
-    td.skuCell, td.barcodeCell{
-      white-space:nowrap;
-      word-break:normal;
-    }
-
-    /* ===== Shared Footer (Axentro) ===== */
+    /* Footer (موحد + centered على كل الشاشات) */
     .site-footer{
-      margin-top:18px;
+      margin-top:14px;
       padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border-top:1px solid var(--stroke);
+      border:1px solid var(--stroke);
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
       border-radius:16px;
-      width:min(980px, 92vw);
-      box-shadow: 0 12px 30px rgba(15,23,42,.06);
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
-    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrBox{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+    }
     .qrLink{
       text-decoration:none;
       display:flex;
@@ -290,86 +293,101 @@
       transform:scale(1.03);
       box-shadow:0 14px 34px rgba(2,6,23,.12);
     }
-    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
+    .qrText{
+      font-size:12px;
+      font-weight:1000;
+      color:#334155;
+    }
+
+    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
   </style>
 </head>
+
 <body>
   <div class="container">
-    <div class="topbar card">
+
+    <header class="topbar">
       <div class="brand">
         <div class="logo">
-          <img src="assets/logo.png" alt="Logo">
+          <img src="assets/logo.png" alt="BS Logo">
         </div>
-        <div class="brandText">
-          <p class="t1">B.S Medical &amp; Aesthetic</p>
-          <p class="t2">المخزون (Inventory)</p>
+        <div>
+          <h1>B.S Medical & Aesthetic</h1>
+          <p>(Inventory) المخزون</p>
         </div>
       </div>
 
       <div class="actions">
-        <a class="btn" href="dashboard.html">رجوع للداش بورد</a>
-        <a class="btn primary" href="#" id="logoutBtn">تسجيل خروج</a>
+        <button class="btn" type="button" id="btnBack">← رجوع للداش بورد</button>
+        <button class="btn danger" type="button" id="btnLogout">تسجيل خروج</button>
       </div>
-    </div>
+    </header>
 
-    <div class="grid">
-      <div class="card">
-        <h2 class="sectionTitle">بحث وفلترة</h2>
-
+    <section class="grid">
+      <!-- Filters -->
+      <aside class="card">
+        <h2>بحث وفلترة</h2>
         <div class="filters">
           <div>
-            <label>بحث (SKU / اسم المنتج)</label>
-            <input id="q" placeholder="ابحث...">
+            <label for="q">بحث (SKU / الاسم / الباركود)</label>
+            <input id="q" type="text" placeholder="ابحث..." autocomplete="off" />
           </div>
 
           <div>
-            <label>الحالة</label>
+            <label for="status">الحالة</label>
             <select id="status">
-              <option value="">الكل</option>
+              <option value="ALL">الكل</option>
               <option value="OK">متوفر</option>
-              <option value="LOW">قريب من النفاد</option>
-              <option value="OUT">غير متوفر</option>
+              <option value="LOW">منخفض</option>
+              <option value="OUT">نفد</option>
             </select>
           </div>
 
           <div>
-            <label>كمية من</label>
-            <input id="minQty" type="number" inputmode="numeric" value="0">
+            <label for="minQty">كمية من</label>
+            <input id="minQty" type="number" min="0" step="1" value="0" />
           </div>
 
           <div>
-            <label>ترتيب</label>
+            <label for="sort">ترتيب</label>
             <select id="sort">
-              <option value="name_asc">الاسم (أ-ي)</option>
-              <option value="name_desc">الاسم (ي-أ)</option>
-              <option value="qty_desc">الكمية (الأكبر)</option>
-              <option value="qty_asc">الكمية (الأقل)</option>
-              <option value="min_desc">Min (الأكبر)</option>
-              <option value="min_asc">Min (الأقل)</option>
+              <option value="NAME_ASC">الاسم (أ-ي)</option>
+              <option value="NAME_DESC">الاسم (ي-أ)</option>
+              <option value="QTY_DESC">الكمية (الأكبر أولاً)</option>
+              <option value="QTY_ASC">الكمية (الأصغر أولاً)</option>
+              <option value="MIN_DESC">Min (الأكبر أولاً)</option>
+              <option value="MIN_ASC">Min (الأصغر أولاً)</option>
             </select>
           </div>
         </div>
 
         <div class="toolbar">
-          <button class="btn primary" id="refreshBtn">تحديث</button>
-          <button class="btn" id="rebuildBtn">مسح الكاش</button>
-          <button class="btn" id="csvBtn">تصدير CSV</button>
+          <button class="btn primary" id="btnRefresh" type="button">تحديث</button>
+          <button class="btn" id="btnRebuild" type="button">مسح الكاش</button>
+          <button class="btn" id="btnCsv" type="button">تصدير CSV</button>
         </div>
 
-        <div id="msgOk" class="msg ok" style="display:none"></div>
-        <div id="msgErr" class="msg err" style="display:none"></div>
+        <div id="msgOk" class="msg ok"></div>
+        <div id="msgWarn" class="msg warn"></div>
+        <div id="msgBad" class="msg bad"></div>
 
-        <div class="mini">
-          <div>عدد النتائج: <b id="countTxt">0</b></div>
-          <div>إجمالي الكمية: <b id="sumQtyTxt">0</b></div>
-          <div>آخر تحديث: <b id="lastUpdTxt">—</b></div>
+        <div class="miniBar" style="margin-top:12px">
+          <div><span>عدد النتائج:</span> <strong id="statCount">0</strong></div>
+          <div><span>إجمالي الكمية:</span> <strong id="statQty">0</strong></div>
         </div>
-      </div>
 
-      <div class="card">
-        <h2 class="sectionTitle">قائمة المخزون</h2>
-        <div class="tableWrap">
-          <table>
+        <div class="miniBar">
+          <div><span>آخر تحديث:</span> <strong id="statUpdated">—</strong></div>
+        </div>
+      </aside>
+
+      <!-- Table -->
+      <main class="card">
+        <h2>قائمة المخزون</h2>
+        <p class="muted">عرض المخزون من Inventory_View (حسب المخزن الافتراضي).</p>
+
+        <div class="tableWrap" aria-label="Inventory table container">
+          <table aria-label="Inventory">
             <thead>
               <tr>
                 <th>#</th>
@@ -381,223 +399,309 @@
                 <th>إجراء</th>
               </tr>
             </thead>
-            <tbody id="tbody"></tbody>
+            <tbody id="tbody">
+              <tr><td colspan="7">جاري التحميل…</td></tr>
+            </tbody>
           </table>
         </div>
+      </main>
+    </section>
+
+    <footer class="site-footer">
+      <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+      <div class="line2">By Ahmed Hamouda</div>
+
+      <div class="qrBox">
+        <!-- مهم: خلي اللينك هنا هو صفحة الروابط اللي انت عايزها -->
+        <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+          <img src="assets/qr.png" alt="QR Code">
+          <span class="qrText">Scan me</span>
+        </a>
       </div>
-    </div>
+    </footer>
+
   </div>
-
-  <footer class="site-footer">
-    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-    <div class="line2">By Ahmed Hamouda</div>
-
-    <div class="qrBox">
-      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-        <img src="assets/qr.png" alt="QR Code">
-        <span class="qrText">Scan me</span>
-      </a>
-    </div>
-  </footer>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
+
   <script>
-  (async function(){
-    "use strict";
-    AxentroAuth.requireAuth();
+    (function(){
+      "use strict";
 
-    const tbody = document.getElementById("tbody");
-    const qEl = document.getElementById("q");
-    const statusEl = document.getElementById("status");
-    const minQtyEl = document.getElementById("minQty");
-    const sortEl = document.getElementById("sort");
-    const refreshBtn = document.getElementById("refreshBtn");
-    const rebuildBtn = document.getElementById("rebuildBtn");
-    const csvBtn = document.getElementById("csvBtn");
-    const logoutBtn = document.getElementById("logoutBtn");
+      // ===== Auth guard =====
+      if (window.AxentroAuth && AxentroAuth.requireAuth) AxentroAuth.requireAuth();
 
-    const okEl = document.getElementById("msgOk");
-    const errEl = document.getElementById("msgErr");
+      // ===== Elements =====
+      const el = {
+        q: document.getElementById("q"),
+        status: document.getElementById("status"),
+        minQty: document.getElementById("minQty"),
+        sort: document.getElementById("sort"),
+        tbody: document.getElementById("tbody"),
+        statCount: document.getElementById("statCount"),
+        statQty: document.getElementById("statQty"),
+        statUpdated: document.getElementById("statUpdated"),
+        msgOk: document.getElementById("msgOk"),
+        msgWarn: document.getElementById("msgWarn"),
+        msgBad: document.getElementById("msgBad"),
+        btnRefresh: document.getElementById("btnRefresh"),
+        btnRebuild: document.getElementById("btnRebuild"),
+        btnCsv: document.getElementById("btnCsv"),
+        btnLogout: document.getElementById("btnLogout"),
+        btnBack: document.getElementById("btnBack"),
+      };
 
-    const countTxt = document.getElementById("countTxt");
-    const sumQtyTxt = document.getElementById("sumQtyTxt");
-    const lastUpdTxt = document.getElementById("lastUpdTxt");
-
-    let rowsCache = [];
-
-    function showOk(t){ okEl.textContent=t||""; okEl.style.display=t?"block":"none"; }
-    function showErr(t){ errEl.textContent=t||""; errEl.style.display=t?"block":"none"; }
-
-    logoutBtn.addEventListener("click", (e)=>{
-      e.preventDefault();
-      AxentroAuth.logout();
-    });
-
-    function esc(s){
-      return String(s ?? "").replace(/[&<>"']/g, (c)=>({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-      }[c]));
-    }
-
-    function getStatusTag(qty, min){
-      const nQty = Number(qty||0);
-      const nMin = Number(min||0);
-      if(nQty <= 0) return {txt:"غير متوفر", cls:"bad"};
-      if(nMin > 0 && nQty <= nMin) return {txt:"قريب من النفاد", cls:"warn"};
-      return {txt:"متوفر", cls:"ok"};
-    }
-
-    function applyFilters(){
-      const q = (qEl.value||"").trim().toLowerCase();
-      const st = statusEl.value;
-      const minQty = Number(minQtyEl.value||0);
-
-      let arr = rowsCache.slice();
-
-      if(q){
-        arr = arr.filter(r=>{
-          const sku = String(r.sku||"").toLowerCase();
-          const name = String(r.name||"").toLowerCase();
-          return sku.includes(q) || name.includes(q);
-        });
+      function showMsg(type, text){
+        el.msgOk.style.display = "none";
+        el.msgWarn.style.display = "none";
+        el.msgBad.style.display = "none";
+        if(!text) return;
+        const box = type === "ok" ? el.msgOk : (type === "warn" ? el.msgWarn : el.msgBad);
+        box.textContent = text;
+        box.style.display = "block";
       }
 
-      if(minQty > 0){
-        arr = arr.filter(r=> Number(r.on_hand_qty||0) >= minQty);
+      function esc(s){
+        return String(s ?? "").replace(/[&<>"']/g, c => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[c]));
       }
 
-      if(st){
-        arr = arr.filter(r=>{
-          const tag = getStatusTag(r.on_hand_qty, r.min_qty);
-          if(st === "OK") return tag.cls === "ok";
-          if(st === "LOW") return tag.cls === "warn";
-          if(st === "OUT") return tag.cls === "bad";
-          return true;
-        });
+      function statusPill(status){
+        if(status === "OK") return '<span class="pill ok">متوفر</span>';
+        if(status === "LOW") return '<span class="pill low">منخفض</span>';
+        if(status === "OUT") return '<span class="pill out">نفد</span>';
+        return '<span class="pill">'+esc(status)+'</span>';
       }
 
-      // Sorting
-      const sort = sortEl.value;
-      const byName = (a,b)=> String(a.name||"").localeCompare(String(b.name||""), "ar");
-      const byNum = (k,dir)=> (a,b)=> (Number(a[k]||0)-Number(b[k]||0)) * (dir==="asc"?1:-1);
+      function fmtNum(n){
+        const x = Number(n||0);
+        return (Number.isFinite(x) ? x : 0);
+      }
 
-      if(sort==="name_asc") arr.sort(byName);
-      if(sort==="name_desc") arr.sort((a,b)=> -byName(a,b));
-      if(sort==="qty_desc") arr.sort(byNum("on_hand_qty","desc"));
-      if(sort==="qty_asc") arr.sort(byNum("on_hand_qty","asc"));
-      if(sort==="min_desc") arr.sort(byNum("min_qty","desc"));
-      if(sort==="min_asc") arr.sort(byNum("min_qty","asc"));
+      let rawItems = [];
 
-      render(arr);
-    }
+      function applyFilters(){
+        const q = (el.q.value || "").trim().toLowerCase();
+        const st = el.status.value || "ALL";
+        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
+        const sort = el.sort.value || "NAME_ASC";
 
-    function render(rows){
-      let sumQty = 0;
-      tbody.innerHTML = rows.map((r, idx)=>{
-        const qty = Number(r.on_hand_qty||0);
-        const min = Number(r.min_qty||0);
-        sumQty += qty;
+        let items = rawItems.slice();
 
-        const tag = getStatusTag(qty, min);
+        if(q){
+          items = items.filter(it => {
+            const hay = [
+              it.sku, it.name, it.barcode
+            ].map(v => String(v||"").toLowerCase()).join(" ");
+            return hay.includes(q);
+          });
+        }
+        if(st !== "ALL"){
+          items = items.filter(it => String(it.status||"") === st);
+        }
+        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
 
-        return `
-          <tr>
-            <td class="small">${idx+1}</td>
-            <td class="small skuCell">${esc(r.sku||"")}</td>
-            <td>${esc(r.name||"")}</td>
-            <td><span class="tag">${esc(qty)}</span></td>
-            <td><span class="tag">${esc(min)}</span></td>
-            <td><span class="tag ${tag.cls}">${esc(tag.txt)}</span></td>
-            <td><button class="editBtn" data-sku="${esc(r.sku||"")}">تعديل</button></td>
-          </tr>
-        `;
-      }).join("");
-
-      countTxt.textContent = String(rows.length);
-      sumQtyTxt.textContent = String(sumQty);
-
-      // bind edit buttons
-      tbody.querySelectorAll(".editBtn").forEach(btn=>{
-        btn.addEventListener("click", async ()=>{
-          const sku = btn.getAttribute("data-sku");
-          const newMin = prompt("اكتب Min الجديد للمنتج ("+sku+"):", "");
-          if(newMin === null) return;
-          const v = Number(newMin);
-          if(!Number.isFinite(v) || v < 0){ alert("قيمة غير صحيحة"); return; }
-
-          try{
-            showErr(""); showOk("جاري الحفظ...");
-            await AxentroApi.updateProductMinQty({ sku, min_qty: v });
-            showOk("تم الحفظ ✅");
-            await load();
-          }catch(e){
-            showOk("");
-            showErr(e && e.message ? e.message : String(e));
+        items.sort((a,b) => {
+          const an = String(a.name||"");
+          const bn = String(b.name||"");
+          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
+          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
+          switch(sort){
+            case "NAME_DESC": return bn.localeCompare(an, "ar");
+            case "QTY_DESC": return bq - aq;
+            case "QTY_ASC": return aq - bq;
+            case "MIN_DESC": return bmin - amin;
+            case "MIN_ASC": return amin - bmin;
+            default: return an.localeCompare(bn, "ar");
           }
         });
-      });
-    }
 
-    async function load(){
-      showErr(""); showOk("جاري التحميل...");
-      try{
-        const res = await AxentroApi.getInventoryView();
-        // نتوقع شكل: {rows:[...], updated_at:"..."} أو {data:[...]}
-        const rows = res.rows || res.data || [];
-        rowsCache = rows;
-        lastUpdTxt.textContent = res.updated_at || res.last_updated || "—";
-        showOk("");
-        applyFilters();
-      }catch(e){
-        showOk("");
-        showErr(e && e.message ? e.message : String(e));
+        render(items);
       }
-    }
 
-    refreshBtn.addEventListener("click", load);
+      function render(items){
+        const totalQty = items.reduce((acc,it)=> acc + fmtNum(it.on_hand_qty), 0);
+        el.statCount.textContent = String(items.length);
+        el.statQty.textContent = String(totalQty);
 
-    rebuildBtn.addEventListener("click", async ()=>{
-      try{
-        showErr(""); showOk("جاري مسح الكاش وإعادة البناء...");
-        await AxentroApi.rebuildInventoryView();
-        showOk("تم ✅");
-        await load();
-      }catch(e){
-        showOk("");
-        showErr(e && e.message ? e.message : String(e));
+        if(!items.length){
+          el.tbody.innerHTML = '<tr><td colspan="7">لا توجد نتائج.</td></tr>';
+          return;
+        }
+
+        el.tbody.innerHTML = items.map((it, idx) => {
+          const sku = esc(it.sku || "");
+          const name = esc(it.name || "");
+          const qty = fmtNum(it.on_hand_qty);
+          const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
+          const st = String(it.status || "");
+          const pid = esc(it.product_id || "");
+          return `
+            <tr>
+              <td>${idx+1}</td>
+              <td>${sku}</td>
+              <td>${name}</td>
+              <td>${qty}</td>
+              <td>${minEff}</td>
+              <td>${statusPill(st)}</td>
+              <td>
+                <button class="btn" type="button" data-edit-min="${pid}">تعديل</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        // attach edit handlers
+        el.tbody.querySelectorAll("[data-edit-min]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const pid = btn.getAttribute("data-edit-min");
+            const row = rawItems.find(x => String(x.product_id) === String(pid));
+            const current = row && row.min_effective != null ? fmtNum(row.min_effective) : 0;
+
+            const v = prompt("اكتب Min الجديد (رقم صحيح >= 0). اتركه فارغًا لإزالته.", String(current));
+            if(v === null) return;
+
+            let min_qty = v.trim();
+            if(min_qty === ""){
+              min_qty = "";
+            } else {
+              const n = Math.floor(Number(min_qty));
+              if(!Number.isFinite(n) || n < 0){
+                alert("قيمة غير صحيحة.");
+                return;
+              }
+              min_qty = n;
+            }
+
+            try{
+              showMsg("warn", "جاري تحديث Min...");
+              await AxentroApi.updateProductMinQty({ product_id: pid, min_qty });
+              showMsg("ok", "تم تحديث Min بنجاح.");
+              await loadData();
+            }catch(e){
+              showMsg("bad", (e && e.message) ? e.message : String(e));
+            }
+          });
+        });
       }
-    });
 
-    csvBtn.addEventListener("click", ()=>{
-      const rows = [];
-      rows.push(["SKU","Name","OnHandQty","MinQty"].join(","));
-      rowsCache.forEach(r=>{
-        rows.push([
-          String(r.sku||"").replaceAll('"','""'),
-          String(r.name||"").replaceAll('"','""'),
-          String(r.on_hand_qty||0),
-          String(r.min_qty||0)
-        ].map(x=> `"${x}"`).join(","));
+      async function loadData(){
+        try{
+          showMsg("warn", "جاري التحميل...");
+          el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
+
+          const out = await AxentroApi.getInventoryView();
+          rawItems = (out && out.items) ? out.items : [];
+
+          // updated_at
+          const last = rawItems[0] && rawItems[0].updated_at ? rawItems[0].updated_at : null;
+          el.statUpdated.textContent = last ? String(last) : "—";
+
+          showMsg("", "");
+          applyFilters();
+        }catch(e){
+          rawItems = [];
+          el.statUpdated.textContent = "—";
+          el.statCount.textContent = "0";
+          el.statQty.textContent = "0";
+          el.tbody.innerHTML = '<tr><td colspan="7">تعذر تحميل البيانات.</td></tr>';
+          showMsg("bad", (e && e.message) ? e.message : String(e));
+        }
+      }
+
+      function exportCsv(){
+        const rows = [];
+        rows.push(["sku","name","barcode","on_hand_qty","min_effective","status"].join(","));
+
+        // rebuild current filtered view from DOM (safer) OR filter raw again:
+        const q = (el.q.value || "").trim().toLowerCase();
+        const st = el.status.value || "ALL";
+        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
+        const sort = el.sort.value || "NAME_ASC";
+
+        let items = rawItems.slice();
+        if(q){
+          items = items.filter(it => {
+            const hay = [it.sku,it.name,it.barcode].map(v=>String(v||"").toLowerCase()).join(" ");
+            return hay.includes(q);
+          });
+        }
+        if(st !== "ALL") items = items.filter(it => String(it.status||"") === st);
+        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
+        items.sort((a,b) => {
+          const an = String(a.name||""), bn = String(b.name||"");
+          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
+          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
+          switch(sort){
+            case "NAME_DESC": return bn.localeCompare(an, "ar");
+            case "QTY_DESC": return bq - aq;
+            case "QTY_ASC": return aq - bq;
+            case "MIN_DESC": return bmin - amin;
+            case "MIN_ASC": return amin - bmin;
+            default: return an.localeCompare(bn, "ar");
+          }
+        });
+
+        for(const it of items){
+          const line = [
+            JSON.stringify(String(it.sku||"")),
+            JSON.stringify(String(it.name||"")),
+            JSON.stringify(String(it.barcode||"")),
+            fmtNum(it.on_hand_qty),
+            fmtNum(it.min_effective),
+            JSON.stringify(String(it.status||""))
+          ].join(",");
+          rows.push(line);
+        }
+
+        const csv = rows.join("\n");
+        const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "inventory.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // ===== Events =====
+      ["input","change"].forEach(ev => {
+        el.q.addEventListener(ev, applyFilters);
+        el.status.addEventListener(ev, applyFilters);
+        el.minQty.addEventListener(ev, applyFilters);
+        el.sort.addEventListener(ev, applyFilters);
       });
-      const blob = new Blob([rows.join("\n")], {type:"text/csv;charset=utf-8"});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "inventory.csv";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-    });
 
-    [qEl,statusEl,minQtyEl,sortEl].forEach(el=>{
-      el.addEventListener("input", applyFilters);
-      el.addEventListener("change", applyFilters);
-    });
+      el.btnRefresh.addEventListener("click", loadData);
 
-    await load();
-  })();
+      el.btnRebuild.addEventListener("click", async () => {
+        try{
+          showMsg("warn", "جاري إعادة بناء Inventory View...");
+          await AxentroApi.rebuildInventoryView();
+          showMsg("ok", "تم إعادة البناء. جاري التحميل...");
+          await loadData();
+        }catch(e){
+          showMsg("bad", (e && e.message) ? e.message : String(e));
+        }
+      });
+
+      el.btnCsv.addEventListener("click", exportCsv);
+
+      el.btnLogout.addEventListener("click", () => {
+        try{ AxentroAuth.logout(); }catch(e){ location.href="login.html"; }
+      });
+
+      el.btnBack.addEventListener("click", () => {
+        location.href = "dashboard.html";
+      });
+
+      // start
+      loadData();
+    })();
   </script>
 </body>
 </html>
