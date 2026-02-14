@@ -14,10 +14,7 @@
       --shadow:0 18px 50px rgba(15,23,42,.10);
       --radius:18px;
 
-      --gold1:#D4AF37;
-      --gold2:#B8860B;
       --goldSoft: rgba(212,175,55,.18);
-      --goldSoft2: rgba(184,134,11,.12);
 
       --ok:#16a34a;
       --okSoft: rgba(22,163,74,.10);
@@ -45,6 +42,7 @@
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
+    /* ✅ Container ثابت + يمنع أي انحرافات */
     .container{
       width:min(1180px, 94vw);
       margin-inline:auto;
@@ -89,6 +87,7 @@
       align-items:center;
       flex-wrap:wrap;
     }
+
     .btn{
       appearance:none;
       border:1px solid var(--stroke);
@@ -116,13 +115,15 @@
       color:#991b1b;
     }
 
+    /* ✅ Grid: على الموبايل عمود واحد، على اللاب فلتر + جدول */
     .grid{
       display:grid;
       gap:14px;
       grid-template-columns: 1fr;
+      align-items:start;
     }
     @media (min-width: 980px){
-      .grid{ grid-template-columns: 380px 1fr; align-items:start; }
+      .grid{ grid-template-columns: 380px 1fr; }
     }
 
     .card{
@@ -163,7 +164,7 @@
       gap:10px;
       grid-template-columns: 1fr;
     }
-    @media (min-width: 420px){
+    @media (min-width: 520px){
       .filters{ grid-template-columns: 1fr 1fr; }
     }
     @media (min-width: 980px){
@@ -193,17 +194,31 @@
     .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
     .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
+    .miniBar{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      font-size:12px;
+      font-weight:1000;
+      color:#334155;
+    }
+    .miniBar span{color:var(--muted); font-weight:900;}
+
+    /* ✅ Table wrapper: يحافظ على الشكل على الموبايل */
     .tableWrap{
       overflow:auto;
       border-radius:14px;
       border:1px solid var(--stroke);
       background:#fff;
+      -webkit-overflow-scrolling: touch;
     }
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 760px;
+      min-width: 820px; /* ✅ عشان الموبايل يعمل scroll بدل ما يبوظ */
     }
     th, td{
       padding:10px 10px;
@@ -235,19 +250,7 @@
     .pill.low{border-color: rgba(245,158,11,.28); background: var(--warnSoft); color:#7c2d12;}
     .pill.out{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
-    .miniBar{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      font-size:12px;
-      font-weight:1000;
-      color:#334155;
-    }
-    .miniBar span{color:var(--muted); font-weight:900;}
-
-    /* Footer (موحد + centered على كل الشاشات) */
+    /* ✅ Footer: في النص دايمًا */
     .site-footer{
       margin-top:14px;
       padding:16px 16px 18px;
@@ -258,7 +261,7 @@
       backdrop-filter: blur(10px);
       border-radius:16px;
       width:min(520px, 94vw);
-      margin-inline:auto;
+      margin-inline:auto; /* ✅ ده اللي كان ناقص عندك */
       box-shadow: var(--shadow);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
@@ -327,6 +330,7 @@
       <!-- Filters -->
       <aside class="card">
         <h2>بحث وفلترة</h2>
+
         <div class="filters">
           <div>
             <label for="q">بحث (SKU / الاسم / الباركود)</label>
@@ -412,7 +416,7 @@
       <div class="line2">By Ahmed Hamouda</div>
 
       <div class="qrBox">
-        <!-- مهم: خلي اللينك هنا هو صفحة الروابط اللي انت عايزها -->
+        <!-- ✅ خلي اللينك بتاع صفحة الـ links -->
         <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
           <img src="assets/qr.png" alt="QR Code">
           <span class="qrText">Scan me</span>
@@ -468,16 +472,25 @@
         }[c]));
       }
 
+      function fmtNum(n){
+        const x = Number(n||0);
+        return (Number.isFinite(x) ? x : 0);
+      }
+
+      /* ✅ حل مشكلة "الحالة فاضية": نحسبها هنا حتى لو السيرفر ما رجّعهاش */
+      function computeStatus(qty, min){
+        const q = fmtNum(qty);
+        const m = Math.max(0, fmtNum(min));
+        if(q <= 0) return "OUT";
+        if(q <= m) return "LOW";
+        return "OK";
+      }
+
       function statusPill(status){
         if(status === "OK") return '<span class="pill ok">متوفر</span>';
         if(status === "LOW") return '<span class="pill low">منخفض</span>';
         if(status === "OUT") return '<span class="pill out">نفد</span>';
         return '<span class="pill">'+esc(status)+'</span>';
-      }
-
-      function fmtNum(n){
-        const x = Number(n||0);
-        return (Number.isFinite(x) ? x : 0);
       }
 
       let rawItems = [];
@@ -492,15 +505,17 @@
 
         if(q){
           items = items.filter(it => {
-            const hay = [
-              it.sku, it.name, it.barcode
-            ].map(v => String(v||"").toLowerCase()).join(" ");
+            const hay = [it.sku, it.name, it.barcode]
+              .map(v => String(v||"").toLowerCase())
+              .join(" ");
             return hay.includes(q);
           });
         }
+
         if(st !== "ALL"){
-          items = items.filter(it => String(it.status||"") === st);
+          items = items.filter(it => String(it._status||"") === st);
         }
+
         items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
 
         items.sort((a,b) => {
@@ -536,7 +551,7 @@
           const name = esc(it.name || "");
           const qty = fmtNum(it.on_hand_qty);
           const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
-          const st = String(it.status || "");
+          const st = String(it._status || "");
           const pid = esc(it.product_id || "");
           return `
             <tr>
@@ -593,10 +608,16 @@
           el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
 
           const out = await AxentroApi.getInventoryView();
-          rawItems = (out && out.items) ? out.items : [];
+          const items = (out && out.items) ? out.items : [];
 
-          // updated_at
-          const last = rawItems[0] && rawItems[0].updated_at ? rawItems[0].updated_at : null;
+          // ✅ جهّز status حتى لو السيرفر مش بيرجعه
+          rawItems = items.map(it => {
+            const minEff = (it.min_effective == null ? 0 : it.min_effective);
+            const st = it.status ? String(it.status) : computeStatus(it.on_hand_qty, minEff);
+            return Object.assign({}, it, { _status: st });
+          });
+
+          const last = out && out.updated_at ? out.updated_at : null;
           el.statUpdated.textContent = last ? String(last) : "—";
 
           showMsg("", "");
@@ -615,7 +636,7 @@
         const rows = [];
         rows.push(["sku","name","barcode","on_hand_qty","min_effective","status"].join(","));
 
-        // rebuild current filtered view from DOM (safer) OR filter raw again:
+        // filter again
         const q = (el.q.value || "").trim().toLowerCase();
         const st = el.status.value || "ALL";
         const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
@@ -628,8 +649,9 @@
             return hay.includes(q);
           });
         }
-        if(st !== "ALL") items = items.filter(it => String(it.status||"") === st);
+        if(st !== "ALL") items = items.filter(it => String(it._status||"") === st);
         items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
+
         items.sort((a,b) => {
           const an = String(a.name||""), bn = String(b.name||"");
           const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
@@ -651,7 +673,7 @@
             JSON.stringify(String(it.barcode||"")),
             fmtNum(it.on_hand_qty),
             fmtNum(it.min_effective),
-            JSON.stringify(String(it.status||""))
+            JSON.stringify(String(it._status||""))
           ].join(",");
           rows.push(line);
         }
