@@ -84,9 +84,12 @@
       .row{grid-template-columns:repeat(2,1fr);}
       .row2{grid-template-columns:repeat(1,1fr);}
     }
+    /* ✅ مهم: نخليهم جنب بعض على التابلت/الموبايل (زي باقي الصفحات) */
     @media (max-width:720px){
       .topbar{flex-direction:column;align-items:stretch}
-      .topbar a,.topbar button{width:100%}
+      .topbar .topActions{width:100%}
+      .topbar .topActions a,
+      .topbar .topActions button{width:100%}
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
@@ -114,6 +117,14 @@
       border-color: rgba(220,38,38,.22);
       background: rgba(220,38,38,.06);
       color:#991b1b;
+    }
+
+    /* ✅ نفس ستايل باقي الصفحات: حاوية للأزرار جنب بعض */
+    .topActions{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
     }
 
     .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
@@ -280,8 +291,9 @@
       </div>
     </div>
 
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+    <!-- ✅ هنا التعديل: الأزرار جنب بعض داخل topActions -->
+    <div class="topActions">
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
@@ -487,17 +499,16 @@
   }
 
   // ========= Auto Ref Per Category (RE001 / HR001 / BI001...) =========
-  // تقدر تغيّر الـ Prefixes هنا بسهولة
   const CAT_PREFIX = {
-    "إيجار": "RE",        // Rent
-    "مرتبات": "HR",       // Payroll/HR
-    "فواتير": "BI",       // Bills
+    "إيجار": "RE",
+    "مرتبات": "HR",
+    "فواتير": "BI",
     "فواتير (كهرباء/مياه/إنترنت)": "BI",
-    "نثريات": "ST",       // Stationery/Misc
-    "شحن/نقل": "TR",      // Transport
-    "تسويق": "MK",        // Marketing
-    "صيانة": "MT",        // Maintenance
-    "أخرى": "OT"          // Other
+    "نثريات": "ST",
+    "شحن/نقل": "TR",
+    "تسويق": "MK",
+    "صيانة": "MT",
+    "أخرى": "OT"
   };
 
   function getPrefixForCategory(cat){
@@ -531,7 +542,7 @@
   }
 
   // ===== state =====
-  let raw = []; // normalized records: {expense_date, category, amount, notes}
+  let raw = [];
 
   function normalizeItems(list){
     return (Array.isArray(list)? list : []).map((it, idx)=>{
@@ -629,7 +640,6 @@
       raw = normalizeItems(items);
       showMsg("", "");
 
-      // rebuild category list from data (keep "all")
       const cats = Array.from(new Set(raw.map(x=>String(x.category||"").trim()).filter(Boolean)));
       cats.sort((a,b)=> a.localeCompare(b,"ar"));
       const catSel = $("catFilter");
@@ -659,9 +669,8 @@
       if(!amountStr || amount <= 0) return toast("أدخل مبلغ صحيح");
 
       const prefix = getPrefixForCategory(category);
-      const expense_no = commitNextNo(prefix); // ✅ هنا بنثبت الرقم (ونزود العداد)
+      const expense_no = commitNextNo(prefix);
 
-      // ✅ كل شيء في خانة واحدة داخل notes
       const notes = details ? `${expense_no} | ${details}` : `${expense_no}`;
 
       showMsg("warn", "جاري الإضافة...");
@@ -674,13 +683,9 @@
         $("exAmount").value = "";
         $("exDetails").value = "";
 
-        // جهّز رقم جديد (Preview) لنفس النوع الحالي
         updateExpenseNoPreview();
-
         await load();
       }else{
-        // ⚠️ لو فشل الحفظ، العداد كان اتزاد بالفعل (LocalStorage)
-        // ده مقبول كبساطة، ولو عايز rollback هنحتاج نعمله بحذر.
         const m = (out && (out.error || out.message)) ? (out.error || out.message) : "فشل الإضافة";
         showMsg("bad", m);
         toast("❌ " + m);
@@ -692,7 +697,6 @@
     }
   }
 
-  // ===== Bind =====
   $("addBtn")?.addEventListener("click", addExpense);
   $("refreshBtn")?.addEventListener("click", load);
 
@@ -714,11 +718,8 @@
     apply();
   });
 
-  // defaults
   $("exDate").value = todayISO();
   updateExpenseNoPreview();
-
-  // boot
   load();
 
 })();
