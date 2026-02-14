@@ -59,40 +59,53 @@
       width:100%;
       padding:10px;
       border-radius:12px;
-      border:1px solid rgba(15,23,42,.14);
+      border:1px solid rgba(15,23,42,.12);
       background:#fff;
-      color:var(--text);
       outline:none;
+      box-shadow:0 8px 18px rgba(2,6,23,.06);
+      font-size:14px;
     }
-    input::placeholder, textarea::placeholder{color:#94a3b8}
-    #invNo{ font-weight:900; }
+    @media (max-width:720px){ input,textarea,select{font-size:16px;} }
 
-    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-    .row1{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (max-width:920px){ .row{grid-template-columns:repeat(2,1fr);} .row2{grid-template-columns:1fr;} }
-    @media (max-width:720px){ .topbar{flex-direction:column;align-items:stretch} .topActions{justify-content:stretch} .topActions a,.topActions button{width:100%} }
-    @media (max-width:520px){ .row{grid-template-columns:1fr;} input,textarea,select{font-size:16px;} }
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(176,141,87,.55);
+      box-shadow:0 10px 22px rgba(176,141,87,.18);
+    }
+
+    .row{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;}
+    @media (max-width:980px){ .row{grid-template-columns: repeat(2, 1fr);} }
+    @media (max-width:560px){ .row{grid-template-columns: 1fr;} }
+
+    .row2{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+    @media (max-width:720px){ .row2{grid-template-columns: 1fr;} }
 
     .btn{
-      padding:12px; border-radius:14px;
-      border:1px solid rgba(176,141,87,.35);
-      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
-      color:var(--text);
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      border-radius:14px;
+      padding:10px 12px;
       font-weight:900;
       cursor:pointer;
+      box-shadow:0 8px 18px rgba(2,6,23,.06);
       touch-action: manipulation;
+      white-space:nowrap;
     }
-    .btn.secondary{border-color: rgba(15,23,42,.14); background:#fff; opacity:.95;}
-    .btn.danger{border-color: rgba(220,38,38,.25); background:rgba(220,38,38,.06);}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{
+      background:linear-gradient(135deg, rgba(176,141,87,.10), rgba(215,185,122,.08));
+      border-color: rgba(176,141,87,.30);
+    }
+    .btn.danger{
+      background:rgba(220,38,38,.06);
+      border-color:rgba(220,38,38,.22);
+      color:#991b1b;
+    }
 
-    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
-    table{width:100%;border-collapse:collapse;font-size:13px;min-width:760px;background:#fff;border-radius:12px;overflow:hidden;}
-    th,td{border:1px solid rgba(15,23,42,.10);padding:8px;text-align:center;vertical-align:middle;}
-    th{background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));font-weight:900;}
-
-    .prodCell{text-align:right; font-weight:900;}
-    .muted{color:var(--muted); font-weight:800;}
+    table{width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td{padding:10px; border-bottom:1px solid rgba(15,23,42,.08); text-align:right; font-weight:700;}
+    th{background:rgba(2,6,23,.03); font-weight:900;}
+    .prodCell{min-width:180px}
+    .muted{color:var(--muted)}
     .totals{margin-top:10px; display:grid; gap:8px;}
     .tline{display:flex; align-items:center; justify-content:space-between; gap:10px;
       padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff;font-weight:900;}
@@ -112,60 +125,145 @@
       border-radius:18px;
       border:1px solid rgba(15,23,42,.12);
       box-shadow:0 18px 50px rgba(2,6,23,.22);
+      max-height: min(92vh, 860px);
+      display:flex;
+      flex-direction:column;
       overflow:hidden;
     }
-    .modalHead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid rgba(15,23,42,.10);}
+    .modalHead{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.10);
+      background:rgba(2,6,23,.02);
+    }
     .modalHead .title{font-weight:900}
-    .modalBody{padding:12px 14px;}
-    .videoWrap{position:relative; border-radius:16px; overflow:hidden; border:1px solid rgba(15,23,42,.10); background:#000;}
-    video{width:100%; height:auto; display:block;}
-    .scanFrame{
-      position:absolute; inset:12%;
-      border:2px solid rgba(176,141,87,.85);
-      border-radius:18px;
-      box-shadow:0 0 0 9999px rgba(0,0,0,.18) inset;
-      pointer-events:none;
+    .modalBody{padding:14px; overflow:auto; -webkit-overflow-scrolling: touch;}
+    #video{
+      width:100%;
+      max-height: 54vh;
+      object-fit:cover;
+      border-radius:14px;
+      background:#000;
     }
     .toast{
-      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
-      background: rgba(15,23,42,.92); color: #fff;
-      padding: 10px 12px; border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 900; font-size: 13px;
-      opacity: 0; pointer-events: none;
-      transition: opacity .18s ease, transform .18s ease;
-      z-index: 99999; max-width: min(520px, 92vw); text-align:center;
+      position:fixed; left:50%; transform:translateX(-50%);
+      bottom:16px; z-index:10000;
+      background:rgba(2,6,23,.92); color:#fff;
+      padding:10px 12px; border-radius:12px;
+      font-weight:800; max-width:min(92vw, 520px);
+      display:none;
     }
-    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
+    .toast.show{display:block}
+
+    /* ===== Footer (Unified) ===== */
+    .site-footer{
+      margin-top:16px;
+      padding:16px 16px 18px;
+      text-align:center;
+      color:var(--muted);
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.78);
+      backdrop-filter: blur(10px);
+      border-radius:16px;
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
+    }
+    .site-footer .line1{ font-weight:900; color:var(--text); }
+    .site-footer .line2{ margin-top:6px; font-weight:800; }
+    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrLink{
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      color:inherit;
+    }
+    .qrLink img{
+      width:132px;height:132px;max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img, .qrLink:active img{
+      transform:scale(1.03);
+      box-shadow:0 14px 34px rgba(2,6,23,.12);
+    }
+    .qrText{ font-size:12px; font-weight:900; color:#334155; }
+
+    /* ===== Print box ===== */
+    .printBox{
+      margin-top:14px;
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(255,255,255,.9);
+    }
+    .printTitle{font-weight:900;margin-bottom:10px}
+    .printGrid{display:grid;gap:10px;grid-template-columns:1fr}
+    @media (min-width:560px){ .printGrid{grid-template-columns:1fr 1fr} }
+
+    /* ===== Print templates ===== */
+    .printArea{ display:none; }
+    .noPrint{ }
+
+    @media print{
+      body{ background:#fff !important; padding:0 !important; }
+      .noPrint{ display:none !important; }
+      .printArea{ display:block !important; }
+    }
+
+    .receipt{
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
+      color:#000;
+      direction: rtl;
+    }
+    .receipt h3{ margin:0 0 8px; font-size:14px; }
+    .receipt .rmeta{ font-size:12px; margin:0 0 10px; }
+    .receipt .rmeta div{ margin:2px 0; }
+    .receipt table{ width:100%; border-collapse:collapse; font-size:12px; }
+    .receipt th, .receipt td{ padding:6px 0; border-bottom:1px dashed #bbb; }
+    .receipt th{ text-align:right; font-weight:900; }
+    .receipt td.num{ text-align:left; direction:ltr; }
+    .receipt .rtotals{ margin-top:10px; font-size:12px; }
+    .receipt .rtotals .line{ display:flex; justify-content:space-between; gap:10px; margin:4px 0; }
+    .receipt .rtotals .line strong{ font-weight:900; }
+    .receipt .rfooter{ margin-top:12px; text-align:center; font-size:11px; }
+
   </style>
 </head>
-
 <body>
-<div class="wrap" id="app">
-  <div class="topbar">
+
+<div class="wrap">
+  <div class="topbar noPrint">
     <div class="brand">
-      <div class="logo">
-        <img src="images/bslogo.webp" alt="Logo" onerror="this.style.display='none'">
-      </div>
+      <div class="logo"><img src="assets/logo.png" alt="BS Logo"></div>
       <div>
-        <div class="brandTitle">Axentro Backoffice</div>
-        <div class="brandSub">فاتورة مبيعات — حفظ مباشر في النظام</div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">فاتورة مبيعات</div>
       </div>
     </div>
-
     <div class="topActions">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
-      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+      <button class="btn danger" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
-  <div class="card">
+  <div class="card noPrint">
     <h2>بيانات الفاتورة</h2>
 
     <div class="row">
       <div>
-        <label for="invNo">رقم الفاتورة</label>
+        <label for="invNo">رقم الفاتورة (النظام)</label>
+        <div class="muted" style="margin-top:6px">يُحفظ في الشيت كما هو (مثال: SA001)</div>
         <input id="invNo" value="SA001" readonly />
+      </div>
+      <div>
+        <label for="invDisplayNo">رقم الفاتورة (عرض/طباعة)</label>
+        <input id="invDisplayNo" value="" readonly />
       </div>
       <div>
         <label for="invDate">التاريخ</label>
@@ -174,94 +272,118 @@
       <div>
         <label for="paymentMethod">طريقة الدفع</label>
         <select id="paymentMethod">
-          <option value="CASH">CASH</option>
-          <option value="VISA">VISA</option>
-          <option value="INSTAPAY">INSTAPAY</option>
-          <option value="TRANSFER">TRANSFER</option>
+          <option value="CASH">كاش</option>
+          <option value="VISA">فيزا</option>
+          <option value="INSTAPAY">انستاباي</option>
+          <option value="TRANSFER">محفظة إلكترونية</option>
         </select>
       </div>
       <div>
         <label for="customer">العميل</label>
         <input id="customer" placeholder="اسم العميل" />
       </div>
+
+      <div>
+        <label for="customerPhone">رقم الهاتف</label>
+        <input id="customerPhone" inputmode="tel" placeholder="01xxxxxxxxx" autocomplete="tel" />
+      </div>
+      <div>
+        <label for="customerAddress">العنوان</label>
+        <input id="customerAddress" placeholder="المحافظة / المنطقة / تفاصيل" autocomplete="street-address" />
+      </div>
     </div>
 
     <div class="row2" style="margin-top:10px">
       <div>
-        <label for="discount">خصم على الفاتورة (جنيه)</label>
-        <input id="discount" type="number" step="0.01" min="0" value="0" />
+        <label for="discount">الخصم (على إجمالي الفاتورة)</label>
+        <input id="discount" type="number" min="0" step="0.01" value="0" />
       </div>
       <div>
-        <label for="tax">ضريبة على الفاتورة (جنيه)</label>
-        <input id="tax" type="number" step="0.01" min="0" value="0" />
+        <label for="tax">الضريبة</label>
+        <input id="tax" type="number" min="0" step="0.01" value="0" />
       </div>
     </div>
 
-    <div class="row1" style="margin-top:10px">
+    <div style="margin-top:10px">
+      <label for="notes">ملاحظات</label>
+      <textarea id="notes" rows="2" placeholder="ملاحظات إضافية..."></textarea>
+    </div>
+  </div>
+
+  <div class="card noPrint">
+    <h2>إضافة صنف</h2>
+    <div class="row2">
       <div>
-        <label for="notes">ملاحظات</label>
-        <input id="notes" placeholder="اختياري" />
+        <label for="barcode">الباركود</label>
+        <input id="barcode" placeholder="امسح/اكتب الباركود" />
       </div>
+      <div style="display:flex; gap:10px; align-items:end; flex-wrap:wrap">
+        <button class="btn secondary" id="scanBtn" type="button">📷 مسح</button>
+        <button class="btn" id="addItemBtn" type="button">＋ إضافة الأصناف</button>
+      </div>
+    </div>
+
+    <div class="row2" style="margin-top:10px">
+      <div>
+        <label for="qty">الكمية</label>
+        <input id="qty" type="number" min="1" step="1" value="1" />
+      </div>
+      <div>
+        <label for="unitPrice">سعر الوحدة</label>
+        <input id="unitPrice" type="number" min="0" step="0.01" value="0" />
+      </div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label for="productName">المنتج</label>
+      <input id="productName" placeholder="سيتم ملؤه تلقائياً من الباركود" readonly />
+      <div class="muted" id="productSku" style="margin-top:6px"></div>
     </div>
   </div>
 
   <div class="card">
-    <h2>إضافة صنف</h2>
-
-    <div class="row">
-      <div>
-        <label for="barcode">Barcode</label>
-        <div style="display:flex; gap:8px; align-items:center;">
-          <input id="barcode" placeholder="امسح أو اكتب الباركود" inputmode="numeric" />
-          <button class="btn secondary" id="scanBtn" type="button" style="white-space:nowrap;">📷 مسح</button>
-        </div>
-      </div>
-      <div>
-        <label for="qty">Qty</label>
-        <input id="qty" type="number" step="1" min="1" value="1" />
-      </div>
-      <div>
-        <label for="unitPrice">Unit Price</label>
-        <input id="unitPrice" type="number" step="0.01" min="0" placeholder="0" />
-      </div>
-      <div>
-        <label for="productName">Product</label>
-        <input id="productName" readonly placeholder="سيظهر اسم المنتج بعد التعرف على الباركود" />
-      </div>
-    </div>
-
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
-      <button class="btn" id="addItemBtn" type="button">＋ إضافة الأصناف</button>
-    </div>
-
-    <div class="table-wrap">
+    <h2 class="noPrint">الأصناف</h2>
+    <div style="overflow:auto" class="noPrint">
       <table>
         <thead>
           <tr>
-            <th style="width:60px">#</th>
+            <th>#</th>
             <th>المنتج</th>
-            <th style="width:120px">Barcode</th>
-            <th style="width:100px">Qty</th>
-            <th style="width:140px">Unit Price</th>
-            <th style="width:160px">Line Total</th>
-            <th style="width:110px">حذف</th>
+            <th>الباركود</th>
+            <th>الكمية</th>
+            <th>سعر الوحدة</th>
+            <th>إجمالي السطر</th>
+            <th>إجراء</th>
           </tr>
         </thead>
         <tbody id="itemsBody"></tbody>
       </table>
     </div>
 
-    <div class="totals" id="totals"></div>
+    <div class="totals noPrint" id="totals"></div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px" class="noPrint">
       <button class="btn" id="saveBtn" type="button">💾 حفظ في النظام</button>
       <button class="btn secondary" id="resetBtn" type="button">إعادة ضبط</button>
     </div>
+
+    <div class="printBox noPrint" aria-label="Print actions">
+      <div class="printTitle">الطباعة</div>
+      <div class="printGrid">
+        <button class="btn secondary" id="print80" type="button">🧾 طباعة حراري 80mm</button>
+        <button class="btn secondary" id="print58" type="button">🧾 طباعة حراري 58mm</button>
+        <button class="btn secondary" id="printA4" type="button">🖨 طباعة A4</button>
+        <button class="btn secondary" id="pdfA4" type="button">📄 حفظ PDF A4</button>
+      </div>
+      <div class="muted" style="margin-top:8px">ملاحظة: حفظ PDF يتم عبر نافذة الطباعة (اختَر "Save as PDF").</div>
+    </div>
+
+    <div id="printArea" class="printArea" aria-hidden="true"></div>
   </div>
 </div>
 
 <div class="modalBack" id="scanModal" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Barcode Scanner">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="ماسح الباركود">
     <div class="modalHead">
       <div class="title">📷 مسح الباركود</div>
       <button class="btn secondary" id="closeScanBtn" type="button">✕ إغلاق</button>
@@ -269,99 +391,197 @@
     <div class="modalBody">
       <div class="row2" style="margin-bottom:10px">
         <div>
-          <label for="cameraSelect">Camera</label>
+          <label for="cameraSelect">الكاميرا</label>
           <select id="cameraSelect"></select>
         </div>
         <div>
           <label>مساعدة</label>
-          <div class="muted" style="padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff;">
-            ضع الباركود داخل الإطار الذهبي.
+          <div class="muted" style="padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff">
+            لو الموبايل فيه أكتر من كاميرا، اختر الخلفية. لو الكاميرا لا تعمل جرّب تحديث الصفحة.
           </div>
         </div>
       </div>
 
-      <div class="videoWrap">
-        <video id="video" playsinline></video>
-        <div class="scanFrame"></div>
-      </div>
+      <video id="video" playsinline muted></video>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
-        <button class="btn secondary" id="torchBtn" type="button" style="display:none;">🔦 Flash</button>
-        <button class="btn secondary" id="manualFillBtn" type="button">إدخال يدوي</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+        <button class="btn secondary" id="torchBtn" type="button" style="display:none">🔦 فلاش</button>
+        <button class="btn" id="manualFillBtn" type="button">إدخال يدوي</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<footer class="site-footer noPrint">
+  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+  <div class="line2">By Ahmed Hamouda</div>
+  <div class="qrBox">
+    <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+      <img src="assets/qr.png" alt="QR Code">
+      <span class="qrText">Scan me</span>
+    </a>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
-<script>AxentroAuth.requireAuth();</script>
 
 <script>
 (function(){
+  "use strict";
+
+  if (window.AxentroAuth && AxentroAuth.requireAuth) AxentroAuth.requireAuth();
+
   const toastEl = document.getElementById('toast');
-  function toast(msg) {
+  let toastTimer = null;
+  function toast(msg){
+    clearTimeout(toastTimer);
     toastEl.textContent = msg;
     toastEl.classList.add('show');
-    setTimeout(()=>toastEl.classList.remove('show'), 2200);
+    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2400);
   }
 
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+  // Logout
+  document.getElementById('logoutBtn').addEventListener('click', ()=>{
+    try { AxentroAuth.logout(); } catch(e) { location.href="login.html"; }
+  });
 
-  // ===== Products cache (by barcode) =====
-  let productsByBarcode = new Map();
-
-  async function loadProducts() {
-    try {
-      const res = await AxentroApi.getProducts();
-      if(res && res.ok && Array.isArray(res.products)) {
-        productsByBarcode = new Map(res.products.map(p=>[String(p.barcode), p]));
-      }
-    } catch(e) {
-      // ignore
-    }
-  }
-
-  function toNum(v) {
-    const n = Number(v);
-    return isNaN(n) ? 0 : n;
-  }
-
-  // ===== Items state =====
+  // State
+  let products = [];
   let items = []; // {barcode, product_id, name, qty, unit_price}
 
-  const barcodeInp = document.getElementById('barcode');
-  const qtyInp = document.getElementById('qty');
-  const unitPriceInp = document.getElementById('unitPrice');
-  const productNameInp = document.getElementById('productName');
-
-  function fillProductNameByBarcode() {
-    const b = String(barcodeInp.value||'').trim();
-    const p = productsByBarcode.get(b);
-    productNameInp.value = p ? (p.name || '') : '';
-  }
-
-  barcodeInp.addEventListener('input', fillProductNameByBarcode);
-  barcodeInp.addEventListener('change', fillProductNameByBarcode);
-
-  function resetItemInputs() {
-    barcodeInp.value = '';
-    qtyInp.value = 1;
-    unitPriceInp.value = '';
-    productNameInp.value = '';
-    barcodeInp.focus();
+  function toNum(v){
+    const n = Number(v);
+    return Number.isFinite(n) ? n : 0;
   }
 
   function escapeHtml(s){
-    return String(s||'')
+    return String(s ?? '')
       .replaceAll('&','&amp;')
       .replaceAll('<','&lt;')
       .replaceAll('>','&gt;')
       .replaceAll('"','&quot;')
       .replaceAll("'",'&#039;');
+  }
+
+  function todayISO(){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function buildDisplayInvoiceNo(baseNo, dateStr){
+    const digits = String(baseNo||"").replace(/[^0-9]/g,"");
+    const seq = digits ? digits.padStart(3,"0").slice(-3) : "001";
+    const ds = String(dateStr||todayISO()).replace(/-/g,"");
+    return `INV-BS-${ds}-${seq}`;
+  }
+
+  function paymentLabel(val){
+    switch(String(val||"")){
+      case "CASH": return "كاش";
+      case "VISA": return "فيزا";
+      case "INSTAPAY": return "انستاباي";
+      case "TRANSFER": return "محفظة إلكترونية";
+      default: return String(val||"");
+    }
+  }
+
+  function updateInvoiceDisplay(){
+    const invNoEl = document.getElementById("invNo");
+    const invDateEl = document.getElementById("invDate");
+    const dispEl = document.getElementById("invDisplayNo");
+    if(!invNoEl || !invDateEl || !dispEl) return;
+    const base = String(invNoEl.value||"").trim();
+    const date = String(invDateEl.value||"").trim() || todayISO();
+    dispEl.value = buildDisplayInvoiceNo(base, date);
+  }
+
+  function setPrintPageStyle(mode){
+    let css = "";
+    if(mode === "thermal80") css = "@page{size:80mm auto; margin:5mm;}";
+    else if(mode === "thermal58") css = "@page{size:58mm auto; margin:4mm;}";
+    else css = "@page{size:A4; margin:12mm;}";
+
+    let st = document.getElementById("printPageStyle");
+    if(!st){
+      st = document.createElement("style");
+      st.id = "printPageStyle";
+      document.head.appendChild(st);
+    }
+    st.textContent = css;
+  }
+
+  function updatePrintArea(subtotal, discount, tax, total){
+    const area = document.getElementById("printArea");
+    if(!area) return;
+
+    const invNo = String(document.getElementById("invNo").value||"").trim();
+    const invDisp = String(document.getElementById("invDisplayNo").value||"").trim();
+    const invDate = String(document.getElementById("invDate").value||"").trim();
+    const customer = String(document.getElementById("customer").value||"").trim();
+    const phone = String((document.getElementById("customerPhone")||{}).value||"").trim();
+    const address = String((document.getElementById("customerAddress")||{}).value||"").trim();
+    const payVal = String(document.getElementById("paymentMethod").value||"").trim();
+    const pay = paymentLabel(payVal);
+
+    const rows = items.map(it=>{
+      const name = escapeHtml(String(it.name||""));
+      const qty = toNum(it.qty);
+      const unit = toNum(it.unit_price).toFixed(2);
+      const line = (toNum(it.qty)*toNum(it.unit_price)).toFixed(2);
+      return `<tr>
+        <td>${name}</td>
+        <td class="num">${qty}</td>
+        <td class="num">${unit}</td>
+        <td class="num">${line}</td>
+      </tr>`;
+    }).join("");
+
+    area.innerHTML = `
+      <div class="receipt">
+        <h3>B.S Medical & Aesthetic</h3>
+        <div class="rmeta">
+          <div><strong>رقم الفاتورة:</strong> ${escapeHtml(invDisp || invNo)}</div>
+          ${invNo ? `<div><span style="color:#555">رقم النظام:</span> ${escapeHtml(invNo)}</div>` : ""}
+          <div><strong>التاريخ:</strong> ${escapeHtml(invDate||"")}</div>
+          <div><strong>طريقة الدفع:</strong> ${escapeHtml(pay)}</div>
+          ${customer ? `<div><strong>العميل:</strong> ${escapeHtml(customer)}</div>` : ""}
+          ${phone ? `<div><strong>الهاتف:</strong> <span style="direction:ltr;display:inline-block">${escapeHtml(phone)}</span></div>` : ""}
+          ${address ? `<div><strong>العنوان:</strong> ${escapeHtml(address)}</div>` : ""}
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>الصنف</th>
+              <th class="num">الكمية</th>
+              <th class="num">سعر</th>
+              <th class="num">الإجمالي</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || `<tr><td colspan="4">—</td></tr>`}
+          </tbody>
+        </table>
+
+        <div class="rtotals">
+          <div class="line"><span>الإجمالي قبل الخصم</span><span class="num">${Number(subtotal||0).toFixed(2)} جنيه</span></div>
+          <div class="line"><span>الخصم</span><span class="num">${Number(discount||0).toFixed(2)} جنيه</span></div>
+          <div class="line"><span>الضريبة</span><span class="num">${Number(tax||0).toFixed(2)} جنيه</span></div>
+          <div class="line"><strong>الإجمالي النهائي</strong><strong class="num">${Number(total||0).toFixed(2)} جنيه</strong></div>
+        </div>
+
+        <div class="rfooter">
+          Axentro – All Rights Reserved 2024 ©<br/>
+          By Ahmed Hamouda
+        </div>
+      </div>
+    `;
   }
 
   function render() {
@@ -400,67 +620,97 @@
 
     const totals = document.getElementById('totals');
     totals.innerHTML = `
-      <div class="tline"><span class="muted">Subtotal</span><span>${subtotal.toFixed(2)} EGP</span></div>
-      <div class="tline"><span class="muted">Discount</span><span>${discount.toFixed(2)} EGP</span></div>
-      <div class="tline"><span class="muted">Tax</span><span>${tax.toFixed(2)} EGP</span></div>
-      <div class="tline primary"><span>Total</span><span>${total.toFixed(2)} EGP</span></div>
+      <div class="tline"><span class="muted">الإجمالي قبل الخصم</span><span>${subtotal.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="muted">الخصم</span><span>${discount.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="muted">الضريبة</span><span>${tax.toFixed(2)} جنيه</span></div>
+      <div class="tline primary"><span>الإجمالي النهائي</span><span>${total.toFixed(2)} جنيه</span></div>
     `;
+    updatePrintArea(subtotal, discount, tax, total);
   }
+
+  function resetItemInputs(){
+    document.getElementById('barcode').value = '';
+    document.getElementById('qty').value = '1';
+    document.getElementById('unitPrice').value = '0';
+    document.getElementById('productName').value = '';
+    document.getElementById('productSku').textContent = '';
+  }
+
+  function findProductByBarcode(code){
+    const b = String(code||'').trim();
+    if(!b) return null;
+    return products.find(p => String(p.barcode||'').trim() === b) || null;
+  }
+
+  async function loadProducts(){
+    try {
+      const res = await AxentroApi.getProducts();
+      products = (res && res.products) ? res.products : [];
+    } catch(e) {
+      products = [];
+      toast('تعذر تحميل المنتجات من النظام');
+    }
+  }
+
+  // Add item
+  document.getElementById('barcode').addEventListener('input', ()=>{
+    const code = document.getElementById('barcode').value;
+    const p = findProductByBarcode(code);
+    if(p){
+      document.getElementById('productName').value = p.name || '';
+      document.getElementById('productSku').textContent = (p.sku ? ('SKU: ' + p.sku) : '');
+    } else {
+      document.getElementById('productName').value = '';
+      document.getElementById('productSku').textContent = '';
+    }
+  });
+
+  document.getElementById('addItemBtn').addEventListener('click', ()=>{
+    const barcode = String(document.getElementById('barcode').value||'').trim();
+    const qty = Math.max(1, Math.floor(toNum(document.getElementById('qty').value)));
+    const unit_price = Math.max(0, toNum(document.getElementById('unitPrice').value));
+
+    if(!barcode){
+      toast('اكتب/امسح باركود أولاً');
+      return;
+    }
+
+    const p = findProductByBarcode(barcode);
+    const name = p ? (p.name||'') : 'منتج غير معروف';
+    const product_id = p ? (p.product_id||'') : '';
+
+    items.push({ barcode, qty, unit_price, name, product_id });
+    resetItemInputs();
+    render();
+  });
 
   document.getElementById('discount').addEventListener('input', render);
   document.getElementById('tax').addEventListener('input', render);
 
-  document.getElementById('addItemBtn').addEventListener('click', ()=>{
-    const barcode = String(barcodeInp.value||'').trim();
-    const qty = toNum(qtyInp.value);
-    const unit_price = toNum(unitPriceInp.value);
-
-    if(!barcode) return toast('اكتب/امسح الباركود أولاً');
-    if(qty <= 0) return toast('الكمية غير صحيحة');
-    if(unit_price < 0) return toast('السعر غير صحيح');
-
-    const p = productsByBarcode.get(barcode);
-    items.push({
-      barcode,
-      product_id: p ? p.product_id : '',
-      name: p ? (p.name||'') : '',
-      qty,
-      unit_price
-    });
-
-    render();
-    resetItemInputs();
-  });
-
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    items = [];
-    document.getElementById('customer').value = '';
-    document.getElementById('notes').value = '';
-    document.getElementById('discount').value = 0;
-    document.getElementById('tax').value = 0;
-    render();
-    resetItemInputs();
-    toast('تمت إعادة الضبط');
-  });
-
+  // Save
   document.getElementById('saveBtn').addEventListener('click', async ()=>{
-    if(items.length === 0) return toast('أضف صنف واحد على الأقل');
+    if(!items.length){
+      toast('أضف أصناف أولاً');
+      return;
+    }
 
     const customer = String(document.getElementById('customer').value||'').trim();
-    if(!customer) return toast('اكتب اسم العميل');
-
-    const invoiceDate = document.getElementById('invDate').value; // yyyy-mm-dd
+    const invoiceDate = document.getElementById('invDate').value || '';
     const discount = toNum(document.getElementById('discount').value);
     const tax = toNum(document.getElementById('tax').value);
     const payment_method = document.getElementById('paymentMethod').value || '';
     const notes = String(document.getElementById('notes').value||'').trim();
+    const phone = String((document.getElementById('customerPhone')||{}).value||'').trim();
+    const address = String((document.getElementById('customerAddress')||{}).value||'').trim();
 
     const payload = {
       customer,
+      phone,
+      address,
+      payment_method,
       invoice_date: invoiceDate ? (invoiceDate + 'T00:00:00') : null,
       discount,
       tax,
-      payment_method,
       notes,
       items: items.map(it=>({
         barcode: it.barcode,
@@ -474,7 +724,9 @@
       if(res && res.ok) {
         const no = res.sale_invoice_no || 'SA';
         document.getElementById('invNo').value = no;
-        toast('تم الحفظ ✅ رقم الفاتورة: ' + no);
+        updateInvoiceDisplay();
+        const disp = String(document.getElementById('invDisplayNo').value||'').trim();
+        toast('تم الحفظ ✅ رقم الفاتورة: ' + (disp || no));
         items = [];
         render();
         resetItemInputs();
@@ -484,6 +736,14 @@
     } catch(e) {
       toast(String(e && e.message ? e.message : e));
     }
+  });
+
+  // Reset
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    items = [];
+    resetItemInputs();
+    render();
+    toast('تمت إعادة الضبط');
   });
 
   // ===== Scanner =====
@@ -519,7 +779,7 @@
     cams.forEach((c, idx)=>{
       const opt = document.createElement('option');
       opt.value = c.deviceId;
-      opt.textContent = c.label || ('Camera ' + (idx+1));
+      opt.textContent = c.label || ('كاميرا ' + (idx+1));
       cameraSelect.appendChild(opt);
     });
     return cams;
@@ -531,7 +791,7 @@
       stream = null;
     }
     const constraints = {
-      video: deviceId ? { deviceId: { exact: deviceId } } : { facingMode: 'environment' },
+      video: deviceId ? { deviceId: { exact: deviceId }, width:{ideal:1280}, height:{ideal:720} } : { facingMode: { ideal: 'environment' }, width:{ideal:1280}, height:{ideal:720} },
       audio: false
     };
     stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -558,26 +818,27 @@
     let cams = [];
     try { cams = await listCameras(); } catch(e) {}
 
-    const preferred = cameraSelect.value || (cams.length ? cams[cams.length-1].deviceId : null);
-    await startStream(preferred);
+    try { await startStream(cameraSelect.value || null); } catch(e) {
+      toast('تعذر تشغيل الكاميرا');
+      return;
+    }
 
     if('BarcodeDetector' in window) {
-      try {
-        detector = new window.BarcodeDetector({ formats: ['ean_13','ean_8','code_128','qr_code','upc_a','upc_e','code_39','code_93','itf'] });
-      } catch(e) { detector = null; }
+      try { detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','qr_code','upc_a','upc_e'] }); }
+      catch(e) { detector = null; }
+    } else {
+      detector = null;
     }
 
     scanTimer = setInterval(async ()=>{
-      if(!detector) return;
       try {
-        const barcodes = await detector.detect(video);
-        if(barcodes && barcodes.length) {
-          const raw = String(barcodes[0].rawValue || '').trim();
-          if(raw) {
-            barcodeInp.value = raw;
-            fillProductNameByBarcode();
+        if(detector) {
+          const codes = await detector.detect(video);
+          if(codes && codes[0] && codes[0].rawValue) {
+            document.getElementById('barcode').value = codes[0].rawValue;
+            document.getElementById('barcode').dispatchEvent(new Event('input'));
             stopScan();
-            toast('تم التقاط الباركود');
+            toast('تم التقاط الباركود ✅');
           }
         }
       } catch(e) {}
@@ -594,7 +855,7 @@
 
   manualFillBtn.addEventListener('click', ()=>{
     stopScan();
-    barcodeInp.focus();
+    document.getElementById('barcode').focus();
   });
 
   torchBtn.addEventListener('click', async ()=>{
@@ -604,11 +865,31 @@
       const torchOn = settings.torch === true;
       await track.applyConstraints({ advanced: [{ torch: !torchOn }] });
     } catch(e) {
-      toast('Flash غير مدعوم');
+      toast('الفلاش غير مدعوم');
     }
   });
 
   // init
+  try{
+    const invDateEl = document.getElementById('invDate');
+    if(invDateEl && (!invDateEl.value || String(invDateEl.value).trim()==='')) invDateEl.value = todayISO();
+  }catch(e){}
+  updateInvoiceDisplay();
+  document.getElementById('invDate').addEventListener('change', ()=>{ updateInvoiceDisplay(); render(); });
+  document.getElementById('invNo').addEventListener('input', updateInvoiceDisplay);
+
+  function doPrint(mode){
+    document.body.setAttribute('data-print', mode);
+    setPrintPageStyle(mode);
+    try{ render(); }catch(e){}
+    window.print();
+    setTimeout(()=>{ document.body.removeAttribute('data-print'); }, 300);
+  }
+  document.getElementById('print80').addEventListener('click', ()=>doPrint('thermal80'));
+  document.getElementById('print58').addEventListener('click', ()=>doPrint('thermal58'));
+  document.getElementById('printA4').addEventListener('click', ()=>doPrint('a4'));
+  document.getElementById('pdfA4').addEventListener('click', ()=>doPrint('a4'));
+
   loadProducts().finally(()=>{ render(); resetItemInputs(); });
 })();
 </script>
