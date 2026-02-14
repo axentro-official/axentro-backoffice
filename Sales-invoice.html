@@ -497,8 +497,7 @@
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
       <button class="btn" id="saveBtn" type="button">💾 حفظ في النظام</button>
-      <button class="btn secondary" id="printA4Btn" type="button">🖨️ طباعة A4</button>
-      <button class="btn secondary" id="savePdfA4Btn" type="button">📄 حفظ PDF لـ A4</button>
+      <button class="btn secondary" id="printA4Btn" type="button">🖨️ طباعة وحفظ A4</button>
       <button class="btn secondary" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
       <button class="btn secondary" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
     </div>
@@ -540,7 +539,6 @@
 
 <script src="config.js"></script>
 <script src="app.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <script>AxentroAuth.requireAuth();</script>
 
 <script>
@@ -1188,75 +1186,6 @@
 
   document.getElementById('printA4Btn').addEventListener('click', exportA4);
 
-  async function toDataURL(url){
-    try{
-      const abs = new URL(url, location.href).toString();
-      const res = await fetch(abs, { cache: "no-store" });
-      if(!res.ok) throw new Error("HTTP " + res.status);
-      const blob = await res.blob();
-      return await new Promise((resolve, reject)=>{
-        const r = new FileReader();
-        r.onload = ()=> resolve(r.result);
-        r.onerror = reject;
-        r.readAsDataURL(blob);
-      });
-    }catch(e){ return null; }
-  }
-  async function inlineAllImages(root){
-    const imgs = Array.from(root.querySelectorAll("img"));
-    for(const img of imgs){
-      const src = img.getAttribute("src") || "";
-      if(!src || src.startsWith("data:")) continue;
-      const dataUrl = await toDataURL(src);
-      if(dataUrl) img.setAttribute("src", dataUrl);
-    }
-  }
-
-  function buildA4FragmentForPdf(d){
-    const full = buildA4Html(d);
-    const style = (full.match(/<style>([\s\S]*?)<\/style>/i) || [,""])[1];
-    const body  = (full.match(/<body[^>]*>([\s\S]*?)<\/body>/i) || [,""])[1];
-    return `<div><style>${style}</style>${body}</div>`;
-  }
-
-  async function savePdfA4(){
-    const d = getInvoiceData();
-    const safeKey = (d.invNo || "BS").replace(/[^\w-]+/g,"_");
-    const filename = `sales_invoice_${safeKey}.pdf`;
-
-    const holder = document.createElement("div");
-    holder.style.position = "fixed";
-    holder.style.left = "-99999px";
-    holder.style.top = "0";
-    holder.style.width = "210mm";
-    holder.style.background = "#fff";
-    holder.style.zIndex = "-1";
-
-    holder.innerHTML = buildA4FragmentForPdf(d);
-    document.body.appendChild(holder);
-
-    await new Promise(r=> setTimeout(r, 150));
-    await inlineAllImages(holder);
-
-    const opt = {
-      margin: 10,
-      filename,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    };
-
-    try{
-      await html2pdf().set(opt).from(holder).save();
-    }catch(e){
-      console.error(e);
-      alert("فشل حفظ PDF");
-    }finally{
-      holder.remove();
-    }
-  }
-  document.getElementById('savePdfA4Btn').addEventListener('click', savePdfA4);
-
   // ===== Thermal printing =====
   function buildThermalHtml(mm, d){
     const widthMm = (mm === 58) ? 58 : 80;
@@ -1294,11 +1223,19 @@
   .item .name{font-weight:900;font-size:12px;line-height:1.5}
   .item .meta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
   .item .meta .l,.item .meta .r{direction:ltr;text-align:left;unicode-bidi:embed}
+
+  .logoWrap{display:flex;justify-content:center;margin-bottom:6px}
+  .logoWrap img{width:34px;height:34px;object-fit:contain}
+  .qrWrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px}
+  .qrWrap img{width:90px;height:90px;object-fit:contain}
 </style>
 </head>
 <body>
 <div class="paper">
   <div class="center">
+    <div class="logoWrap">
+      <img src="assets/logo.png" onerror="this.style.display='none'" alt="Logo">
+    </div>
     <div class="b">B.S Medical &amp; Aesthetic</div>
     <div class="m">فاتورة مبيعات: <strong>${escapeHtml(d.invNo)}</strong></div>
     <div class="m">التاريخ: <strong>${escapeHtml(d.invDate)}</strong></div>
@@ -1324,6 +1261,11 @@
 
   <div class="sep"></div>
   <div class="m">${escapeHtml(d.words)}</div>
+
+  <div class="qrWrap">
+    <img src="assets/qr.png" onerror="this.style.display='none'" alt="QR">
+    <div class="m">Scan me</div>
+  </div>
 
   <div class="foot">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
 </div>
