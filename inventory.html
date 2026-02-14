@@ -40,6 +40,7 @@
       -webkit-font-smoothing:antialiased;
       padding: 18px;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
+      overflow-x:hidden; /* ✅ يمنع أي انزياح عرضي على الموبايل */
     }
 
     .container{
@@ -204,6 +205,7 @@
     }
     .miniBar span{color:var(--muted); font-weight:900;}
 
+    /* ===== Desktop table ===== */
     .tableWrap{
       overflow:auto;
       border-radius:14px;
@@ -247,6 +249,64 @@
     .pill.low{border-color: rgba(245,158,11,.28); background: var(--warnSoft); color:#7c2d12;}
     .pill.out{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
+    /* ===== Mobile cards ===== */
+    .mobileList{ display:none; }
+    @media (max-width: 720px){
+      .tableWrap{ display:none; }
+      .mobileList{ display:grid; gap:10px; }
+
+      .itemCard{
+        background:#fff;
+        border:1px solid var(--stroke);
+        border-radius:16px;
+        box-shadow:0 10px 26px rgba(2,6,23,.06);
+        padding:12px;
+      }
+      .itemHead{
+        display:flex;
+        align-items:flex-start;
+        justify-content:space-between;
+        gap:10px;
+      }
+      .itemTitle{
+        margin:0;
+        font-weight:1000;
+        font-size:14px;
+        line-height:1.5;
+      }
+      .itemSku{
+        margin-top:4px;
+        font-size:12px;
+        color:var(--muted);
+        font-weight:900;
+        direction:ltr;
+        text-align:left;
+      }
+      .itemGrid{
+        margin-top:10px;
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap:8px;
+      }
+      .kv{
+        border:1px solid #eef1f6;
+        background:#fbfbfd;
+        border-radius:14px;
+        padding:10px;
+      }
+      .kv .k{ font-size:11px; color:var(--muted); font-weight:900; }
+      .kv .v{ margin-top:4px; font-size:13px; font-weight:1000; }
+      .itemActions{
+        margin-top:10px;
+        display:flex;
+        gap:10px;
+        justify-content:flex-start;
+        flex-wrap:wrap;
+      }
+      .itemActions .btn{ flex:1; }
+    }
+
+    /* ===== Footer ===== */
     .site-footer{
       margin-top:14px;
       padding:16px 16px 18px;
@@ -300,115 +360,73 @@
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
 
-    /* Bottom Sheet */
+    /* ===== Bottom Sheet (Edit Min) ===== */
     .sheetOverlay{
       position:fixed;
       inset:0;
-      background: rgba(2,6,23,.55);
+      background: rgba(15,23,42,.45);
       display:none;
       align-items:flex-end;
       justify-content:center;
-      padding: 16px;
-      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+      padding: 14px;
+      padding-bottom: calc(14px + env(safe-area-inset-bottom));
       z-index: 9999;
     }
-    .sheetOverlay.open{ display:flex; }
+    .sheetOverlay.show{ display:flex; }
 
     .sheet{
-      width: min(560px, 100%);
+      width:min(560px, 100%);
       background: rgba(255,255,255,.96);
-      border: 1px solid var(--stroke);
-      border-radius: 18px;
-      box-shadow: 0 28px 70px rgba(2,6,23,.22);
+      border:1px solid var(--stroke);
+      border-radius: 20px;
+      box-shadow: 0 24px 70px rgba(2,6,23,.22);
       overflow:hidden;
-      transform: translateY(18px);
-      opacity: 0;
-      transition: transform .18s ease, opacity .18s ease;
-      backdrop-filter: blur(10px);
+      transform: translateY(10px);
+      animation: sheetIn .18s ease-out forwards;
     }
-    .sheetOverlay.open .sheet{
-      transform: translateY(0);
-      opacity: 1;
+    @keyframes sheetIn{
+      to { transform: translateY(0); }
     }
-
-    .sheetHeader{
+    .sheetTop{
       display:flex;
       align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding: 14px 14px 10px;
-      border-bottom: 1px solid #eef1f6;
-      background: #fbfbfd;
+      padding:12px 14px;
+      background:#fbfbfd;
+      border-bottom:1px solid #eef1f6;
     }
-    .sheetTitle{
+    .sheetTop h3{
       margin:0;
       font-size:14px;
       font-weight:1000;
     }
-    .sheetSub{
-      margin:2px 0 0;
-      font-size:12px;
-      color: var(--muted);
-      font-weight:900;
-    }
-
-    .iconX{
-      width:40px;
-      height:40px;
-      border-radius: 12px;
+    .sheetClose{
       border:1px solid var(--stroke);
-      background: rgba(255,255,255,.92);
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      background:#fff;
+      border-radius:12px;
+      padding:8px 10px;
       cursor:pointer;
       font-weight:1000;
-      line-height:1;
     }
-    .iconX:active{ transform: translateY(1px); }
-
     .sheetBody{
-      padding: 14px;
-      display:grid;
-      gap:10px;
+      padding:14px;
     }
-
-    .sheetInfo{
-      border:1px solid var(--stroke);
-      background: rgba(15,23,42,.03);
-      border-radius: 14px;
-      padding: 10px 12px;
+    .sheetMeta{
       font-size:12px;
+      color:var(--muted);
       font-weight:900;
-      color:#334155;
       line-height:1.7;
-      word-break: break-word;
+      margin-bottom:10px;
     }
-
-    .sheetRow{
-      display:grid;
-      gap:10px;
-      grid-template-columns: 1fr;
-    }
-
-    .sheetFooter{
-      padding: 12px 14px 14px;
-      border-top: 1px solid #eef1f6;
+    .sheetActions{
       display:flex;
       gap:10px;
-      justify-content:flex-start;
-      flex-wrap:wrap;
-      background: #fbfbfd;
+      padding: 12px 14px;
+      border-top:1px solid #eef1f6;
+      background:#fbfbfd;
     }
-    .btn.block{
-      flex:1;
-      min-width: 180px;
-      justify-content:center;
-      text-align:center;
-    }
-
-    body.sheetLock{
-      overflow:hidden;
-      touch-action:none;
-    }
+    .sheetActions .btn{ flex:1; }
   </style>
 </head>
 
@@ -433,6 +451,7 @@
     </header>
 
     <section class="grid">
+      <!-- Filters -->
       <aside class="card">
         <h2>بحث وفلترة</h2>
 
@@ -490,10 +509,12 @@
         </div>
       </aside>
 
+      <!-- Data -->
       <main class="card">
         <h2>قائمة المخزون</h2>
         <p class="muted">الحالة محسوبة حسب الكمية: 0 غير متوفر، 1-10 مخزون منخفض، أكثر من 10 متوفر.</p>
 
+        <!-- Desktop Table -->
         <div class="tableWrap" aria-label="Inventory table container">
           <table aria-label="Inventory">
             <thead>
@@ -512,6 +533,9 @@
             </tbody>
           </table>
         </div>
+
+        <!-- Mobile Cards -->
+        <div id="mobileList" class="mobileList" aria-label="Inventory mobile list"></div>
       </main>
     </section>
 
@@ -529,37 +553,28 @@
 
   </div>
 
-  <!-- Bottom Sheet -->
-  <div class="sheetOverlay" id="minSheet" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="minSheetTitle">
-      <div class="sheetHeader">
-        <div>
-          <h3 class="sheetTitle" id="minSheetTitle">تعديل Min</h3>
-          <p class="sheetSub" id="minSheetSub">—</p>
-        </div>
-        <button class="iconX" type="button" id="minSheetClose" aria-label="إغلاق">✕</button>
+  <!-- Bottom Sheet: Edit Min -->
+  <div id="sheetOverlay" class="sheetOverlay" aria-hidden="true">
+    <div class="sheet" role="dialog" aria-modal="true" aria-label="Edit Min">
+      <div class="sheetTop">
+        <h3 id="sheetTitle">تعديل Min</h3>
+        <button class="sheetClose" type="button" id="sheetCloseBtn">إغلاق</button>
       </div>
 
       <div class="sheetBody">
-        <div class="sheetInfo">
-          <strong>Min</strong> = حد تنبيه يدوي للمنتج (اختياري).  
-          <br>ملاحظة: <strong>الحالة في الجدول</strong> هنا محسوبة من <strong>الكمية</strong> (0 / 1-10 / 11+).
-        </div>
+        <div id="sheetMeta" class="sheetMeta"></div>
 
-        <div class="sheetRow">
-          <div>
-            <label for="minSheetInput">Min الجديد (رقم صحيح ≥ 0)</label>
-            <input id="minSheetInput" type="number" min="0" step="1" inputmode="numeric" placeholder="مثال: 3" />
-          </div>
-          <div class="muted">اتركه فارغًا لإزالة Min.</div>
-        </div>
+        <label for="sheetMinInput">Min الجديد (رقم صحيح ≥ 0)</label>
+        <input id="sheetMinInput" type="number" min="0" step="1" inputmode="numeric" />
 
-        <div id="minSheetErr" class="msg bad" style="display:none"></div>
+        <div class="sheetMeta" style="margin-top:10px">
+          <div>ملاحظة: تركه فارغًا يعني إزالة Min.</div>
+        </div>
       </div>
 
-      <div class="sheetFooter">
-        <button class="btn primary block" type="button" id="minSheetSave">حفظ</button>
-        <button class="btn block" type="button" id="minSheetCancel">إلغاء</button>
+      <div class="sheetActions">
+        <button class="btn" type="button" id="sheetCancel">إلغاء</button>
+        <button class="btn primary" type="button" id="sheetSave">حفظ</button>
       </div>
     </div>
   </div>
@@ -579,6 +594,7 @@
         minQty: document.getElementById("minQty"),
         sort: document.getElementById("sort"),
         tbody: document.getElementById("tbody"),
+        mobileList: document.getElementById("mobileList"),
         statCount: document.getElementById("statCount"),
         statQty: document.getElementById("statQty"),
         statUpdated: document.getElementById("statUpdated"),
@@ -590,16 +606,14 @@
         btnCsv: document.getElementById("btnCsv"),
         btnLogout: document.getElementById("btnLogout"),
         btnBack: document.getElementById("btnBack"),
-      };
 
-      const sheet = {
-        overlay: document.getElementById("minSheet"),
-        close: document.getElementById("minSheetClose"),
-        cancel: document.getElementById("minSheetCancel"),
-        save: document.getElementById("minSheetSave"),
-        sub: document.getElementById("minSheetSub"),
-        input: document.getElementById("minSheetInput"),
-        err: document.getElementById("minSheetErr"),
+        sheetOverlay: document.getElementById("sheetOverlay"),
+        sheetCloseBtn: document.getElementById("sheetCloseBtn"),
+        sheetCancel: document.getElementById("sheetCancel"),
+        sheetSave: document.getElementById("sheetSave"),
+        sheetMinInput: document.getElementById("sheetMinInput"),
+        sheetTitle: document.getElementById("sheetTitle"),
+        sheetMeta: document.getElementById("sheetMeta"),
       };
 
       function showMsg(type, text){
@@ -610,11 +624,6 @@
         const box = type === "ok" ? el.msgOk : (type === "warn" ? el.msgWarn : el.msgBad);
         box.textContent = text;
         box.style.display = "block";
-      }
-
-      function showSheetErr(text){
-        sheet.err.style.display = text ? "block" : "none";
-        sheet.err.textContent = text || "";
       }
 
       function esc(s){
@@ -628,12 +637,8 @@
         return (Number.isFinite(x) ? x : 0);
       }
 
-      /* ✅ الحالة حسب الكمية فقط:
-         0 => OUT (غير متوفر)
-         1..10 => LOW (مخزون منخفض)
-         11+ => OK (متوفر)
-      */
-      function computeStatusByQty(qty){
+      // ✅ الحالة حسب طلبك: 0 OUT / 1-10 LOW / 11+ OK
+      function computeStatus(qty){
         const q = fmtNum(qty);
         if(q <= 0) return "OUT";
         if(q <= 10) return "LOW";
@@ -641,7 +646,7 @@
       }
 
       function statusPill(status){
-        if(status === "OK") return '<span class="pill ok">متوفر</span>';
+        if(status === "OK")  return '<span class="pill ok">متوفر</span>';
         if(status === "LOW") return '<span class="pill low">مخزون منخفض</span>';
         if(status === "OUT") return '<span class="pill out">غير متوفر</span>';
         return '<span class="pill">'+esc(status)+'</span>';
@@ -649,6 +654,46 @@
 
       let rawItems = [];
 
+      // ===== Bottom Sheet logic =====
+      let sheetCurrentProductId = null;
+
+      function openSheet(item){
+        sheetCurrentProductId = String(item.product_id || "");
+        const sku = String(item.sku || "");
+        const name = String(item.name || "");
+        const qty = fmtNum(item.on_hand_qty);
+        const minEff = (item.min_effective == null ? "" : String(fmtNum(item.min_effective)));
+
+        el.sheetTitle.textContent = "تعديل Min";
+        el.sheetMeta.innerHTML =
+          "المنتج: <strong>" + esc(name) + "</strong><br>" +
+          "SKU: <span style='direction:ltr;display:inline-block'>" + esc(sku) + "</span> · " +
+          "الكمية الحالية: <strong>" + esc(qty) + "</strong>";
+
+        el.sheetMinInput.value = minEff;
+        el.sheetOverlay.classList.add("show");
+        el.sheetOverlay.setAttribute("aria-hidden", "false");
+        document.documentElement.style.overflow = "hidden";
+        document.body.style.overflow = "hidden";
+
+        setTimeout(()=> { try{ el.sheetMinInput.focus(); }catch(e){} }, 0);
+      }
+
+      function closeSheet(){
+        el.sheetOverlay.classList.remove("show");
+        el.sheetOverlay.setAttribute("aria-hidden", "true");
+        document.documentElement.style.overflow = "";
+        document.body.style.overflow = "";
+        sheetCurrentProductId = null;
+      }
+
+      el.sheetCloseBtn.addEventListener("click", closeSheet);
+      el.sheetCancel.addEventListener("click", closeSheet);
+      el.sheetOverlay.addEventListener("click", (e) => {
+        if(e.target === el.sheetOverlay) closeSheet();
+      });
+
+      // ===== Filters/Render =====
       function applyFilters(){
         const q = (el.q.value || "").trim().toLowerCase();
         const st = el.status.value || "ALL";
@@ -690,86 +735,6 @@
         render(items);
       }
 
-      let sheetState = { productId:null };
-
-      function openMinSheet(productId){
-        const row = rawItems.find(x => String(x.product_id) === String(productId));
-        if(!row){
-          showMsg("bad","تعذر العثور على المنتج.");
-          return;
-        }
-
-        const sku = row.sku ? String(row.sku) : "";
-        const name = row.name ? String(row.name) : "";
-        const qty = fmtNum(row.on_hand_qty);
-        const current = (row.min_effective != null ? fmtNum(row.min_effective) : 0);
-
-        sheetState.productId = productId;
-
-        sheet.sub.textContent = `${name}${sku ? " — " + sku : ""} | الكمية الحالية: ${qty} | Min الحالي: ${current}`;
-        sheet.input.value = String(current);
-        showSheetErr("");
-
-        sheet.overlay.classList.add("open");
-        sheet.overlay.setAttribute("aria-hidden","false");
-        document.body.classList.add("sheetLock");
-
-        setTimeout(()=> sheet.input.focus(), 60);
-        setTimeout(()=> sheet.input.select(), 80);
-      }
-
-      function closeMinSheet(){
-        sheet.overlay.classList.remove("open");
-        sheet.overlay.setAttribute("aria-hidden","true");
-        document.body.classList.remove("sheetLock");
-        sheetState.productId = null;
-        showSheetErr("");
-      }
-
-      sheet.close.addEventListener("click", closeMinSheet);
-      sheet.cancel.addEventListener("click", closeMinSheet);
-      sheet.overlay.addEventListener("click", (e)=>{ if(e.target === sheet.overlay) closeMinSheet(); });
-      document.addEventListener("keydown", (e)=>{ if(e.key === "Escape" && sheet.overlay.classList.contains("open")) closeMinSheet(); });
-
-      sheet.save.addEventListener("click", async ()=>{
-        const pid = sheetState.productId;
-        if(!pid) return;
-
-        let min_qty = (sheet.input.value || "").trim();
-
-        if(min_qty === ""){
-          min_qty = "";
-        } else {
-          const n = Math.floor(Number(min_qty));
-          if(!Number.isFinite(n) || n < 0){
-            showSheetErr("قيمة غير صحيحة. أدخل رقم صحيح ≥ 0 أو اتركه فارغًا لإزالته.");
-            return;
-          }
-          min_qty = n;
-        }
-
-        try{
-          sheet.save.disabled = true;
-          showSheetErr("");
-          showMsg("warn", "جاري تحديث Min...");
-
-          await AxentroApi.updateProductMinQty({ product_id: pid, min_qty });
-
-          showMsg("ok", "تم تحديث Min بنجاح.");
-          closeMinSheet();
-          await loadData({ silent: true });
-        }catch(e){
-          showSheetErr((e && e.message) ? e.message : String(e));
-          showMsg("bad", (e && e.message) ? e.message : String(e));
-        }finally{
-          sheet.save.disabled = false;
-        }
-      });
-
-      sheet.input.addEventListener("keydown", (e)=>{
-        if(e.key === "Enter"){ e.preventDefault(); sheet.save.click(); }
-      });
-
       function render(items){
         const totalQty = items.reduce((acc,it)=> acc + fmtNum(it.on_hand_qty), 0);
         el.statCount.textContent = String(items.length);
@@ -777,9 +742,11 @@
 
         if(!items.length){
           el.tbody.innerHTML = '<tr><td colspan="7">لا توجد نتائج.</td></tr>';
+          el.mobileList.innerHTML = '<div class="itemCard">لا توجد نتائج.</div>';
           return;
         }
 
+        // Desktop table
         el.tbody.innerHTML = items.map((it, idx) => {
           const sku = esc(it.sku || "");
           const name = esc(it.name || "");
@@ -802,35 +769,66 @@
           `;
         }).join("");
 
-        el.tbody.querySelectorAll("[data-edit-min]").forEach(btn => {
+        // Mobile cards
+        el.mobileList.innerHTML = items.map((it) => {
+          const sku = esc(it.sku || "");
+          const name = esc(it.name || "");
+          const qty = fmtNum(it.on_hand_qty);
+          const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
+          const st = String(it._status || "");
+          const pid = esc(it.product_id || "");
+          return `
+            <div class="itemCard">
+              <div class="itemHead">
+                <div>
+                  <div class="itemTitle">${name}</div>
+                  <div class="itemSku">${sku}</div>
+                </div>
+                <div>${statusPill(st)}</div>
+              </div>
+
+              <div class="itemGrid">
+                <div class="kv"><div class="k">الكمية</div><div class="v">${qty}</div></div>
+                <div class="kv"><div class="k">Min</div><div class="v">${minEff}</div></div>
+              </div>
+
+              <div class="itemActions">
+                <button class="btn" type="button" data-edit-min="${pid}">تعديل Min</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        // handlers (both views use same attribute)
+        document.querySelectorAll("[data-edit-min]").forEach(btn => {
           btn.addEventListener("click", () => {
             const pid = btn.getAttribute("data-edit-min");
-            openMinSheet(pid);
-          });
+            const row = rawItems.find(x => String(x.product_id) === String(pid));
+            if(!row) return;
+            openSheet(row);
+          }, { once:true });
         });
       }
 
-      async function loadData(opts){
-        const silent = !!(opts && opts.silent);
+      async function loadData(){
         try{
-          if(!silent){
-            showMsg("warn", "جاري التحميل...");
-            el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
-          }
+          showMsg("warn", "جاري التحميل...");
+          el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
+          el.mobileList.innerHTML = '<div class="itemCard">جاري التحميل…</div>';
 
           const out = await AxentroApi.getInventoryView();
           const items = (out && out.items) ? out.items : [];
 
-          // ✅ status محسوب من qty فقط (حسب طلبك)
           rawItems = items.map(it => {
-            const st = computeStatusByQty(it.on_hand_qty);
+            // ✅ status حسب الكمية فقط (حسب طلبك)
+            const st = computeStatus(it.on_hand_qty);
             return Object.assign({}, it, { _status: st });
           });
 
           const last = out && out.updated_at ? out.updated_at : null;
           el.statUpdated.textContent = last ? String(last) : "—";
 
-          if(!silent) showMsg("", "");
+          showMsg("", "");
           applyFilters();
         }catch(e){
           rawItems = [];
@@ -838,6 +836,7 @@
           el.statCount.textContent = "0";
           el.statQty.textContent = "0";
           el.tbody.innerHTML = '<tr><td colspan="7">تعذر تحميل البيانات.</td></tr>';
+          el.mobileList.innerHTML = '<div class="itemCard">تعذر تحميل البيانات.</div>';
           showMsg("bad", (e && e.message) ? e.message : String(e));
         }
       }
@@ -899,6 +898,7 @@
         URL.revokeObjectURL(url);
       }
 
+      // ===== Events =====
       ["input","change"].forEach(ev => {
         el.q.addEventListener(ev, applyFilters);
         el.status.addEventListener(ev, applyFilters);
@@ -906,7 +906,7 @@
         el.sort.addEventListener(ev, applyFilters);
       });
 
-      el.btnRefresh.addEventListener("click", () => loadData());
+      el.btnRefresh.addEventListener("click", loadData);
 
       el.btnRebuild.addEventListener("click", async () => {
         try{
@@ -929,34 +929,43 @@
         location.href = "dashboard.html";
       });
 
-      // ✅ Auto refresh: اسمع التغييرات اللي بتحصل في الشيت (Polling)
-      // ملاحظة: GitHub Pages static => ما فيش realtime push، الأفضل Polling.
-      let pollTimer = null;
-      const POLL_MS = 20000; // 20 ثانية (غيرها براحتك)
+      // Save from sheet
+      el.sheetSave.addEventListener("click", async () => {
+        if(!sheetCurrentProductId) return;
 
-      function startPolling(){
-        stopPolling();
-        pollTimer = setInterval(() => {
-          // silent: ما يغيرش UI ولا يطلع "جاري التحميل" كل مرة
-          loadData({ silent: true });
-        }, POLL_MS);
-      }
-      function stopPolling(){
-        if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
-      }
-
-      document.addEventListener("visibilitychange", () => {
-        if(document.visibilityState === "visible"){
-          loadData({ silent: true });
-          startPolling();
-        }else{
-          stopPolling();
+        let min_qty = (el.sheetMinInput.value ?? "").toString().trim();
+        if(min_qty === ""){
+          min_qty = "";
+        } else {
+          const n = Math.floor(Number(min_qty));
+          if(!Number.isFinite(n) || n < 0){
+            alert("قيمة غير صحيحة.");
+            return;
+          }
+          min_qty = n;
         }
+
+        try{
+          el.sheetSave.disabled = true;
+          showMsg("warn", "جاري تحديث Min...");
+          await AxentroApi.updateProductMinQty({ product_id: sheetCurrentProductId, min_qty });
+          showMsg("ok", "تم تحديث Min بنجاح.");
+          closeSheet();
+          await loadData();
+        }catch(e){
+          showMsg("bad", (e && e.message) ? e.message : String(e));
+        } finally {
+          el.sheetSave.disabled = false;
+        }
+      });
+
+      // ESC to close
+      document.addEventListener("keydown", (e) => {
+        if(e.key === "Escape" && el.sheetOverlay.classList.contains("show")) closeSheet();
       });
 
       // start
       loadData();
-      startPolling();
     })();
   </script>
 </body>
