@@ -554,43 +554,53 @@
 
   // ===== ✅ Scan Success Sound (WebAudio) =====
   let _scanAudioCtx = null;
-  async function playScanSound(){
+
+  async function initScanAudio(){
     try{
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if(!AudioCtx) return;
-
       if(!_scanAudioCtx) _scanAudioCtx = new AudioCtx();
       if(_scanAudioCtx.state === "suspended"){
         await _scanAudioCtx.resume();
       }
+    }catch(e){
+      // ignore
+    }
+  }
 
+  function playScanSound(){
+    try{
+      if(!_scanAudioCtx) return;
       const ctx = _scanAudioCtx;
       const now = ctx.currentTime;
 
-      // “Chime” احترافي بسيط (نغمتين قصيرتين)
-      const o1 = ctx.createOscillator();
-      const g1 = ctx.createGain();
-      o1.type = "sine";
-      o1.frequency.setValueAtTime(880, now);
-      o1.frequency.exponentialRampToValueAtTime(1320, now + 0.08);
-      g1.gain.setValueAtTime(0.0001, now);
-      g1.gain.exponentialRampToValueAtTime(0.22, now + 0.01);
-      g1.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-      o1.connect(g1).connect(ctx.destination);
-      o1.start(now);
-      o1.stop(now + 0.13);
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type = "triangle";
+
+      // نغمتين (Chime) أوضح وأعلى
+      o.frequency.setValueAtTime(1046.5, now);              // C6
+      o.frequency.exponentialRampToValueAtTime(1568.0, now + 0.08); // G6-ish
+
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
+
+      o.connect(g).connect(ctx.destination);
+      o.start(now);
+      o.stop(now + 0.17);
 
       const o2 = ctx.createOscillator();
       const g2 = ctx.createGain();
       o2.type = "sine";
-      o2.frequency.setValueAtTime(660, now + 0.10);
-      o2.frequency.exponentialRampToValueAtTime(990, now + 0.18);
+      o2.frequency.setValueAtTime(784.0, now + 0.10); // G5
+      o2.frequency.exponentialRampToValueAtTime(1174.7, now + 0.18); // D6-ish
       g2.gain.setValueAtTime(0.0001, now + 0.10);
-      g2.gain.exponentialRampToValueAtTime(0.18, now + 0.11);
-      g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.23);
+      g2.gain.exponentialRampToValueAtTime(0.28, now + 0.11);
+      g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
       o2.connect(g2).connect(ctx.destination);
       o2.start(now + 0.10);
-      o2.stop(now + 0.24);
+      o2.stop(now + 0.25);
     }catch(e){
       // ignore
     }
@@ -1077,18 +1087,23 @@
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-  // ===== ✅ Invoice time for all prints =====
-  function getNowTimeHHMM(){
+  // ===== ✅ Invoice time 12H (HH:MM:SS AM/PM) =====
+  function getNowTime12HMS(){
     const d = new Date();
-    const hh = String(d.getHours()).padStart(2,'0');
+    let hh = d.getHours();
+    const ampm = hh >= 12 ? "PM" : "AM";
+    hh = hh % 12;
+    if(hh === 0) hh = 12;
     const mm = String(d.getMinutes()).padStart(2,'0');
-    return `${hh}:${mm}`;
+    const ss = String(d.getSeconds()).padStart(2,'0');
+    const hh2 = String(hh).padStart(2,'0');
+    return `${hh2}:${mm}:${ss} ${ampm}`;
   }
 
   function getInvoiceData(){
     const invNo = document.getElementById('invNo').value || "";
     const invDate = document.getElementById('invDate').value || "";
-    const invTime = getNowTimeHHMM();
+    const invTime = getNowTime12HMS();
 
     const custName = document.getElementById('customerName').value || "";
     const custPhone = document.getElementById('customerPhone').value || "";
@@ -1412,7 +1427,7 @@
               fillProductNameByBarcode();
               closeSuggest();
 
-              // ✅ صوت احترافي عند نجاح الاسكان
+              // ✅ صوت عند نجاح الاسكان
               playScanSound();
 
               toast("✅ تم التقاط الكود");
@@ -1433,8 +1448,9 @@
 
   scanBtn.addEventListener('click', async ()=>{
     try{
-      // (اختياري) تهيئة الصوت مبكرًا على gesture المستخدم
-      try{ await playScanSound(); }catch(e){}
+      // ✅ مهم: تفعيل الصوت داخل gesture المستخدم (علشان Android/Safari)
+      await initScanAudio();
+
       showModal();
       await startCamera();
     }catch(e){
