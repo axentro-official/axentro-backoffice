@@ -407,6 +407,43 @@
     msgEl.style.display = text ? 'block' : 'none';
   };
 
+  // ===== ✅ Scan Success Sound (assets/scan.mp3) | Volume 100% =====
+  let _scanAudio = null;
+
+  function initScanSound(){
+    try{
+      if(!_scanAudio){
+        _scanAudio = new Audio('assets/scan.mp3');
+        _scanAudio.preload = 'auto';
+        _scanAudio.volume = 1; // 100%
+      }else{
+        _scanAudio.volume = 1; // ensure 100%
+      }
+      // unlock attempt (some browsers require a gesture)
+      const p = _scanAudio.play();
+      if(p && typeof p.then === 'function'){
+        p.then(()=>{
+          try{ _scanAudio.pause(); _scanAudio.currentTime = 0; }catch(_){}
+        }).catch(()=>{ /* ignore */ });
+      }else{
+        try{ _scanAudio.pause(); _scanAudio.currentTime = 0; }catch(_){}
+      }
+    }catch(_){}
+  }
+
+  function playScanSound(){
+    try{
+      if(!_scanAudio){
+        _scanAudio = new Audio('assets/scan.mp3');
+        _scanAudio.preload = 'auto';
+      }
+      _scanAudio.volume = 1; // 100%
+      try{ _scanAudio.currentTime = 0; }catch(_){}
+      const p = _scanAudio.play();
+      if(p && typeof p.catch === 'function') p.catch(()=>{});
+    }catch(_){}
+  }
+
   /** Items state **/
   let items = []; // {barcode,name,cost,qty}
 
@@ -656,6 +693,10 @@
             const value = (codes[0].rawValue || '').trim();
             if (value){
               $('barcode').value = value;
+
+              // ✅ صوت نجاح الاسكان (assets/scan.mp3) - 100%
+              playScanSound();
+
               await stopScanner();
               closeModal();
               $('name').focus();
@@ -677,6 +718,10 @@
 
   $('scanBtn').addEventListener('click', async (e)=>{
     e.preventDefault();
+
+    // ✅ مهم: تفعيل الصوت داخل gesture المستخدم
+    initScanSound();
+
     await listCameras_();
     const deviceId = $('cameraSelect').value || '';
     startScanner(deviceId);
@@ -684,6 +729,10 @@
 
   $('restartScan').addEventListener('click', async (e)=>{
     e.preventDefault();
+
+    // ✅ مهم: تفعيل الصوت داخل gesture المستخدم
+    initScanSound();
+
     await listCameras_();
     const deviceId = $('cameraSelect').value || '';
     startScanner(deviceId);
