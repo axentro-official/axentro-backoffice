@@ -4,15 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>فاتورة مبيعات — Axentro Backoffice</title>
-  <link rel="stylesheet" href="style.css">
+
   <style>
     :root{
       --bg:#f7f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
       --stroke:rgba(15,23,42,.10); --shadow:0 18px 50px rgba(2,6,23,.12);
       --radius:18px; --gold:#b08d57; --gold2:#d7b97a;
       --container-max:1100px;
+
+      --ok:#16a34a; --okSoft: rgba(22,163,74,.10);
+      --warn:#f59e0b; --warnSoft: rgba(245,158,11,.12);
+      --bad:#dc2626; --badSoft: rgba(220,38,38,.10);
     }
     *{box-sizing:border-box}
+    html,body{height:100%}
     body{
       margin:0; font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
@@ -22,8 +27,11 @@
         linear-gradient(180deg, #ffffff, var(--bg));
       padding:18px; padding-bottom:calc(18px + env(safe-area-inset-bottom));
       min-height:100vh; display:flex; flex-direction:column;
+      -webkit-font-smoothing:antialiased;
     }
+
     .wrap{max-width:var(--container-max);margin:0 auto;width:100%;flex:1}
+
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       padding:12px 14px;border:1px solid var(--stroke);
@@ -54,69 +62,89 @@
     }
 
     h2{margin:0 0 10px;font-weight:900}
-    label{font-size:12px;color:var(--muted)}
+    label{font-size:12px;color:var(--muted); font-weight:900; display:block; margin-bottom:6px}
     input, textarea, select{
       width:100%;
       padding:10px;
       border-radius:12px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      outline:none;
-      box-shadow:0 8px 18px rgba(2,6,23,.06);
-      font-size:14px;
-    }
-    @media (max-width:720px){ input,textarea,select{font-size:16px;} }
-
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(176,141,87,.55);
-      box-shadow:0 10px 22px rgba(176,141,87,.18);
-    }
-
-    .row{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px;}
-    @media (max-width:980px){ .row{grid-template-columns: repeat(2, 1fr);} }
-    @media (max-width:560px){ .row{grid-template-columns: 1fr;} }
-
-    .row2{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
-    @media (max-width:720px){ .row2{grid-template-columns: 1fr;} }
-
-    .btn{
       border:1px solid rgba(15,23,42,.14);
       background:#fff;
-      border-radius:14px;
-      padding:10px 12px;
-      font-weight:900;
+      color:var(--text);
+      outline:none;
+    }
+    input::placeholder, textarea::placeholder{color:#94a3b8}
+    @media (max-width:520px){ input,textarea,select{font-size:16px;} }
+
+    #invNo{ font-weight:1000; }
+
+    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .row1{display:grid;grid-template-columns:1fr;gap:10px}
+
+    @media (max-width:920px){ .row{grid-template-columns:repeat(2,1fr);} .row2{grid-template-columns:1fr;} }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
+    }
+    @media (max-width:520px){ .row{grid-template-columns:1fr;} }
+
+    .btn{
+      padding:12px; border-radius:14px;
+      border:1px solid rgba(176,141,87,.35);
+      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
+      color:var(--text);
+      font-weight:1000;
       cursor:pointer;
-      box-shadow:0 8px 18px rgba(2,6,23,.06);
       touch-action: manipulation;
+      line-height:1;
       white-space:nowrap;
     }
+    .btn.secondary{border-color: rgba(15,23,42,.14); background:#fff; opacity:.95;}
+    .btn.danger{border-color: rgba(220,38,38,.25); background:rgba(220,38,38,.06); color:#991b1b;}
     .btn:active{transform:translateY(1px)}
-    .btn.secondary{
-      background:linear-gradient(135deg, rgba(176,141,87,.10), rgba(215,185,122,.08));
-      border-color: rgba(176,141,87,.30);
+
+    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:820px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
     }
-    .btn.danger{
-      background:rgba(220,38,38,.06);
-      border-color:rgba(220,38,38,.22);
-      color:#991b1b;
+    th,td{border:1px solid rgba(15,23,42,.10);padding:8px;text-align:center;vertical-align:middle;}
+    th{background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));font-weight:1000;}
+    .prodCell{text-align:right; font-weight:1000;}
+    .muted{color:var(--muted); font-weight:900;}
+    .totals{margin-top:12px; display:grid; gap:8px;}
+    .tline{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:10px 12px;border:1px solid rgba(15,23,42,.10);
+      border-radius:12px;background:#fff;font-weight:1000;
+    }
+    .tline .k{color:var(--muted); font-weight:900;}
+    .tline.primary{
+      border-color: rgba(176,141,87,.35);
+      background: linear-gradient(135deg, rgba(176,141,87,.10), rgba(215,185,122,.08));
+      font-size:14px;
+    }
+    .amountWords{
+      margin-top:10px;
+      font-weight:1000;
+      color:#334155;
+      border-top:1px dashed rgba(15,23,42,.14);
+      padding-top:10px;
+      line-height:1.6;
     }
 
-    table{width:100%; border-collapse:collapse; margin-top:10px;}
-    th,td{padding:10px; border-bottom:1px solid rgba(15,23,42,.08); text-align:right; font-weight:700;}
-    th{background:rgba(2,6,23,.03); font-weight:900;}
-    .prodCell{min-width:180px}
-    .muted{color:var(--muted)}
-    .totals{margin-top:10px; display:grid; gap:8px;}
-    .tline{display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff;font-weight:900;}
-    .tline.primary{border-color: rgba(176,141,87,.35);
-      background: linear-gradient(135deg, rgba(176,141,87,.10), rgba(215,185,122,.08));}
-
-    /* Scanner modal */
+    /* ===== Scanner modal (نفس الشكل القديم) ===== */
     .modalBack{
       position:fixed; inset:0; background:rgba(2,6,23,.55);
       display:none; align-items:center; justify-content:center;
       padding:16px; z-index:9999;
+      backdrop-filter: blur(10px);
     }
     .modalBack.show{display:flex;}
     .modal{
@@ -125,38 +153,58 @@
       border-radius:18px;
       border:1px solid rgba(15,23,42,.12);
       box-shadow:0 18px 50px rgba(2,6,23,.22);
-      max-height: min(92vh, 860px);
-      display:flex;
-      flex-direction:column;
       overflow:hidden;
     }
     .modalHead{
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      padding:12px 14px; border-bottom:1px solid rgba(15,23,42,.10);
-      background:rgba(2,6,23,.02);
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 14px;border-bottom:1px solid rgba(15,23,42,.10);
     }
-    .modalHead .title{font-weight:900}
-    .modalBody{padding:14px; overflow:auto; -webkit-overflow-scrolling: touch;}
-    #video{
-      width:100%;
-      max-height: 54vh;
-      object-fit:cover;
-      border-radius:14px;
-      background:#000;
+    .modalHead .title{font-weight:1000}
+    .modalBody{padding:12px 14px;}
+    .videoWrap{
+      position:relative; border-radius:16px; overflow:hidden;
+      border:1px solid rgba(15,23,42,.10); background:#000;
     }
-    .toast{
-      position:fixed; left:50%; transform:translateX(-50%);
-      bottom:16px; z-index:10000;
-      background:rgba(2,6,23,.92); color:#fff;
-      padding:10px 12px; border-radius:12px;
-      font-weight:800; max-width:min(92vw, 520px);
-      display:none;
+    video{width:100%; height:auto; display:block;}
+    .scanFrame{
+      position:absolute; inset:12%;
+      border:2px solid rgba(176,141,87,.85);
+      border-radius:18px;
+      box-shadow:0 0 0 9999px rgba(0,0,0,.18) inset;
+      pointer-events:none;
     }
-    .toast.show{display:block}
 
-    /* ===== Footer (Unified) ===== */
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(15,23,42,.03);
+      font-weight:1000;
+      font-size:12px;
+      line-height:1.7;
+      display:none;
+      word-break:break-word;
+    }
+    .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
+    .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
+    .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
+
+    .toast{
+      position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%);
+      background: rgba(15,23,42,.92); color: #fff;
+      padding: 10px 12px; border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 1000; font-size: 13px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index: 99999; max-width: min(520px, 92vw); text-align:center;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-4px);}
+
+    /* Footer */
     .site-footer{
-      margin-top:16px;
+      margin-top:auto;
       padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
@@ -164,12 +212,13 @@
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
       border-radius:16px;
-      width:min(520px, 94vw);
+      width:min(520px, 92vw);
       margin-inline:auto;
       box-shadow: var(--shadow);
     }
-    .site-footer .line1{ font-weight:900; color:var(--text); }
-    .site-footer .line2{ margin-top:6px; font-weight:800; }
+    .site-footer .line1{ font-weight:1000; color:#0f172a; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
+
     .qrBox{ margin-top:14px; display:flex; justify-content:center; }
     .qrLink{
       text-decoration:none;
@@ -177,97 +226,55 @@
       flex-direction:column;
       align-items:center;
       gap:10px;
-      color:inherit;
     }
     .qrLink img{
-      width:132px;height:132px;max-width:60vw;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      padding:10px;
+      width:132px; height:132px; max-width:60vw;
+      border-radius:14px; border:1px solid rgba(15,23,42,.12);
+      background:#fff; padding:10px;
       box-shadow: 0 10px 26px rgba(2,6,23,.08);
       object-fit:contain;
       transition:transform .15s ease, box-shadow .15s ease;
     }
-    .qrLink:hover img, .qrLink:active img{
+    .qrLink:hover img,
+    .qrLink:active img{
       transform:scale(1.03);
       box-shadow:0 14px 34px rgba(2,6,23,.12);
     }
-    .qrText{ font-size:12px; font-weight:900; color:#334155; }
-
-    /* ===== Print box ===== */
-    .printBox{
-      margin-top:14px;
-      border:1px solid rgba(15,23,42,.10);
-      border-radius:14px;
-      padding:12px;
-      background:rgba(255,255,255,.9);
-    }
-    .printTitle{font-weight:900;margin-bottom:10px}
-    .printGrid{display:grid;gap:10px;grid-template-columns:1fr}
-    @media (min-width:560px){ .printGrid{grid-template-columns:1fr 1fr} }
-
-    /* ===== Print templates ===== */
-    .printArea{ display:none; }
-    .noPrint{ }
-
-    @media print{
-      body{ background:#fff !important; padding:0 !important; }
-      .noPrint{ display:none !important; }
-      .printArea{ display:block !important; }
-    }
-
-    .receipt{
-      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
-      color:#000;
-      direction: rtl;
-    }
-    .receipt h3{ margin:0 0 8px; font-size:14px; }
-    .receipt .rmeta{ font-size:12px; margin:0 0 10px; }
-    .receipt .rmeta div{ margin:2px 0; }
-    .receipt table{ width:100%; border-collapse:collapse; font-size:12px; }
-    .receipt th, .receipt td{ padding:6px 0; border-bottom:1px dashed #bbb; }
-    .receipt th{ text-align:right; font-weight:900; }
-    .receipt td.num{ text-align:left; direction:ltr; }
-    .receipt .rtotals{ margin-top:10px; font-size:12px; }
-    .receipt .rtotals .line{ display:flex; justify-content:space-between; gap:10px; margin:4px 0; }
-    .receipt .rtotals .line strong{ font-weight:900; }
-    .receipt .rfooter{ margin-top:12px; text-align:center; font-size:11px; }
-
+    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
+    :focus{ outline:3px solid rgba(176,141,87,.25); outline-offset:3px; }
   </style>
 </head>
-<body>
 
-<div class="wrap">
-  <div class="topbar noPrint">
+<body>
+<div class="wrap" id="app">
+  <div class="topbar">
     <div class="brand">
-      <div class="logo"><img src="assets/logo.png" alt="BS Logo"></div>
+      <div class="logo">
+        <img src="assets/logo.png" alt="BS Logo" onerror="this.onerror=null;this.src='images/bslogo.webp'">
+      </div>
       <div>
-        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">فاتورة مبيعات</div>
+        <div class="brandTitle">Axentro Backoffice</div>
+        <div class="brandSub">فاتورة مبيعات — حفظ مباشر في النظام</div>
       </div>
     </div>
+
     <div class="topActions">
-      <button class="btn danger" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;">⬅ رجوع للداش بورد</a>
+      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
-  <div class="card noPrint">
+  <div class="card">
     <h2>بيانات الفاتورة</h2>
 
     <div class="row">
       <div>
-        <label for="invNo">رقم الفاتورة (النظام)</label>
-        <div class="muted" style="margin-top:6px">يُحفظ في الشيت كما هو (مثال: SA001)</div>
+        <label for="invNo">رقم الفاتورة</label>
         <input id="invNo" value="SA001" readonly />
       </div>
       <div>
-        <label for="invDisplayNo">رقم الفاتورة (عرض/طباعة)</label>
-        <input id="invDisplayNo" value="" readonly />
-      </div>
-      <div>
         <label for="invDate">التاريخ</label>
-        <input id="invDate" type="date" value="2026-02-11" />
+        <input id="invDate" type="date" />
       </div>
       <div>
         <label for="paymentMethod">طريقة الدفع</label>
@@ -275,115 +282,118 @@
           <option value="CASH">كاش</option>
           <option value="VISA">فيزا</option>
           <option value="INSTAPAY">انستاباي</option>
-          <option value="TRANSFER">محفظة إلكترونية</option>
+          <option value="EWALLET">محفظة إلكترونية</option>
         </select>
       </div>
       <div>
-        <label for="customer">العميل</label>
-        <input id="customer" placeholder="اسم العميل" />
+        <label for="customerName">اسم العميل</label>
+        <input id="customerName" placeholder="اسم العميل" />
       </div>
+    </div>
 
+    <div class="row2" style="margin-top:10px">
       <div>
-        <label for="customerPhone">رقم الهاتف</label>
-        <input id="customerPhone" inputmode="tel" placeholder="01xxxxxxxxx" autocomplete="tel" />
+        <label for="customerPhone">رقم العميل</label>
+        <input id="customerPhone" placeholder="01xxxxxxxxx أو +201xxxxxxxxx" inputmode="tel" />
       </div>
       <div>
         <label for="customerAddress">العنوان</label>
-        <input id="customerAddress" placeholder="المحافظة / المنطقة / تفاصيل" autocomplete="street-address" />
+        <input id="customerAddress" placeholder="المحافظة / المنطقة / تفاصيل" />
       </div>
     </div>
 
     <div class="row2" style="margin-top:10px">
       <div>
-        <label for="discount">الخصم (على إجمالي الفاتورة)</label>
-        <input id="discount" type="number" min="0" step="0.01" value="0" />
+        <label for="discount">الخصم (على إجمالي الفاتورة) — جنيه</label>
+        <input id="discount" type="number" step="0.01" min="0" value="0" />
       </div>
       <div>
-        <label for="tax">الضريبة</label>
-        <input id="tax" type="number" min="0" step="0.01" value="0" />
+        <label for="shipping">الشحن / التوصيل — جنيه</label>
+        <input id="shipping" type="number" step="0.01" min="0" value="0" />
       </div>
     </div>
 
-    <div style="margin-top:10px">
-      <label for="notes">ملاحظات</label>
-      <textarea id="notes" rows="2" placeholder="ملاحظات إضافية..."></textarea>
-    </div>
-  </div>
-
-  <div class="card noPrint">
-    <h2>إضافة صنف</h2>
-    <div class="row2">
+    <div class="row1" style="margin-top:10px">
       <div>
-        <label for="barcode">الباركود</label>
-        <input id="barcode" placeholder="امسح/اكتب الباركود" />
-      </div>
-      <div style="display:flex; gap:10px; align-items:end; flex-wrap:wrap">
-        <button class="btn secondary" id="scanBtn" type="button">📷 مسح</button>
-        <button class="btn" id="addItemBtn" type="button">＋ إضافة الأصناف</button>
+        <label for="notes">ملاحظات</label>
+        <input id="notes" placeholder="اختياري" />
       </div>
     </div>
 
-    <div class="row2" style="margin-top:10px">
-      <div>
-        <label for="qty">الكمية</label>
-        <input id="qty" type="number" min="1" step="1" value="1" />
-      </div>
-      <div>
-        <label for="unitPrice">سعر الوحدة</label>
-        <input id="unitPrice" type="number" min="0" step="0.01" value="0" />
-      </div>
-    </div>
-
-    <div style="margin-top:10px">
-      <label for="productName">المنتج</label>
-      <input id="productName" placeholder="سيتم ملؤه تلقائياً من الباركود" readonly />
-      <div class="muted" id="productSku" style="margin-top:6px"></div>
-    </div>
+    <div id="msgOk" class="msg ok"></div>
+    <div id="msgWarn" class="msg warn"></div>
+    <div id="msgBad" class="msg bad"></div>
   </div>
 
   <div class="card">
-    <h2 class="noPrint">الأصناف</h2>
-    <div style="overflow:auto" class="noPrint">
-      <table>
+    <h2>إضافة صنف</h2>
+
+    <div class="row">
+      <div>
+        <label for="barcode">الباركود</label>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="barcode" placeholder="امسح أو اكتب الباركود" inputmode="numeric" autocomplete="off" />
+          <button class="btn secondary" id="scanBtn" type="button">📷 مسح</button>
+        </div>
+      </div>
+      <div>
+        <label for="qty">الكمية</label>
+        <input id="qty" type="number" step="1" min="1" value="1" />
+      </div>
+      <div>
+        <label for="unitPrice">سعر الوحدة</label>
+        <input id="unitPrice" type="number" step="0.01" min="0" placeholder="0" />
+      </div>
+      <div>
+        <label for="productName">اسم المنتج</label>
+        <input id="productName" readonly placeholder="سيظهر اسم المنتج بعد التعرف على الباركود" />
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
+      <button class="btn" id="addItemBtn" type="button">＋ إضافة صنف</button>
+    </div>
+
+    <div class="table-wrap">
+      <table aria-label="Sales items">
         <thead>
           <tr>
-            <th>#</th>
+            <th style="width:60px">#</th>
             <th>المنتج</th>
-            <th>الباركود</th>
-            <th>الكمية</th>
-            <th>سعر الوحدة</th>
-            <th>إجمالي السطر</th>
-            <th>إجراء</th>
+            <th style="width:140px">الباركود</th>
+            <th style="width:100px">الكمية</th>
+            <th style="width:140px">سعر الوحدة</th>
+            <th style="width:160px">الإجمالي</th>
+            <th style="width:110px">حذف</th>
           </tr>
         </thead>
         <tbody id="itemsBody"></tbody>
       </table>
     </div>
 
-    <div class="totals noPrint" id="totals"></div>
+    <div class="totals" id="totals"></div>
+    <div class="amountWords" id="amountWords" style="display:none"></div>
 
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px" class="noPrint">
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
       <button class="btn" id="saveBtn" type="button">💾 حفظ في النظام</button>
       <button class="btn secondary" id="resetBtn" type="button">إعادة ضبط</button>
     </div>
 
-    <div class="printBox noPrint" aria-label="Print actions">
-      <div class="printTitle">الطباعة</div>
-      <div class="printGrid">
-        <button class="btn secondary" id="print80" type="button">🧾 طباعة حراري 80mm</button>
-        <button class="btn secondary" id="print58" type="button">🧾 طباعة حراري 58mm</button>
-        <button class="btn secondary" id="printA4" type="button">🖨 طباعة A4</button>
-        <button class="btn secondary" id="pdfA4" type="button">📄 حفظ PDF A4</button>
-      </div>
-      <div class="muted" style="margin-top:8px">ملاحظة: حفظ PDF يتم عبر نافذة الطباعة (اختَر "Save as PDF").</div>
+    <div class="row2" style="margin-top:12px">
+      <button class="btn secondary" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
+      <button class="btn secondary" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
     </div>
 
-    <div id="printArea" class="printArea" aria-hidden="true"></div>
+    <div class="row2" style="margin-top:10px">
+      <button class="btn secondary" id="printA4Btn" type="button">🖨️ طباعة A4</button>
+      <button class="btn secondary" id="savePdfA4Btn" type="button">📄 حفظ PDF لـ A4</button>
+    </div>
   </div>
 </div>
 
+<!-- Scanner Modal -->
 <div class="modalBack" id="scanModal" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="ماسح الباركود">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="Barcode Scanner">
     <div class="modalHead">
       <div class="title">📷 مسح الباركود</div>
       <button class="btn secondary" id="closeScanBtn" type="button">✕ إغلاق</button>
@@ -396,25 +406,31 @@
         </div>
         <div>
           <label>مساعدة</label>
-          <div class="muted" style="padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff">
-            لو الموبايل فيه أكتر من كاميرا، اختر الخلفية. لو الكاميرا لا تعمل جرّب تحديث الصفحة.
+          <div class="muted" style="padding:10px 12px;border:1px solid rgba(15,23,42,.10);border-radius:12px;background:#fff;">
+            ضع الباركود داخل الإطار الذهبي.
           </div>
         </div>
       </div>
 
-      <video id="video" playsinline muted></video>
+      <div class="videoWrap">
+        <video id="video" playsinline></video>
+        <div class="scanFrame"></div>
+      </div>
 
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
-        <button class="btn secondary" id="torchBtn" type="button" style="display:none">🔦 فلاش</button>
-        <button class="btn" id="manualFillBtn" type="button">إدخال يدوي</button>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px">
+        <button class="btn secondary" id="torchBtn" type="button" style="display:none;">🔦 فلاش</button>
+        <button class="btn secondary" id="manualFillBtn" type="button">إدخال يدوي</button>
       </div>
     </div>
   </div>
 </div>
 
-<footer class="site-footer noPrint">
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<footer class="site-footer">
   <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
   <div class="line2">By Ahmed Hamouda</div>
+
   <div class="qrBox">
     <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
       <img src="assets/qr.png" alt="QR Code">
@@ -423,42 +439,61 @@
   </div>
 </footer>
 
-<div class="toast" id="toast"></div>
-
 <script src="config.js"></script>
 <script src="app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+<script>AxentroAuth.requireAuth();</script>
 
 <script>
 (function(){
   "use strict";
 
-  if (window.AxentroAuth && AxentroAuth.requireAuth) AxentroAuth.requireAuth();
-
   const toastEl = document.getElementById('toast');
-  let toastTimer = null;
-  function toast(msg){
-    clearTimeout(toastTimer);
+  function toast(msg) {
     toastEl.textContent = msg;
     toastEl.classList.add('show');
-    toastTimer = setTimeout(()=>toastEl.classList.remove('show'), 2400);
+    setTimeout(()=>toastEl.classList.remove('show'), 2200);
   }
 
-  // Logout
-  document.getElementById('logoutBtn').addEventListener('click', ()=>{
-    try { AxentroAuth.logout(); } catch(e) { location.href="login.html"; }
-  });
+  const elMsg = {
+    ok: document.getElementById('msgOk'),
+    warn: document.getElementById('msgWarn'),
+    bad: document.getElementById('msgBad'),
+  };
+  function showMsg(type, text){
+    elMsg.ok.style.display = "none";
+    elMsg.warn.style.display = "none";
+    elMsg.bad.style.display = "none";
+    if(!text) return;
+    const box = type === "ok" ? elMsg.ok : (type === "warn" ? elMsg.warn : elMsg.bad);
+    box.textContent = text;
+    box.style.display = "block";
+  }
 
-  // State
-  let products = [];
-  let items = []; // {barcode, product_id, name, qty, unit_price}
+  const logoutBtn = document.getElementById('logoutBtn');
+  logoutBtn.addEventListener('click', (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  function toNum(v){
+  // ===== Products cache (by barcode) =====
+  let productsByBarcode = new Map();
+
+  async function loadProducts() {
+    try {
+      const res = await AxentroApi.getProducts();
+      if(res && res.ok && Array.isArray(res.products)) {
+        productsByBarcode = new Map(res.products.map(p=>[String(p.barcode), p]));
+      }
+    } catch(e) {
+      // ignore
+    }
+  }
+
+  function toNum(v) {
     const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
+    return isNaN(n) ? 0 : n;
   }
 
-  function escapeHtml(s){
-    return String(s ?? '')
+  function esc(s){
+    return String(s||'')
       .replaceAll('&','&amp;')
       .replaceAll('<','&lt;')
       .replaceAll('>','&gt;')
@@ -466,138 +501,98 @@
       .replaceAll("'",'&#039;');
   }
 
-  function todayISO(){
-    const d = new Date();
-    const yyyy = d.getFullYear();
-    const mm = String(d.getMonth()+1).padStart(2,"0");
-    const dd = String(d.getDate()).padStart(2,"0");
-    return `${yyyy}-${mm}-${dd}`;
-  }
+  // ===== Invoice date default =====
+  (function setDefaultDate(){
+    try{
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,'0');
+      const dd = String(d.getDate()).padStart(2,'0');
+      document.getElementById('invDate').value = `${yyyy}-${mm}-${dd}`;
+    }catch(e){}
+  })();
 
-  function buildDisplayInvoiceNo(baseNo, dateStr){
-    const digits = String(baseNo||"").replace(/[^0-9]/g,"");
-    const seq = digits ? digits.padStart(3,"0").slice(-3) : "001";
-    const ds = String(dateStr||todayISO()).replace(/-/g,"");
-    return `INV-BS-${ds}-${seq}`;
-  }
-
-  function paymentLabel(val){
-    switch(String(val||"")){
-      case "CASH": return "كاش";
-      case "VISA": return "فيزا";
-      case "INSTAPAY": return "انستاباي";
-      case "TRANSFER": return "محفظة إلكترونية";
-      default: return String(val||"");
+  // ===== Amount to Arabic words =====
+  function numberToArabicWords(number){
+    number = Number(number) || 0;
+    if(number === 0) return "0 جنيه مصري فقط لا غير";
+    const ones = ["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+    const tens = ["","عشرة","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+    const hundreds = ["","مائة","مائتان","ثلاثمائة","أربعمائة","خمسمائة","ستمائة","سبعمائة","ثمانمائة","تسعمائة"];
+    function subThousand(n){
+      n = Number(n); if(n===0) return "";
+      let res=[]; const h=Math.floor(n/100); const rest=n%100;
+      if(h) res.push(hundreds[h]);
+      if(rest){
+        if(rest<20) res.push(ones[rest]);
+        else{
+          const t=Math.floor(rest/10), o=rest%10;
+          if(o) res.push(ones[o]+" و "+tens[t]); else res.push(tens[t]);
+        }
+      }
+      return res.join(" و ");
     }
+    let parts=[];
+    const million=Math.floor(number/1000000);
+    const thousand=Math.floor((number%1000000)/1000);
+    const rest=number%1000;
+    if(million){ if(million===1) parts.push("مليون"); else if(million===2) parts.push("مليونان"); else parts.push(subThousand(million)+" مليون"); }
+    if(thousand){ if(thousand===1) parts.push("ألف"); else if(thousand===2) parts.push("ألفان"); else parts.push(subThousand(thousand)+" ألف"); }
+    if(rest) parts.push(subThousand(rest));
+    return `${parts.join(" و ")} جنيه مصري فقط لا غير`;
   }
 
-  function updateInvoiceDisplay(){
-    const invNoEl = document.getElementById("invNo");
-    const invDateEl = document.getElementById("invDate");
-    const dispEl = document.getElementById("invDisplayNo");
-    if(!invNoEl || !invDateEl || !dispEl) return;
-    const base = String(invNoEl.value||"").trim();
-    const date = String(invDateEl.value||"").trim() || todayISO();
-    dispEl.value = buildDisplayInvoiceNo(base, date);
+  // ===== Items state =====
+  let items = []; // {barcode, product_id, name, qty, unit_price}
+
+  const barcodeInp = document.getElementById('barcode');
+  const qtyInp = document.getElementById('qty');
+  const unitPriceInp = document.getElementById('unitPrice');
+  const productNameInp = document.getElementById('productName');
+
+  function fillProductNameByBarcode() {
+    const b = String(barcodeInp.value||'').trim();
+    const p = productsByBarcode.get(b);
+    productNameInp.value = p ? (p.name || '') : '';
   }
 
-  function setPrintPageStyle(mode){
-    let css = "";
-    if(mode === "thermal80") css = "@page{size:80mm auto; margin:5mm;}";
-    else if(mode === "thermal58") css = "@page{size:58mm auto; margin:4mm;}";
-    else css = "@page{size:A4; margin:12mm;}";
+  barcodeInp.addEventListener('input', fillProductNameByBarcode);
+  barcodeInp.addEventListener('change', fillProductNameByBarcode);
 
-    let st = document.getElementById("printPageStyle");
-    if(!st){
-      st = document.createElement("style");
-      st.id = "printPageStyle";
-      document.head.appendChild(st);
-    }
-    st.textContent = css;
+  function resetItemInputs() {
+    barcodeInp.value = '';
+    qtyInp.value = 1;
+    unitPriceInp.value = '';
+    productNameInp.value = '';
+    barcodeInp.focus();
   }
 
-  function updatePrintArea(subtotal, discount, tax, total){
-    const area = document.getElementById("printArea");
-    if(!area) return;
+  function calcTotals(){
+    let totalBefore = 0;
+    items.forEach(it=>{
+      totalBefore += (toNum(it.qty) * toNum(it.unit_price));
+    });
 
-    const invNo = String(document.getElementById("invNo").value||"").trim();
-    const invDisp = String(document.getElementById("invDisplayNo").value||"").trim();
-    const invDate = String(document.getElementById("invDate").value||"").trim();
-    const customer = String(document.getElementById("customer").value||"").trim();
-    const phone = String((document.getElementById("customerPhone")||{}).value||"").trim();
-    const address = String((document.getElementById("customerAddress")||{}).value||"").trim();
-    const payVal = String(document.getElementById("paymentMethod").value||"").trim();
-    const pay = paymentLabel(payVal);
+    const discount = Math.max(0, toNum(document.getElementById('discount').value));
+    const afterDiscount = Math.max(0, totalBefore - discount);
 
-    const rows = items.map(it=>{
-      const name = escapeHtml(String(it.name||""));
-      const qty = toNum(it.qty);
-      const unit = toNum(it.unit_price).toFixed(2);
-      const line = (toNum(it.qty)*toNum(it.unit_price)).toFixed(2);
-      return `<tr>
-        <td>${name}</td>
-        <td class="num">${qty}</td>
-        <td class="num">${unit}</td>
-        <td class="num">${line}</td>
-      </tr>`;
-    }).join("");
+    const shipping = Math.max(0, toNum(document.getElementById('shipping').value));
+    const finalTotal = afterDiscount + shipping;
 
-    area.innerHTML = `
-      <div class="receipt">
-        <h3>B.S Medical & Aesthetic</h3>
-        <div class="rmeta">
-          <div><strong>رقم الفاتورة:</strong> ${escapeHtml(invDisp || invNo)}</div>
-          ${invNo ? `<div><span style="color:#555">رقم النظام:</span> ${escapeHtml(invNo)}</div>` : ""}
-          <div><strong>التاريخ:</strong> ${escapeHtml(invDate||"")}</div>
-          <div><strong>طريقة الدفع:</strong> ${escapeHtml(pay)}</div>
-          ${customer ? `<div><strong>العميل:</strong> ${escapeHtml(customer)}</div>` : ""}
-          ${phone ? `<div><strong>الهاتف:</strong> <span style="direction:ltr;display:inline-block">${escapeHtml(phone)}</span></div>` : ""}
-          ${address ? `<div><strong>العنوان:</strong> ${escapeHtml(address)}</div>` : ""}
-        </div>
-
-        <table>
-          <thead>
-            <tr>
-              <th>الصنف</th>
-              <th class="num">الكمية</th>
-              <th class="num">سعر</th>
-              <th class="num">الإجمالي</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rows || `<tr><td colspan="4">—</td></tr>`}
-          </tbody>
-        </table>
-
-        <div class="rtotals">
-          <div class="line"><span>الإجمالي قبل الخصم</span><span class="num">${Number(subtotal||0).toFixed(2)} جنيه</span></div>
-          <div class="line"><span>الخصم</span><span class="num">${Number(discount||0).toFixed(2)} جنيه</span></div>
-          <div class="line"><span>الضريبة</span><span class="num">${Number(tax||0).toFixed(2)} جنيه</span></div>
-          <div class="line"><strong>الإجمالي النهائي</strong><strong class="num">${Number(total||0).toFixed(2)} جنيه</strong></div>
-        </div>
-
-        <div class="rfooter">
-          Axentro – All Rights Reserved 2024 ©<br/>
-          By Ahmed Hamouda
-        </div>
-      </div>
-    `;
+    return { totalBefore, discount, afterDiscount, shipping, finalTotal };
   }
 
   function render() {
     const body = document.getElementById('itemsBody');
     body.innerHTML = '';
-    let subtotal = 0;
 
     items.forEach((it, idx)=>{
       const lineTotal = toNum(it.qty) * toNum(it.unit_price);
-      subtotal += lineTotal;
-
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${idx+1}</td>
-        <td class="prodCell">${escapeHtml(it.name || '')}<div class="muted" style="margin-top:4px">${escapeHtml(it.product_id || '')}</div></td>
-        <td>${escapeHtml(it.barcode)}</td>
+        <td class="prodCell">${esc(it.name || '')}<div class="muted" style="margin-top:4px">${esc(it.product_id || '')}</div></td>
+        <td>${esc(it.barcode)}</td>
         <td>${toNum(it.qty)}</td>
         <td>${toNum(it.unit_price).toFixed(2)}</td>
         <td>${lineTotal.toFixed(2)}</td>
@@ -614,103 +609,84 @@
       });
     });
 
-    const discount = toNum(document.getElementById('discount').value);
-    const tax = toNum(document.getElementById('tax').value);
-    const total = subtotal - discount + tax;
+    const t = calcTotals();
+    const deliveryText = t.shipping > 0 ? `${t.shipping.toFixed(2)} جنيه` : "توصيل مجاني";
 
     const totals = document.getElementById('totals');
     totals.innerHTML = `
-      <div class="tline"><span class="muted">الإجمالي قبل الخصم</span><span>${subtotal.toFixed(2)} جنيه</span></div>
-      <div class="tline"><span class="muted">الخصم</span><span>${discount.toFixed(2)} جنيه</span></div>
-      <div class="tline"><span class="muted">الضريبة</span><span>${tax.toFixed(2)} جنيه</span></div>
-      <div class="tline primary"><span>الإجمالي النهائي</span><span>${total.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="k">الإجمالي قبل الخصم</span><span>${t.totalBefore.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="k">الخصم</span><span>${t.discount.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="k">الإجمالي بدون مصاريف الشحن / التوصيل</span><span>${t.afterDiscount.toFixed(2)} جنيه</span></div>
+      <div class="tline"><span class="k">الشحن / التوصيل</span><span>${deliveryText}</span></div>
+      <div class="tline primary"><span>الإجمالي</span><span>${t.finalTotal.toFixed(2)} جنيه</span></div>
     `;
-    updatePrintArea(subtotal, discount, tax, total);
+
+    const wordsEl = document.getElementById('amountWords');
+    wordsEl.style.display = "block";
+    wordsEl.textContent = numberToArabicWords(Math.round(t.finalTotal));
   }
-
-  function resetItemInputs(){
-    document.getElementById('barcode').value = '';
-    document.getElementById('qty').value = '1';
-    document.getElementById('unitPrice').value = '0';
-    document.getElementById('productName').value = '';
-    document.getElementById('productSku').textContent = '';
-  }
-
-  function findProductByBarcode(code){
-    const b = String(code||'').trim();
-    if(!b) return null;
-    return products.find(p => String(p.barcode||'').trim() === b) || null;
-  }
-
-  async function loadProducts(){
-    try {
-      const res = await AxentroApi.getProducts();
-      products = (res && res.products) ? res.products : [];
-    } catch(e) {
-      products = [];
-      toast('تعذر تحميل المنتجات من النظام');
-    }
-  }
-
-  // Add item
-  document.getElementById('barcode').addEventListener('input', ()=>{
-    const code = document.getElementById('barcode').value;
-    const p = findProductByBarcode(code);
-    if(p){
-      document.getElementById('productName').value = p.name || '';
-      document.getElementById('productSku').textContent = (p.sku ? ('SKU: ' + p.sku) : '');
-    } else {
-      document.getElementById('productName').value = '';
-      document.getElementById('productSku').textContent = '';
-    }
-  });
-
-  document.getElementById('addItemBtn').addEventListener('click', ()=>{
-    const barcode = String(document.getElementById('barcode').value||'').trim();
-    const qty = Math.max(1, Math.floor(toNum(document.getElementById('qty').value)));
-    const unit_price = Math.max(0, toNum(document.getElementById('unitPrice').value));
-
-    if(!barcode){
-      toast('اكتب/امسح باركود أولاً');
-      return;
-    }
-
-    const p = findProductByBarcode(barcode);
-    const name = p ? (p.name||'') : 'منتج غير معروف';
-    const product_id = p ? (p.product_id||'') : '';
-
-    items.push({ barcode, qty, unit_price, name, product_id });
-    resetItemInputs();
-    render();
-  });
 
   document.getElementById('discount').addEventListener('input', render);
-  document.getElementById('tax').addEventListener('input', render);
+  document.getElementById('shipping').addEventListener('input', render);
 
-  // Save
+  document.getElementById('addItemBtn').addEventListener('click', ()=>{
+    const barcode = String(barcodeInp.value||'').trim();
+    const qty = toNum(qtyInp.value);
+    const unit_price = toNum(unitPriceInp.value);
+
+    if(!barcode) return toast('اكتب/امسح الباركود أولاً');
+    if(qty <= 0) return toast('الكمية غير صحيحة');
+    if(unit_price < 0) return toast('السعر غير صحيح');
+
+    const p = productsByBarcode.get(barcode);
+    items.push({
+      barcode,
+      product_id: p ? (p.product_id || '') : '',
+      name: p ? (p.name||'') : '',
+      qty,
+      unit_price
+    });
+
+    render();
+    resetItemInputs();
+  });
+
+  document.getElementById('resetBtn').addEventListener('click', ()=>{
+    items = [];
+    document.getElementById('customerName').value = '';
+    document.getElementById('customerPhone').value = '';
+    document.getElementById('customerAddress').value = '';
+    document.getElementById('notes').value = '';
+    document.getElementById('discount').value = 0;
+    document.getElementById('shipping').value = 0;
+    render();
+    resetItemInputs();
+    showMsg("ok", "تمت إعادة الضبط.");
+    setTimeout(()=>showMsg("", ""), 1500);
+  });
+
+  // ===== Save to system (tax removed من الواجهة، بس نرسله 0 علشان التوافق) =====
   document.getElementById('saveBtn').addEventListener('click', async ()=>{
-    if(!items.length){
-      toast('أضف أصناف أولاً');
-      return;
-    }
+    if(items.length === 0) return toast('أضف صنف واحد على الأقل');
 
-    const customer = String(document.getElementById('customer').value||'').trim();
-    const invoiceDate = document.getElementById('invDate').value || '';
-    const discount = toNum(document.getElementById('discount').value);
-    const tax = toNum(document.getElementById('tax').value);
+    const customer_name = String(document.getElementById('customerName').value||'').trim();
+    if(!customer_name) return toast('اكتب اسم العميل');
+
+    const invoiceDate = document.getElementById('invDate').value; // yyyy-mm-dd
     const payment_method = document.getElementById('paymentMethod').value || '';
     const notes = String(document.getElementById('notes').value||'').trim();
-    const phone = String((document.getElementById('customerPhone')||{}).value||'').trim();
-    const address = String((document.getElementById('customerAddress')||{}).value||'').trim();
+
+    const t = calcTotals();
 
     const payload = {
-      customer,
-      phone,
-      address,
-      payment_method,
+      customer: customer_name,
+      customer_phone: String(document.getElementById('customerPhone').value||'').trim(),
+      customer_address: String(document.getElementById('customerAddress').value||'').trim(),
       invoice_date: invoiceDate ? (invoiceDate + 'T00:00:00') : null,
-      discount,
-      tax,
+      discount: t.discount,
+      tax: 0,
+      shipping_fee: t.shipping,
+      payment_method,
       notes,
       items: items.map(it=>({
         barcode: it.barcode,
@@ -720,33 +696,356 @@
     };
 
     try {
+      showMsg("warn","جاري الحفظ...");
       const res = await AxentroApi.createSale(payload);
       if(res && res.ok) {
         const no = res.sale_invoice_no || 'SA';
         document.getElementById('invNo').value = no;
-        updateInvoiceDisplay();
-        const disp = String(document.getElementById('invDisplayNo').value||'').trim();
-        toast('تم الحفظ ✅ رقم الفاتورة: ' + (disp || no));
+        showMsg("ok",'تم الحفظ ✅ رقم الفاتورة: ' + no);
+        toast('تم الحفظ ✅');
         items = [];
         render();
         resetItemInputs();
       } else {
-        toast((res && (res.error || res.message)) ? (res.error || res.message) : 'فشل الحفظ');
+        showMsg("bad", (res && (res.error || res.message)) ? (res.error || res.message) : 'فشل الحفظ');
       }
     } catch(e) {
-      toast(String(e && e.message ? e.message : e));
+      showMsg("bad", String(e && e.message ? e.message : e));
     }
   });
 
-  // Reset
-  document.getElementById('resetBtn').addEventListener('click', ()=>{
-    items = [];
-    resetItemInputs();
-    render();
-    toast('تمت إعادة الضبط');
+  // ===== Print builders (مأخوذ من مبدأ الكود القديم) =====
+  function openPrintWindow(html, title){
+    const w = window.open("", "_blank");
+    if(!w){ alert("Pop-up blocked. اسمح بفتح النوافذ المنبثقة."); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+    try{ w.document.title = title || "فاتورة"; }catch(e){}
+    w.onload = function(){ w.focus(); setTimeout(()=> w.print(), 250); };
+  }
+
+  function getInvoiceData(){
+    const d = new Date();
+    const invNo = String(document.getElementById('invNo').value || '');
+    const invDate = String(document.getElementById('invDate').value || '');
+    const invTime = d.toLocaleTimeString("en-US",{hour:'2-digit',minute:'2-digit',hour12:true});
+    const customerName = String(document.getElementById('customerName').value || '').trim();
+    const customerPhone = String(document.getElementById('customerPhone').value || '').trim();
+    const customerAddress = String(document.getElementById('customerAddress').value || '').trim();
+    const notes = String(document.getElementById('notes').value || '').trim();
+    const paymentMethod = String(document.getElementById('paymentMethod').value || '').trim();
+
+    const t = calcTotals();
+    const words = numberToArabicWords(Math.round(t.finalTotal));
+
+    const itemsOut = items.map((it, idx)=>({
+      idx: idx+1,
+      barcode: it.barcode,
+      name: it.name || "",
+      qty: toNum(it.qty),
+      unit_price: toNum(it.unit_price),
+      line_total: toNum(it.qty) * toNum(it.unit_price),
+      product_id: it.product_id || ""
+    }));
+
+    return {
+      invNo, invDate, invTime,
+      customerName, customerPhone, customerAddress,
+      paymentMethod, notes,
+      items: itemsOut,
+      totalBefore: t.totalBefore,
+      discount: t.discount,
+      afterDiscount: t.afterDiscount,
+      shipping: t.shipping,
+      finalTotal: t.finalTotal,
+      words
+    };
+  }
+
+  function buildA4Html(d){
+    const deliveryText = (Number(d.shipping||0) > 0) ? `${Number(d.shipping).toFixed(2)} جنيه` : "توصيل مجاني";
+    const noteHtml = d.notes ? `<div class="note">${esc(d.notes)}</div>` : "";
+
+    const itemsHtml = d.items.length ? d.items.map(it => `
+      <tr>
+        <td>${it.idx}</td>
+        <td style="text-align:right;font-weight:900">${esc((it.barcode ? it.barcode + " | " : "") + (it.name||""))}</td>
+        <td>${Number(it.qty||0)}</td>
+        <td>${Number(it.unit_price||0).toFixed(2)}</td>
+        <td>${Number(it.line_total||0).toFixed(2)}</td>
+      </tr>
+    `).join("") : `<tr><td colspan="5" style="padding:18px;text-align:center;color:#64748b">لا توجد أصناف</td></tr>`;
+
+    return `
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>فاتورة ${esc(d.invNo)}</title>
+<style>
+  :root{ --text:#0f172a; --muted:#64748b; --stroke: rgba(15,23,42,.10); }
+  @page { size: A4; margin: 10mm; }
+  body{font-family: Arial, Helvetica, sans-serif;color:var(--text);direction:rtl;margin:0;background:#fff;}
+  .sheet{max-width:900px;margin:0 auto;}
+  .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:14px;border:1px solid var(--stroke);}
+  .header{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:64px;height:64px;object-fit:contain}
+  h1{margin:0;font-weight:900}
+  .meta{font-size:14px;color:var(--muted); line-height:1.7}
+  .meta strong{color:#0f172a}
+  table{width:100%;border-collapse:collapse;margin-top:12px;font-size:14px}
+  th,td{border:1px solid var(--stroke);padding:8px;text-align:center}
+  th{background:#f7f7fb;font-weight:900}
+  .totals{margin-top:12px;display:flex;flex-direction:column;gap:8px}
+  .tline{display:flex;justify-content:space-between;gap:10px;border:1px solid var(--stroke);border-radius:10px;padding:10px 12px;background:#fff;font-weight:900}
+  .tline span:first-child{color:#64748b;font-weight:900}
+  .tline.primary{background:#f7f7fb;}
+  .amountWords{margin-top:10px;font-weight:900;color:#334155}
+  .note{margin-top:10px;border-top:1px dashed var(--stroke);padding-top:10px;font-weight:900;color:#334155}
+  .custGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:8px}
+  .custLine{border:1px dashed var(--stroke);border-radius:10px;padding:10px 12px}
+  .qrWrap{margin-top:12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .qrWrap img{width:120px;height:120px;object-fit:contain;border:1px solid var(--stroke);border-radius:10px;padding:6px}
+  .qrText{font-size:12px;color:#334155;font-weight:900}
+  .footer{margin-top:10px;text-align:center;color:#64748b;font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="card header">
+    <div class="brand">
+      <img src="assets/logo.png" onerror="this.onerror=null;this.src='images/bslogo.webp'">
+      <div>
+        <h1>B.S Medical &amp; Aesthetic</h1>
+        <div class="meta">فاتورة: <strong>${esc(d.invNo)}</strong></div>
+        <div class="meta">طريقة الدفع: <strong>${esc(d.paymentMethod)}</strong></div>
+      </div>
+    </div>
+
+    <div class="meta" style="text-align:left">
+      <div>التاريخ: <strong>${esc(d.invDate)}</strong></div>
+      <div>الوقت: <strong>${esc(d.invTime)}</strong></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-weight:900;">بيانات العميل</h3>
+    <div class="custGrid">
+      <div class="custLine"><strong>الاسم:</strong> ${esc(d.customerName || "—")}</div>
+      <div class="custLine"><strong>الهاتف:</strong> ${esc(d.customerPhone || "—")}</div>
+      <div class="custLine"><strong>العنوان:</strong> ${esc(d.customerAddress || "—")}</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin:0 0 8px;font-weight:900;">الأصناف</h3>
+    <table>
+      <thead>
+        <tr><th>#</th><th>المنتج</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr>
+      </thead>
+      <tbody>${itemsHtml}</tbody>
+    </table>
+
+    <div class="totals">
+      <div class="tline"><span>الإجمالي قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)} جنيه</span></div>
+      <div class="tline"><span>الخصم</span><span>${Number(d.discount||0).toFixed(2)} جنيه</span></div>
+      <div class="tline"><span>الإجمالي بدون مصاريف الشحن / التوصيل</span><span>${Number(d.afterDiscount||0).toFixed(2)} جنيه</span></div>
+      <div class="tline"><span>الشحن / التوصيل</span><span>${deliveryText}</span></div>
+      <div class="tline primary"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)} جنيه</span></div>
+    </div>
+
+    <div class="amountWords">${esc(d.words)}</div>
+    ${noteHtml}
+
+    <div class="qrWrap">
+      <img src="assets/qr.png" alt="QR">
+      <div class="qrText">امسح الـ QR للتواصل</div>
+    </div>
+
+    <div class="footer">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
+  </div>
+
+</div>
+</body>
+</html>`;
+  }
+
+  function buildThermalHtml(mm, d){
+    const widthMm = (mm === 58) ? 58 : 80;
+    const titleText = "فاتورة";
+    const deliveryText = (Number(d.shipping||0) > 0) ? Number(d.shipping).toFixed(2) : "مجاني";
+
+    const itemsHtml = d.items.length ? d.items.map(it=>{
+      const name = ((it.barcode ? it.barcode + " | " : "") + (it.name||"")).trim();
+      const qty  = Number(it.qty || 0);
+      const price = Number(it.unit_price || 0);
+      const sub   = Number(it.line_total || 0);
+      return `
+        <div class="item">
+          <div class="itemName">${it.idx}) ${esc(name)}</div>
+          <div class="itemMeta"><span class="l">Qty: ${qty} × ${price.toFixed(2)}</span><span class="r"></span></div>
+          <div class="itemTotal"><span>Total</span><span>${sub.toFixed(2)}</span></div>
+        </div>
+        <div class="sep"></div>
+      `;
+    }).join("") : `<div class="m" style="text-align:center;margin:10px 0">لا توجد أصناف</div>`;
+
+    const noteBlock = d.notes ? `<div class="sep"></div><div class="m">${esc(d.notes)}</div>` : "";
+
+    return `
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${titleText} ${esc(d.invNo)}</title>
+<style>
+  @page { size: ${widthMm}mm auto; margin: 3mm; }
+  body{margin:0;font-family: Arial, Tahoma, sans-serif;color:#000;direction:rtl;background:#fff;}
+  .paper{ width:${widthMm}mm; margin:0 auto; padding:0; }
+  .center{text-align:center}
+  .b{font-weight:900;font-size:13px;line-height:1.45}
+  .m{font-weight:700;font-size:11px;line-height:1.55}
+  .sep{border-top:1px dashed #000;margin:8px 0}
+  .totRow{display:flex;justify-content:space-between;gap:8px;font-weight:900;font-size:12px}
+  .totMain{font-size:14px}
+  .qr{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:8px}
+  .qr img{width:${widthMm===58? 90:110}px;height:${widthMm===58? 90:110}px;object-fit:contain}
+  .foot{margin-top:8px;font-size:10px;color:#000;text-align:center;line-height:1.5}
+  .logo{width:${widthMm===58? 46:56}px;height:${widthMm===58? 46:56}px;object-fit:contain;display:block;margin:0 auto 6px}
+  .item{padding:6px 0}
+  .itemName{font-weight:900;font-size:12px;line-height:1.5}
+  .itemMeta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
+  .itemMeta .l,.itemMeta .r{direction:ltr;text-align:left;unicode-bidi:embed}
+  .itemTotal{display:flex;justify-content:space-between;gap:8px;margin-top:2px;font-weight:900;font-size:12px;direction:ltr;text-align:left;unicode-bidi:embed}
+  *{break-inside: avoid; page-break-inside: avoid;}
+  html,body{height:auto}
+</style>
+</head>
+<body>
+<div class="paper">
+  <div class="center">
+    <img class="logo" src="assets/logo.png" onerror="this.onerror=null;this.src='images/bslogo.webp'">
+    <div class="b">B.S Medical &amp; Aesthetic</div>
+    <div class="m">${titleText}: <strong>${esc(d.invNo)}</strong></div>
+    <div class="m">طريقة الدفع: <strong>${esc(d.paymentMethod)}</strong></div>
+  </div>
+
+  <div class="sep"></div>
+  <div class="m">تاريخ: <strong>${esc(d.invDate)}</strong></div>
+  <div class="m">وقت: <strong>${esc(d.invTime)}</strong></div>
+
+  <div class="sep"></div>
+  <div class="b">بيانات العميل</div>
+  <div class="m">الاسم: ${esc(d.customerName || "—")}</div>
+  <div class="m">الهاتف: ${esc(d.customerPhone || "—")}</div>
+  <div class="m">العنوان: ${esc(d.customerAddress || "—")}</div>
+
+  <div class="sep"></div>
+  <div class="b">الأصناف</div>
+  <div class="sep"></div>
+
+  ${itemsHtml}
+
+  <div class="sep"></div>
+  <div class="totRow"><span>قبل الخصم</span><span>${Number(d.totalBefore||0).toFixed(2)}</span></div>
+  <div class="totRow"><span>الخصم</span><span>${Number(d.discount||0).toFixed(2)}</span></div>
+  <div class="totRow"><span>بدون توصيل</span><span>${Number(d.afterDiscount||0).toFixed(2)}</span></div>
+  <div class="totRow"><span>التوصيل</span><span>${deliveryText}</span></div>
+  <div class="totRow totMain"><span>الإجمالي</span><span>${Number(d.finalTotal||0).toFixed(2)}</span></div>
+
+  <div class="sep"></div>
+  <div class="m">${esc(d.words)}</div>
+  ${noteBlock}
+
+  <div class="qr">
+    <img src="assets/qr.png" alt="QR">
+    <div class="m">امسح الـ QR للتواصل</div>
+  </div>
+
+  <div class="foot">Axentro – All Rights Reserved 2024 ©<br>By Ahmed Hamouda</div>
+</div>
+</body>
+</html>`;
+  }
+
+  async function inlineAllImages(root){
+    const imgs = Array.from(root.querySelectorAll("img"));
+    async function toDataURL(url){
+      try{
+        const abs = new URL(url, location.href).toString();
+        const res = await fetch(abs, { cache: "no-store" });
+        if(!res.ok) throw new Error("HTTP " + res.status);
+        const blob = await res.blob();
+        return await new Promise((resolve, reject)=>{
+          const r = new FileReader();
+          r.onload = ()=> resolve(r.result);
+          r.onerror = reject;
+          r.readAsDataURL(blob);
+        });
+      }catch(e){ return null; }
+    }
+    for(const img of imgs){
+      const src = img.getAttribute("src") || "";
+      if(!src || src.startsWith("data:")) continue;
+      const dataUrl = await toDataURL(src);
+      if(dataUrl) img.setAttribute("src", dataUrl);
+    }
+  }
+
+  async function savePdfA4(){
+    const d = getInvoiceData();
+    const filename = `invoice_${(d.invNo||"SA").replace(/[^\w-]+/g,"_")}.pdf`;
+
+    const holder = document.createElement("div");
+    holder.style.position = "fixed";
+    holder.style.left = "-99999px";
+    holder.style.top = "0";
+    holder.style.width = "210mm";
+    holder.style.background = "#fff";
+    holder.style.zIndex = "-1";
+
+    holder.innerHTML = buildA4Html(d);
+    document.body.appendChild(holder);
+
+    await new Promise(r=> setTimeout(r, 150));
+    await inlineAllImages(holder);
+
+    const opt = {
+      margin: 10,
+      filename,
+      image: { type: "jpeg", quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true, allowTaint: true, backgroundColor: "#ffffff" },
+      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
+    };
+
+    try{
+      await html2pdf().set(opt).from(holder).save();
+    }catch(e){
+      console.error(e);
+      alert("فشل حفظ PDF");
+    }finally{
+      holder.remove();
+    }
+  }
+
+  document.getElementById('printA4Btn').addEventListener('click', ()=>{
+    const d = getInvoiceData();
+    openPrintWindow(buildA4Html(d), `فاتورة ${d.invNo}`);
+  });
+  document.getElementById('savePdfA4Btn').addEventListener('click', savePdfA4);
+  document.getElementById('thermal80Btn').addEventListener('click', ()=>{
+    const d = getInvoiceData();
+    openPrintWindow(buildThermalHtml(80, d), `فاتورة ${d.invNo}`);
+  });
+  document.getElementById('thermal58Btn').addEventListener('click', ()=>{
+    const d = getInvoiceData();
+    openPrintWindow(buildThermalHtml(58, d), `فاتورة ${d.invNo}`);
   });
 
-  // ===== Scanner =====
+  // ===== Scanner (تحسين: فتح الخلفية تلقائياً + فلاش) =====
   const scanModal = document.getElementById('scanModal');
   const scanBtn = document.getElementById('scanBtn');
   const closeScanBtn = document.getElementById('closeScanBtn');
@@ -779,21 +1078,49 @@
     cams.forEach((c, idx)=>{
       const opt = document.createElement('option');
       opt.value = c.deviceId;
-      opt.textContent = c.label || ('كاميرا ' + (idx+1));
+      opt.textContent = c.label || ('Camera ' + (idx+1));
       cameraSelect.appendChild(opt);
     });
     return cams;
   }
 
-  async function startStream(deviceId) {
+  function pickBestCameraId(cams){
+    if(!Array.isArray(cams) || !cams.length) return null;
+
+    // Prefer "back/rear/environment"
+    const preferred = cams.find(c=>{
+      const label = String(c.label||"").toLowerCase();
+      return /back|rear|environment/.test(label);
+    });
+    if(preferred) return preferred.deviceId;
+
+    // Otherwise: last camera often is rear on mobiles
+    return cams[cams.length - 1].deviceId;
+  }
+
+  async function startStream({deviceId=null, preferEnvironment=true}={}) {
     if(stream) {
       stream.getTracks().forEach(t=>t.stop());
       stream = null;
     }
-    const constraints = {
-      video: deviceId ? { deviceId: { exact: deviceId }, width:{ideal:1280}, height:{ideal:720} } : { facingMode: { ideal: 'environment' }, width:{ideal:1280}, height:{ideal:720} },
-      audio: false
-    };
+
+    // Try environment first
+    let constraints = null;
+    if(deviceId){
+      constraints = { video: { deviceId: { exact: deviceId } }, audio:false };
+    }else if(preferEnvironment){
+      constraints = {
+        video: {
+          facingMode: { ideal: "environment" },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio:false
+      };
+    }else{
+      constraints = { video: true, audio:false };
+    }
+
     stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
     await video.play();
@@ -812,33 +1139,53 @@
       toast('الكاميرا غير مدعومة على هذا المتصفح');
       return;
     }
+
     scanModal.classList.add('show');
     scanModal.setAttribute('aria-hidden','false');
 
+    // 1) Start environment first (better chance to open rear)
+    try{
+      await startStream({ deviceId: null, preferEnvironment: true });
+    }catch(e){
+      // fallback
+      try{ await startStream({ deviceId: null, preferEnvironment: false }); }
+      catch(e2){
+        stopScan();
+        toast('تعذر تشغيل الكاميرا');
+        return;
+      }
+    }
+
+    // 2) After permission, enumerate cameras + pick best
     let cams = [];
     try { cams = await listCameras(); } catch(e) {}
+    const bestId = pickBestCameraId(cams);
 
-    try { await startStream(cameraSelect.value || null); } catch(e) {
-      toast('تعذر تشغيل الكاميرا');
-      return;
+    if(bestId && cameraSelect.value !== bestId){
+      cameraSelect.value = bestId;
+      try{ await startStream({ deviceId: bestId, preferEnvironment: false }); }catch(e){}
     }
 
     if('BarcodeDetector' in window) {
-      try { detector = new BarcodeDetector({ formats: ['ean_13','ean_8','code_128','code_39','qr_code','upc_a','upc_e'] }); }
-      catch(e) { detector = null; }
+      try {
+        detector = new window.BarcodeDetector({ formats: ['ean_13','ean_8','code_128','qr_code','upc_a','upc_e','code_39','code_93','itf'] });
+      } catch(e) { detector = null; }
     } else {
       detector = null;
+      toast("متصفحك لا يدعم BarcodeDetector. استخدم Chrome.");
     }
 
     scanTimer = setInterval(async ()=>{
+      if(!detector) return;
       try {
-        if(detector) {
-          const codes = await detector.detect(video);
-          if(codes && codes[0] && codes[0].rawValue) {
-            document.getElementById('barcode').value = codes[0].rawValue;
-            document.getElementById('barcode').dispatchEvent(new Event('input'));
+        const barcodes = await detector.detect(video);
+        if(barcodes && barcodes.length) {
+          const raw = String(barcodes[0].rawValue || '').trim();
+          if(raw) {
+            barcodeInp.value = raw;
+            fillProductNameByBarcode();
             stopScan();
-            toast('تم التقاط الباركود ✅');
+            toast('تم التقاط الباركود');
           }
         }
       } catch(e) {}
@@ -850,12 +1197,13 @@
   scanModal.addEventListener('click', (e)=>{ if(e.target === scanModal) stopScan(); });
 
   cameraSelect.addEventListener('change', async ()=>{
-    try { await startStream(cameraSelect.value); } catch(e) { toast('تعذر تشغيل الكاميرا'); }
+    try { await startStream({ deviceId: cameraSelect.value, preferEnvironment:false }); }
+    catch(e) { toast('تعذر تشغيل الكاميرا'); }
   });
 
   manualFillBtn.addEventListener('click', ()=>{
     stopScan();
-    document.getElementById('barcode').focus();
+    barcodeInp.focus();
   });
 
   torchBtn.addEventListener('click', async ()=>{
@@ -870,27 +1218,10 @@
   });
 
   // init
-  try{
-    const invDateEl = document.getElementById('invDate');
-    if(invDateEl && (!invDateEl.value || String(invDateEl.value).trim()==='')) invDateEl.value = todayISO();
-  }catch(e){}
-  updateInvoiceDisplay();
-  document.getElementById('invDate').addEventListener('change', ()=>{ updateInvoiceDisplay(); render(); });
-  document.getElementById('invNo').addEventListener('input', updateInvoiceDisplay);
-
-  function doPrint(mode){
-    document.body.setAttribute('data-print', mode);
-    setPrintPageStyle(mode);
-    try{ render(); }catch(e){}
-    window.print();
-    setTimeout(()=>{ document.body.removeAttribute('data-print'); }, 300);
-  }
-  document.getElementById('print80').addEventListener('click', ()=>doPrint('thermal80'));
-  document.getElementById('print58').addEventListener('click', ()=>doPrint('thermal58'));
-  document.getElementById('printA4').addEventListener('click', ()=>doPrint('a4'));
-  document.getElementById('pdfA4').addEventListener('click', ()=>doPrint('a4'));
-
-  loadProducts().finally(()=>{ render(); resetItemInputs(); });
+  loadProducts().finally(()=>{
+    render();
+    resetItemInputs();
+  });
 })();
 </script>
 </body>
