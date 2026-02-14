@@ -75,7 +75,6 @@
     }
     input::placeholder, textarea::placeholder{color:#94a3b8}
 
-    /* ===== Lookup suggest (Search + Barcode in one field) ===== */
     .lookupWrap{ position:relative; }
     .lookupRow{ display:flex; gap:8px; align-items:center; }
     .suggest{
@@ -189,6 +188,7 @@
       line-height:1.7;
       display:none;
       word-break:break-word;
+      white-space:pre-line;
     }
     .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
     .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
@@ -278,7 +278,6 @@
       transform:translateX(-50%) translateY(-2px);
     }
 
-    /* Responsive table on small screens */
     @media (max-width: 820px){
       .table-wrap{ overflow:visible; }
       table{ min-width:0; }
@@ -306,7 +305,6 @@
       tbody button{ width:100%; }
     }
 
-    /* Scanner Modal */
     .modal{
       position:fixed; inset:0;
       background:rgba(2,6,23,.55);
@@ -381,7 +379,7 @@
   <div class="card">
     <h2>معلومات الفاتورة</h2>
 
-    <div class="row" role="region" aria-label="معلومات أساسية">
+    <div class="row">
       <div>
         <label for="invNo">رقم الفاتورة</label>
         <input id="invNo" readonly />
@@ -452,8 +450,9 @@
       </div>
 
       <div>
-        <label for="productName">اسم المنتج (تلقائي)</label>
-        <input id="productName" readonly placeholder="سيظهر اسم المنتج بعد التعرف على الباركود" />
+        <label for="productName">اسم المنتج (تلقائي لو موجود / يدوي لو جديد)</label>
+        <!-- ✅ هنا الفرق: مش readonly -->
+        <input id="productName" placeholder="لو الصنف جديد اكتب الاسم هنا" />
       </div>
     </div>
 
@@ -572,8 +571,7 @@
     box.style.display = "block";
   }
 
-  const logoutBtn = document.getElementById('logoutBtn');
-  logoutBtn.addEventListener('click', (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+  document.getElementById('logoutBtn').addEventListener('click', (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
   function toNum(v) {
     const n = Number(v);
@@ -594,8 +592,8 @@
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
   }
 
-  // ===== ✅ Scan Success Sound (file) =====
-  const SCAN_SOUND_SRC = "assets/scan.mp3"; // <-- غيّرها لو اسم ملف الصوت مختلف
+  // ===== ✅ Scan Sound (file) =====
+  const SCAN_SOUND_SRC = "assets/scan.mp3"; // غيّر الاسم لو مختلف
   let scanAudio = null;
 
   async function initScanAudio(){
@@ -603,21 +601,16 @@
       if(!scanAudio){
         scanAudio = new Audio(SCAN_SOUND_SRC);
         scanAudio.preload = "auto";
-        scanAudio.volume = 1.0; // 100%
+        scanAudio.volume = 1.0;
         scanAudio.playsInline = true;
       }
-      // unlock on mobile: play then pause inside user gesture
       scanAudio.muted = true;
       const p = scanAudio.play();
-      if(p && typeof p.then === "function"){
-        await p.catch(()=>{});
-      }
+      if(p && typeof p.then === "function") await p.catch(()=>{});
       scanAudio.pause();
       scanAudio.currentTime = 0;
       scanAudio.muted = false;
-    }catch(e){
-      // ignore
-    }
+    }catch(e){}
   }
 
   function playScanSound(){
@@ -627,9 +620,7 @@
       scanAudio.currentTime = 0;
       const p = scanAudio.play();
       if(p && typeof p.catch === "function") p.catch(()=>{});
-    }catch(e){
-      // ignore
-    }
+    }catch(e){}
   }
 
   // ===== Invoice date default =====
@@ -643,20 +634,19 @@
     }catch(e){}
   })();
 
-  // ===== ✅ Invoice time 12H (HH:MM:SS AM/PM) =====
+  // ===== 12H time =====
   function getNowTime12HMS(){
     const d = new Date();
     let hh = d.getHours();
     const ampm = hh >= 12 ? "PM" : "AM";
-    hh = hh % 12;
-    if(hh === 0) hh = 12;
+    hh = hh % 12; if(hh === 0) hh = 12;
     const mm = String(d.getMinutes()).padStart(2,'0');
     const ss = String(d.getSeconds()).padStart(2,'0');
     const hh2 = String(hh).padStart(2,'0');
     return `${hh2}:${mm}:${ss} ${ampm}`;
   }
 
-  // ===== Amount to Arabic words (same as sales) =====
+  // ===== Amount words =====
   function numberToArabicWords(number){
     number = Number(number) || 0;
     if(number === 0) return "0 جنيه مصري فقط لا غير";
@@ -686,7 +676,7 @@
     return `${parts.join(" و ")} جنيه مصري فقط لا غير`;
   }
 
-  // ===== Products cache (same lookup logic as sales) =====
+  // ===== Products cache =====
   let productsByBarcode = new Map();
   let productsList = [];
 
@@ -697,19 +687,15 @@
         productsList = res.products.map(p=>({
           barcode: String(p.barcode||""),
           name: String(p.name||""),
-          price: Number(p.price||0), // هنستخدمه كـ default cost لو تحب
+          price: Number(p.price||0),
           raw: p
         }));
         productsByBarcode = new Map(productsList.filter(p=>p.barcode).map(p=>[p.barcode, p]));
       }
-    } catch(e) {
-      // ignore
-    }
+    } catch(e) {}
   }
 
-  // ===== Items state =====
-  let items = []; // {barcode, product_id, name, qty, unit_cost}
-
+  // ===== Lookup UI =====
   const barcodeInp = document.getElementById('barcode');
   const suggestBox = document.getElementById('lookupSuggest');
   const qtyInp = document.getElementById('qty');
@@ -741,33 +727,31 @@
     return hit || null;
   }
 
-  function fillProductNameByBarcode() {
+  function fillKnownProductIfExists(){
     const raw = String(barcodeInp.value||'').trim();
     if(!raw){
-      productNameInp.value = '';
+      // سيب الاسم زي ما هو (ممكن المستخدم كاتبه)
       return;
     }
 
+    // 1) match by barcode
     const p = productsByBarcode.get(raw);
     if(p){
       productNameInp.value = p.name || '';
-      // default cost لو فاضي/صفر فقط
-      if(String(unitCostInp.value||'').trim()==='' || Number(unitCostInp.value||0)===0){
-        unitCostInp.value = Number(p.price||0) ? String(Number(p.price||0)) : '';
-      }
       return;
     }
 
+    // 2) match by name typed in barcode field (user writes name)
     const byName = findByName(raw);
     if(byName){
       productNameInp.value = byName.name || '';
-      if(String(unitCostInp.value||'').trim()==='' || Number(unitCostInp.value||0)===0){
-        unitCostInp.value = Number(byName.price||0) ? String(Number(byName.price||0)) : '';
-      }
+      // لو المستخدم اختار اسم موجود، ممكن نخلي الباركود الحقيقي يظهر بدل الاسم
+      if(byName.barcode) barcodeInp.value = byName.barcode;
       return;
     }
 
-    productNameInp.value = '';
+    // not found: خليه يكتب اسم المنتج يدوي في productNameInp
+    // (متعملش مسح للاسم عشان لو كان كاتب)
   }
 
   function selectSuggested(i){
@@ -779,11 +763,9 @@
 
     barcodeInp.value = "";
     requestAnimationFrame(()=>{
-      barcodeInp.value = p.barcode || p.name || "";
-      fillProductNameByBarcode();
-      if((!productNameInp.value || productNameInp.value === "—") && p.name){
-        productNameInp.value = p.name;
-      }
+      // نفضّل الباركود الحقيقي
+      barcodeInp.value = p.barcode || "";
+      productNameInp.value = p.name || "";
       unitCostInp.focus();
       try{ unitCostInp.select(); }catch(e){}
       setTimeout(()=>{ isPickingSuggestion = false; }, 0);
@@ -830,16 +812,6 @@
       return;
     }
 
-    const barcodeLike = /^[0-9]{3,}$/.test(q);
-    if(barcodeLike){
-      const exact = productsByBarcode.get(String(barcodeInp.value).trim());
-      if(exact){
-        closeSuggest();
-        fillProductNameByBarcode();
-        return;
-      }
-    }
-
     const list = [];
     for(const p of productsList){
       if(list.length >= 12) break;
@@ -852,6 +824,9 @@
     suggestItems = list;
     suggestIndex = list.length ? 0 : -1;
     renderSuggest();
+
+    // في نفس الوقت جرّب يملأ الاسم تلقائي لو match قوي
+    fillKnownProductIfExists();
   }
 
   function debounceSuggest(){
@@ -861,15 +836,15 @@
 
   barcodeInp.addEventListener('input', ()=>{
     if(isPickingSuggestion) return;
-    fillProductNameByBarcode();
     debounceSuggest();
   });
-  barcodeInp.addEventListener('change', ()=>{ fillProductNameByBarcode(); closeSuggest(); });
+  barcodeInp.addEventListener('change', ()=>{ fillKnownProductIfExists(); closeSuggest(); });
   barcodeInp.addEventListener('focus', ()=>{ debounceSuggest(); });
   barcodeInp.addEventListener('blur', ()=>{
     setTimeout(()=>{
       if(isPickingSuggestion) return;
       closeSuggest();
+      fillKnownProductIfExists();
     }, 220);
   });
 
@@ -909,6 +884,9 @@
     if(!inside) closeSuggest();
   }, true);
 
+  // ===== Items state =====
+  let items = []; // {barcode, name, qty, unit_cost, isNew}
+
   const itemsBody = document.getElementById('itemsBody');
 
   function calcLineTotal(it){
@@ -918,11 +896,12 @@
   function render(){
     itemsBody.innerHTML = items.map((it, idx)=>{
       const lineTotal = calcLineTotal(it);
+      const badge = it.isNew ? " (NEW)" : "";
       return `
       <tr>
         <td data-label="#">${idx+1}</td>
-        <td data-label="الباركود">${esc(it.barcode||'')}</td>
-        <td data-label="المنتج">${esc(it.name||'')}</td>
+        <td data-label="الباركود">${esc(it.barcode||'—')}</td>
+        <td data-label="المنتج">${esc((it.name||'') + badge)}</td>
         <td data-label="الكمية">
           <input type="number" min="1" value="${esc(it.qty)}" data-idx="${idx}" data-field="qty">
         </td>
@@ -974,32 +953,45 @@
   document.getElementById('discount').addEventListener('input', render);
   document.getElementById('tax').addEventListener('input', render);
 
+  // ✅ منطق إضافة صنف مشتريات
   document.getElementById('addItemBtn').addEventListener('click', ()=>{
-    const rawLookup = String(barcodeInp.value||'').trim();
+    const lookup = String(barcodeInp.value||'').trim();      // باركود أو اسم
+    const nameManual = String(productNameInp.value||'').trim(); // اسم يدوي
     const qty = toNum(qtyInp.value);
     const unit_cost = toNum(unitCostInp.value);
 
-    let p = productsByBarcode.get(rawLookup) || null;
-    let barcode = rawLookup;
+    if(!lookup && !nameManual) return toast('اكتب/امسح الباركود أو اكتب اسم المنتج');
+    if(qty <= 0) return toast('الكمية غير صحيحة');
+    if(unit_cost <= 0) return toast('اكتب سعر الشراء');
 
-    if(!p){
-      const byName = findByName(rawLookup);
-      if(byName){
-        p = byName;
-        barcode = byName.barcode || rawLookup;
-      }
+    // حاول يحدد لو المنتج موجود
+    let p = null;
+    if(lookup){
+      p = productsByBarcode.get(lookup) || findByName(lookup);
+    }else if(nameManual){
+      p = findByName(nameManual);
     }
 
-    if(!rawLookup) return toast('اكتب/امسح الباركود أو اسم الصنف أولاً');
-    if(qty <= 0) return toast('الكمية غير صحيحة');
-    if(unit_cost < 0) return toast('سعر الشراء غير صحيح');
+    let outBarcode = "";
+    let outName = "";
+
+    if(p){
+      // موجود
+      outBarcode = String(p.barcode||"").trim();
+      outName = String(p.name||"").trim();
+    }else{
+      // جديد: السيرفر يولّد Barcode + SKU => نرسل barcode فاضي
+      outBarcode = "";
+      outName = nameManual || lookup;
+      if(!outName) return toast('اكتب اسم المنتج للصنف الجديد');
+    }
 
     items.push({
-      barcode,
-      product_id: p ? (p.raw && p.raw.product_id ? p.raw.product_id : (p.product_id || '')) : '',
-      name: p ? (p.name||'') : (String(productNameInp.value||'') || ''),
+      barcode: outBarcode,     // لو جديد: ""
+      name: outName,
       qty,
-      unit_cost
+      unit_cost,
+      isNew: !p
     });
 
     barcodeInp.value = '';
@@ -1008,6 +1000,13 @@
     unitCostInp.value = '';
     closeSuggest();
     barcodeInp.focus();
+
+    if(!p){
+      showMsg("warn", "🆕 تم إضافة صنف جديد بدون باركود.\nعند حفظ الفاتورة: النظام سيولّد Barcode + SKU تلقائيًا.");
+    }else{
+      showMsg("ok", "✅ تمت إضافة الصنف الموجود من النظام.");
+    }
+
     render();
   });
 
@@ -1037,11 +1036,11 @@
         discount: Math.max(0, toNum(document.getElementById('discount').value)),
         tax: Math.max(0, toNum(document.getElementById('tax').value)),
         notes: String(document.getElementById('notes').value||'').trim(),
-        // extra fields (لن تضر لو السيرفر يتجاهلها)
         supplier_phone: String(document.getElementById('supplierPhone').value||'').trim(),
         supplier_address: String(document.getElementById('supplierAddress').value||'').trim(),
         pay_method: String(document.getElementById('payMethod').value||'').trim(),
         items: items.map(it=>({
+          // ✅ لو الصنف جديد: barcode فاضي => السيرفر يولّد Barcode + SKU
           barcode: String(it.barcode||'').trim(),
           name: String(it.name||'').trim(),
           qty: toNum(it.qty),
@@ -1053,7 +1052,6 @@
 
       const out = await AxentroApi.createPurchase(payload);
 
-      // لو API بيرجع رقم الفاتورة
       const invNo = (out && (out.purchase_invoice_no || out.invoice_no || out.invNo)) ? (out.purchase_invoice_no || out.invoice_no || out.invNo) : "";
       if(invNo) document.getElementById('invNo').value = invNo;
 
@@ -1061,13 +1059,24 @@
         showMsg("ok", `✅ تم حفظ فاتورة المشتريات بنجاح${invNo ? ("\nرقم الفاتورة: " + invNo) : ""}`);
       }else{
         showMsg("bad", (out && (out.error||out.message)) ? (out.error||out.message) : "فشل الحفظ");
+        return;
       }
+
+      // clear items only
+      items = [];
+      render();
+      barcodeInp.value = "";
+      productNameInp.value = "";
+      qtyInp.value = "1";
+      unitCostInp.value = "";
+      barcodeInp.focus();
+
     }catch(e){
       showMsg("bad", e && e.message ? e.message : String(e));
     }
   });
 
-  // ===== Printing =====
+  // ===== Printing (A4 + Thermal) =====
   function getInvoiceData(){
     const invNo = document.getElementById('invNo').value || "";
     const invDate = document.getElementById('invDate').value || "";
@@ -1086,7 +1095,7 @@
       const qty = toNum(it.qty);
       const cost = toNum(it.unit_cost);
       const total = qty * cost;
-      return { idx: idx+1, barcode: it.barcode, name: it.name, qty, cost, total };
+      return { idx: idx+1, barcode: it.barcode || "—", name: it.name, qty, cost, total };
     });
 
     const totalBefore = itemsOut.reduce((s,i)=> s + i.total, 0);
@@ -1319,7 +1328,6 @@
   document.getElementById('thermal80Btn').addEventListener('click', ()=> printThermal(80));
   document.getElementById('thermal58Btn').addEventListener('click', ()=> printThermal(58));
 
-  // ===== Invoice number PU001 (fallback) =====
   (async function initInvoiceNo(){
     try{
       const fallback = "PU001";
@@ -1328,7 +1336,7 @@
     }catch(e){}
   })();
 
-  // ===== Scanner (same as sales) =====
+  // ===== Scanner =====
   const scanModal = document.getElementById('scanModal');
   const scanBtn = document.getElementById('scanBtn');
   const closeScanBtn = document.getElementById('closeScanBtn');
@@ -1350,14 +1358,10 @@
   }
 
   async function stopCamera(){
+    try{ if(rafId) cancelAnimationFrame(rafId); }catch(e){}
+    rafId = null;
     try{
-      if(rafId) cancelAnimationFrame(rafId);
-      rafId = null;
-    }catch(e){}
-    try{
-      if(stream){
-        stream.getTracks().forEach(t=>t.stop());
-      }
+      if(stream){ stream.getTracks().forEach(t=>t.stop()); }
     }catch(e){}
     stream = null;
     track = null;
@@ -1388,19 +1392,26 @@
         try{
           const codes = await detector.detect(video);
           if(codes && codes.length){
-            const raw = codes[0].rawValue || "";
+            const raw = (codes[0].rawValue || "").trim();
             if(raw){
               barcodeInp.value = raw;
-              fillProductNameByBarcode();
+              fillKnownProductIfExists();
               closeSuggest();
 
-              // ✅ صوت عند نجاح الاسكان
               playScanSound();
-
               toast("✅ تم التقاط الكود");
+
               await stopCamera();
               hideModal();
-              unitCostInp.focus();
+
+              // لو المنتج معروف: focus على السعر
+              // لو مش معروف: focus على الاسم عشان يكتبه
+              const known = productsByBarcode.get(raw);
+              if(known){
+                unitCostInp.focus();
+              }else{
+                productNameInp.focus();
+              }
               return;
             }
           }
