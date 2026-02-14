@@ -12,6 +12,7 @@
       --muted:#64748b;
       --stroke:#e6e8ee;
       --shadow:0 18px 50px rgba(15,23,42,.10);
+      --shadow2:0 26px 70px rgba(15,23,42,.12);
       --radius:18px;
 
       --gold1:#D4AF37;
@@ -63,6 +64,9 @@
       box-shadow: var(--shadow);
       backdrop-filter: blur(10px);
       flex-wrap:wrap;
+      position:sticky;  /* ✅ احترافي */
+      top:0;
+      z-index:10;
     }
 
     .brand{display:flex;align-items:center;gap:12px;min-width:240px}
@@ -97,7 +101,34 @@
       touch-action: manipulation;
       white-space:nowrap;
     }
+    .btn:hover{ filter:brightness(1.02); }
     .btn:active{transform:translateY(1px)}
+
+    /* ✅ بلوك مقدمة بسيط يدي شكل ERP */
+    .hero{
+      margin-top:14px;
+      border:1px solid rgba(212,175,55,.25);
+      background: linear-gradient(135deg, rgba(255,255,255,.90), rgba(255,255,255,.70));
+      border-radius:18px;
+      box-shadow: var(--shadow2);
+      padding:14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+    .hero .h1{margin:0;font-weight:1000;font-size:14px}
+    .hero .h2{margin:6px 0 0;font-size:12px;color:var(--muted);font-weight:900;line-height:1.7}
+    .hero .badge{
+      padding:10px 12px;
+      border-radius:16px;
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.85);
+      font-weight:1000;
+      box-shadow: 0 8px 18px rgba(15,23,42,.06);
+      white-space:nowrap;
+    }
 
     .grid{
       margin-top:14px;
@@ -112,9 +143,26 @@
       background: rgba(255,255,255,.92);
       box-shadow: var(--shadow);
       overflow:hidden;
-      transition: transform .15s ease, filter .15s ease, border-color .15s ease;
+      transition: transform .15s ease, filter .15s ease, border-color .15s ease, box-shadow .15s ease;
+      position:relative;
+      isolation:isolate;
     }
-    .card:hover{ transform: translateY(-1px); filter: brightness(1.01); }
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:-40% -40% auto auto;
+      width:220px;
+      height:220px;
+      background: radial-gradient(circle at 30% 30%, rgba(212,175,55,.16), transparent 60%);
+      transform: rotate(10deg);
+      z-index:-1;
+      pointer-events:none;
+    }
+    .card:hover{
+      transform: translateY(-2px);
+      filter: brightness(1.01);
+      box-shadow: 0 26px 70px rgba(15,23,42,.12);
+    }
 
     /* ✅ Highlight الصفحة الحالية */
     .card.active{
@@ -133,7 +181,7 @@
       min-height:78px;
     }
     .c1{font-weight:1000}
-    .c2{font-size:12px;color:var(--muted);font-weight:900;margin-top:4px}
+    .c2{font-size:12px;color:var(--muted);font-weight:900;margin-top:4px;line-height:1.6}
 
     .ico{
       width:46px;height:46px;border-radius:16px;flex:0 0 auto;
@@ -148,6 +196,7 @@
       .actions{justify-content:stretch}
       .btn{width:100%}
       .pill{width:100%; text-align:center}
+      .hero .badge{width:100%; text-align:center}
     }
 
     .site-footer{
@@ -162,6 +211,42 @@
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    /* ✅ QR موحّد + clickable + Scan me */
+    .qrBox{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+    }
+    .qrLink{
+      text-decoration:none;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+    }
+    .qrLink img{
+      width:120px;
+      height:120px;
+      max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img,
+    .qrLink:active img{
+      transform:scale(1.03);
+      box-shadow:0 14px 34px rgba(2,6,23,.12);
+    }
+    .qrText{
+      font-size:12px;
+      font-weight:1000;
+      color:#334155;
+    }
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
 
@@ -199,7 +284,8 @@
     <header class="top">
       <div class="brand">
         <div class="logo">
-          <img src="images/bslogo.webp" alt="BS Logo"
+          <!-- ✅ توحيد اللوجو: assets/logo.png -->
+          <img src="assets/logo.png" alt="BS Logo"
                onerror="this.onerror=null;this.style.display='none';this.parentElement.textContent='BS'">
         </div>
         <div>
@@ -213,6 +299,15 @@
         <button class="btn" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
       </div>
     </header>
+
+    <!-- ✅ إضافة بسيطة احترافية بدون لمس الروابط -->
+    <section class="hero" aria-label="مقدمة">
+      <div>
+        <p class="h1">مرحبًا 👋</p>
+        <p class="h2">اختر الوحدة المطلوبة (مبيعات / مشتريات / مخزن / تقارير). جميع العمليات متصلة بـ Google Sheets عبر Apps Script.</p>
+      </div>
+      <div class="badge">ERP Backoffice</div>
+    </section>
 
     <section class="grid" aria-label="روابط الإدارة">
       <div class="card"><a href="Sales-invoice.html"><div><div class="c1">فاتورة مبيعات</div><div class="c2">إنشاء فاتورة + طباعة + PDF</div></div><div class="ico">🧾</div></a></div>
@@ -230,17 +325,25 @@
   <footer class="site-footer">
     <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
     <div class="line2">By Ahmed Hamouda</div>
+
+    <!-- ✅ إضافة QR موحد -->
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code">
+        <span class="qrText">Scan me</span>
+      </a>
+    </div>
   </footer>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="config.js"></script>
-<script src="app.js"></script>
-<script>AxentroAuth.requireAuth();</script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>AxentroAuth.requireAuth();</script>
 
-<script>
-  const _lb = document.getElementById("logoutBtn");
-  if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
-</script>
+  <script>
+    const _lb = document.getElementById("logoutBtn");
+    if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
+  </script>
 </body>
 </html>
