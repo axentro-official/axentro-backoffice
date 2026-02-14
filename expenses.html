@@ -85,26 +85,10 @@
       .row2{grid-template-columns:repeat(1,1fr);}
       .row3{grid-template-columns:repeat(1,1fr);}
     }
-
-    /* ✅ التعديل المطلوب: الزرارين جنب بعض على الموبايل */
     @media (max-width:720px){
       .topbar{flex-direction:column;align-items:stretch}
-
-      /* كان ده بيخلي كل زر ياخد سطر لوحده */
-      .topbar a,.topbar button{width:auto}
-
-      .topActions{
-        display:flex !important;
-        gap:10px;
-        flex-wrap:nowrap;
-        width:100%;
-      }
-      .topActions a,.topActions button{
-        flex:1 1 0;
-        width:100%;
-      }
+      .topbar a,.topbar button{width:100%}
     }
-
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
       input, select, textarea{ font-size:16px; }
