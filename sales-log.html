@@ -133,7 +133,13 @@
     }
     .pill .k{color:var(--muted);font-weight:900}
 
-    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
     table{
       width:100%;
       border-collapse:collapse;
@@ -280,7 +286,7 @@
       </div>
     </div>
 
-    <div class="topActions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
@@ -333,7 +339,7 @@
 
     <div class="pillRow">
       <div class="pill"><span class="k">عدد النتائج:</span> <span id="countTxt">0</span></div>
-      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span></div>
+      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span> <span style="color:#64748b;font-weight:900">جنيه</span></div>
       <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
     </div>
   </div>
@@ -640,6 +646,9 @@
     $("countTxt").textContent = String(count);
     $("sumTxt").textContent = sum.toFixed(2);
 
+    // ✅ UX: اجعلها دايمًا محدثة مع كل render
+    setLastSync(Date.now());
+
     if(!count){
       if(empty) empty.style.display = "block";
       return;
@@ -757,7 +766,7 @@
   });
 
   $("importBtn")?.addEventListener("click", importManual);
-  $("clearImportBtn")?.addEventListener("click", ()=>{ $("importTa").value = ""; });
+  $("clearImportBtn")?.addEventListener("click", ()=>{ const ta = $("importTa"); if(ta) ta.value = ""; });
   $("clearLocalBtn")?.addEventListener("click", clearLocal);
 
   // ===== BOOT =====
