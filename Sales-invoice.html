@@ -552,16 +552,25 @@
     setTimeout(()=>toastEl.classList.remove('show'), 2200);
   }
 
-  // ===== ✅ Scan Success Sound (WebAudio) =====
-  let _scanAudioCtx = null;
+  // ===== ✅ Scan Success Sound (assets/scan.mp3) - Volume 100% =====
+  const _scanAudio = new Audio("assets/scan.mp3");
+  _scanAudio.preload = "auto";
+  _scanAudio.volume = 1;
 
-  async function initScanAudio(){
+  function primeScanAudio(){
+    // تشغيل/إيقاف سريع داخل Gesture المستخدم (لـ Android/iOS)
     try{
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if(!AudioCtx) return;
-      if(!_scanAudioCtx) _scanAudioCtx = new AudioCtx();
-      if(_scanAudioCtx.state === "suspended"){
-        await _scanAudioCtx.resume();
+      _scanAudio.volume = 1;
+      _scanAudio.currentTime = 0;
+      const p = _scanAudio.play();
+      if(p && typeof p.then === "function"){
+        p.then(()=>{
+          _scanAudio.pause();
+          _scanAudio.currentTime = 0;
+        }).catch(()=>{});
+      }else{
+        _scanAudio.pause();
+        _scanAudio.currentTime = 0;
       }
     }catch(e){
       // ignore
@@ -570,37 +579,11 @@
 
   function playScanSound(){
     try{
-      if(!_scanAudioCtx) return;
-      const ctx = _scanAudioCtx;
-      const now = ctx.currentTime;
-
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.type = "triangle";
-
-      // نغمتين (Chime) أوضح وأعلى
-      o.frequency.setValueAtTime(1046.5, now);              // C6
-      o.frequency.exponentialRampToValueAtTime(1568.0, now + 0.08); // G6-ish
-
-      g.gain.setValueAtTime(0.0001, now);
-      g.gain.exponentialRampToValueAtTime(0.35, now + 0.01);
-      g.gain.exponentialRampToValueAtTime(0.0001, now + 0.16);
-
-      o.connect(g).connect(ctx.destination);
-      o.start(now);
-      o.stop(now + 0.17);
-
-      const o2 = ctx.createOscillator();
-      const g2 = ctx.createGain();
-      o2.type = "sine";
-      o2.frequency.setValueAtTime(784.0, now + 0.10); // G5
-      o2.frequency.exponentialRampToValueAtTime(1174.7, now + 0.18); // D6-ish
-      g2.gain.setValueAtTime(0.0001, now + 0.10);
-      g2.gain.exponentialRampToValueAtTime(0.28, now + 0.11);
-      g2.gain.exponentialRampToValueAtTime(0.0001, now + 0.24);
-      o2.connect(g2).connect(ctx.destination);
-      o2.start(now + 0.10);
-      o2.stop(now + 0.25);
+      _scanAudio.volume = 1;
+      _scanAudio.pause();
+      _scanAudio.currentTime = 0;
+      const p = _scanAudio.play();
+      if(p && typeof p.catch === "function") p.catch(()=>{});
     }catch(e){
       // ignore
     }
@@ -1448,8 +1431,8 @@
 
   scanBtn.addEventListener('click', async ()=>{
     try{
-      // ✅ مهم: تفعيل الصوت داخل gesture المستخدم (علشان Android/Safari)
-      await initScanAudio();
+      // ✅ مهم: تجهيز الصوت داخل Gesture المستخدم
+      primeScanAudio();
 
       showModal();
       await startCamera();
