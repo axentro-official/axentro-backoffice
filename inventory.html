@@ -14,10 +14,7 @@
       --shadow:0 18px 50px rgba(15,23,42,.10);
       --radius:18px;
 
-      --gold1:#D4AF37;
-      --gold2:#B8860B;
       --goldSoft: rgba(212,175,55,.18);
-      --goldSoft2: rgba(184,134,11,.12);
 
       --ok:#16a34a;
       --okSoft: rgba(22,163,74,.10);
@@ -26,12 +23,11 @@
       --warnSoft: rgba(245,158,11,.12);
 
       --bad:#dc2626;
-      --badSoft: rgba(220,38,38,.09);
+      --badSoft: rgba(220,38,38,.10);
     }
 
     *{box-sizing:border-box}
     html,body{height:100%}
-
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
@@ -41,345 +37,235 @@
         radial-gradient(760px 520px at 90% 20%, rgba(15,23,42,.05), transparent 60%),
         linear-gradient(180deg, var(--bg), #f7f8fb);
       min-height:100vh;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
       -webkit-font-smoothing:antialiased;
-      padding: 14px;
-      padding-bottom: calc(14px + env(safe-area-inset-bottom));
+      padding: 18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
-    .wrap{
-      width:min(980px, 92vw);
-      margin:0 auto;
-      padding: 12px 0;
+    /* ✅ Container ثابت + يمنع أي انحرافات */
+    .container{
+      width:min(1180px, 94vw);
+      margin-inline:auto;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:14px;
     }
 
-    /* Topbar */
     .topbar{
       display:flex;
-      justify-content:space-between;
       align-items:center;
-      flex-wrap:wrap;
+      justify-content:space-between;
       gap:12px;
-      padding:12px 14px;
-      border-radius:18px;
-      background: rgba(255,255,255,.88);
-      border:1px solid rgba(15,23,42,.10);
-      box-shadow: 0 18px 50px rgba(2,6,23,.08);
-      backdrop-filter: blur(10px);
+      flex-wrap:wrap;
+      background:rgba(255,255,255,.92);
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
     }
 
     .brand{
       display:flex;
       align-items:center;
-      gap:12px;
+      gap:10px;
       min-width: 220px;
     }
-
     .logo{
-      width:44px;height:44px;border-radius:999px;
-      display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
       border:1px solid rgba(212,175,55,.35);
       box-shadow: 0 10px 26px rgba(15,23,42,.10);
-      overflow:hidden;
-      padding:6px;
-      flex:0 0 auto;
+      overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-
-    .brand h1{margin:0;font-size:14px;font-weight:1000;line-height:1.2}
+    .brand h1{margin:0;font-size:14px;font-weight:1000;line-height:1.1}
     .brand p{margin:2px 0 0;font-size:12px;color:var(--muted);font-weight:900}
 
     .actions{
       display:flex;
       gap:10px;
-      flex-wrap:wrap;
       align-items:center;
-      justify-content:flex-end;
+      flex-wrap:wrap;
     }
 
     .btn{
-      border:1px solid rgba(15,23,42,.12);
+      appearance:none;
+      border:1px solid var(--stroke);
       background:rgba(255,255,255,.92);
-      box-shadow:0 10px 24px rgba(2,6,23,.07);
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
       padding:10px 12px;
       border-radius:14px;
-      cursor:pointer;
       font-weight:1000;
-      color:#0f172a;
-      font-size:12px;
+      cursor:pointer;
       touch-action: manipulation;
+      color:var(--text);
+      font-size:13px;
+      line-height:1;
       white-space:nowrap;
     }
     .btn:active{transform:translateY(1px)}
     .btn.primary{
-      border:1px solid rgba(212,175,55,.55);
+      border-color: rgba(212,175,55,.55);
       background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
+      box-shadow:0 12px 22px rgba(212,175,55,.14);
     }
     .btn.danger{
-      border:1px solid rgba(220,38,38,.25);
-      background: rgba(220,38,38,.08);
+      border-color: rgba(220,38,38,.25);
+      background: rgba(220,38,38,.06);
       color:#991b1b;
     }
 
-    @media (max-width:720px){
-      .wrap{width:min(980px, 96vw)}
-      .topbar{padding:12px}
-      .brand{flex:1; min-width: unset}
-      .actions{width:100%; justify-content:flex-start}
-      .btn{flex:1}
+    /* ✅ Grid: على الموبايل عمود واحد، على اللاب فلتر + جدول */
+    .grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns: 1fr;
+      align-items:start;
+    }
+    @media (min-width: 980px){
+      .grid{ grid-template-columns: 380px 1fr; }
     }
 
-    /* Cards */
     .card{
       background:rgba(255,255,255,.92);
-      border:1px solid rgba(15,23,42,.10);
-      box-shadow: var(--shadow);
-      border-radius: 18px;
-      padding: 14px;
+      border:1px solid var(--stroke);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:12px;
     }
+
     .card h2{
-      margin:0 0 8px;
+      margin:0 0 10px 0;
       font-size:14px;
       font-weight:1000;
     }
-    .hint{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      line-height:1.6;
-    }
+    .muted{color:var(--muted); font-weight:900; font-size:12px}
 
-    /* Filters */
-    .grid{
-      display:grid;
-      grid-template-columns: 1.2fr .8fr .8fr .8fr;
-      gap:10px;
-      align-items:end;
-    }
-    label{
-      display:block;
-      font-size:12px;
-      color:var(--muted);
-      margin:0 0 6px;
-      font-weight:900;
-    }
+    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
+
     input, select{
       width:100%;
-      border:1px solid rgba(15,23,42,.12);
-      background: rgba(255,255,255,.95);
-      border-radius:14px;
       padding:11px 12px;
-      font-size:14px;
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:rgba(255,255,255,.95);
       outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      font-size:14px;
     }
+    @media (max-width:720px){ input,select{font-size:16px;} }
     input:focus, select:focus{
       border-color: rgba(212,175,55,.65);
       box-shadow:0 10px 22px rgba(212,175,55,.14);
     }
-    /* منع Zoom على iOS */
-    @media (max-width:720px){ input,select{font-size:16px;} }
 
-    .filtersRow{
-      display:flex;
+    .filters{
+      display:grid;
       gap:10px;
-      flex-wrap:wrap;
-      margin-top:12px;
-      align-items:center;
+      grid-template-columns: 1fr;
     }
-    .filtersRow .btn{flex:0 0 auto}
+    @media (min-width: 520px){
+      .filters{ grid-template-columns: 1fr 1fr; }
+    }
+    @media (min-width: 980px){
+      .filters{ grid-template-columns: 1fr; }
+    }
 
-    .summary{
-      margin-top:12px;
+    .toolbar{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      align-items:center;
-      justify-content:space-between;
+      margin-top:10px;
+    }
+
+    .msg{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(15,23,42,.03);
+      font-weight:1000;
       font-size:12px;
+      line-height:1.7;
+      display:none;
+      word-break:break-word;
+    }
+    .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
+    .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
+    .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
+
+    .miniBar{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+      font-size:12px;
+      font-weight:1000;
       color:#334155;
-      font-weight:900;
     }
-    .summary .muted{color:var(--muted)}
+    .miniBar span{color:var(--muted); font-weight:900;}
 
-    @media (max-width:900px){
-      .grid{grid-template-columns: 1fr 1fr}
-    }
-    @media (max-width:520px){
-      .grid{grid-template-columns: 1fr}
-      .summary{gap:6px}
-    }
-
-    /* Table */
-    .tableCard{
-      padding:0;
+    /* ✅ Table wrapper: يحافظ على الشكل على الموبايل */
+    .tableWrap{
       overflow:auto;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background:#fff;
+      -webkit-overflow-scrolling: touch;
     }
     table{
       width:100%;
       border-collapse:separate;
       border-spacing:0;
-      min-width: 720px;
+      min-width: 820px; /* ✅ عشان الموبايل يعمل scroll بدل ما يبوظ */
     }
-    thead th{
-      position:sticky;
-      top:0;
-      background: rgba(248,250,252,.95);
-      backdrop-filter: blur(8px);
-      z-index:1;
-      text-align:right;
-      font-size:12px;
-      color:#334155;
-      padding:12px 12px;
-      border-bottom:1px solid rgba(15,23,42,.08);
-      font-weight:1000;
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid #eef1f6;
+      font-size:13px;
+      vertical-align:middle;
       white-space:nowrap;
     }
-    tbody td{
-      padding:12px 12px;
-      border-bottom:1px solid rgba(15,23,42,.06);
-      font-size:12px;
-      color:#0f172a;
-      vertical-align:middle;
+    th{
+      position:sticky;
+      top:0;
+      background:#fbfbfd;
+      font-weight:1000;
+      z-index:1;
     }
-    tbody tr:hover td{
-      background: rgba(212,175,55,.06);
-    }
+    tr:last-child td{border-bottom:none}
 
-    .tag{
+    .pill{
       display:inline-flex;
       align-items:center;
       gap:6px;
       padding:6px 10px;
       border-radius:999px;
-      font-weight:1000;
-      font-size:11px;
-      border:1px solid rgba(15,23,42,.10);
-      white-space:nowrap;
-    }
-    .tag.ok{ background:var(--okSoft); color:#14532d; border-color: rgba(22,163,74,.25); }
-    .tag.warn{ background:var(--warnSoft); color:#7c2d12; border-color: rgba(245,158,11,.25); }
-    .tag.bad{ background:var(--badSoft); color:#7f1d1d; border-color: rgba(220,38,38,.25); }
-
-    .rowBtns{
-      display:flex;
-      gap:8px;
-      flex-wrap:wrap;
-      justify-content:flex-start;
-    }
-    .rowBtns .btn{padding:8px 10px; border-radius:12px; font-size:11px}
-
-    /* Empty / Loading */
-    .empty{
-      padding:12px;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.10);
-      background: rgba(248,250,252,.9);
-      color:#334155;
+      border:1px solid var(--stroke);
       font-weight:1000;
       font-size:12px;
     }
-    .loading{
-      background: rgba(245,158,11,.12);
-      border:1px solid rgba(245,158,11,.22);
-      color:#7c2d12;
-    }
+    .pill.ok{border-color: rgba(22,163,74,.25); background: var(--okSoft); color:#14532d;}
+    .pill.low{border-color: rgba(245,158,11,.28); background: var(--warnSoft); color:#7c2d12;}
+    .pill.out{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
-    /* Toast */
-    .toast{
-      position:fixed;
-      left:14px;
-      bottom:14px;
-      z-index:9999;
-      min-width: min(420px, 92vw);
-      display:none;
-      padding:12px 14px;
-      border-radius:16px;
-      background: rgba(15,23,42,.92);
-      color:#fff;
-      box-shadow: 0 18px 50px rgba(2,6,23,.28);
-      font-size:12px;
-      font-weight:900;
-    }
-
-    /* Modal */
-    .modalWrap{
-      position:fixed; inset:0;
-      background: rgba(2,6,23,.55);
-      backdrop-filter: blur(6px);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      z-index:9998;
-    }
-    .modal{
-      width:min(720px, 96vw);
-      background: rgba(255,255,255,.95);
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:18px;
-      box-shadow: 0 30px 90px rgba(2,6,23,.30);
-      overflow:hidden;
-    }
-    .modalHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-      padding:12px 14px;
-      border-bottom:1px solid rgba(15,23,42,.10);
-      font-weight:1000;
-    }
-    .modalBody{padding:14px}
-    textarea{
-      width:100%;
-      min-height:160px;
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:14px;
-      padding:12px;
-      font-size:14px;
-      outline:none;
-      box-shadow:0 10px 22px rgba(15,23,42,.06);
-    }
-    .xbtn{
-      border:1px solid rgba(15,23,42,.12);
-      border-radius:12px;
-      background: rgba(255,255,255,.9);
-      cursor:pointer;
-      padding:8px 10px;
-      font-weight:1000;
-    }
-
-    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
-
-    /* Footer (unified like login) */
+    /* ✅ Footer: في النص دايمًا */
     .site-footer{
-      margin-top:auto;
-      padding:18px 0 20px;
-      display:flex;
-      justify-content:center;
-      width:100%;
-      padding-bottom: calc(20px + env(safe-area-inset-bottom));
-    }
-    .footer-card{
-      width:min(560px, 92vw);
+      margin-top:14px;
+      padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border:1px solid rgba(15,23,42,.10);
+      border:1px solid var(--stroke);
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
-      border-radius:18px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.08);
-      padding:16px 16px 18px;
+      border-radius:16px;
+      width:min(520px, 94vw);
+      margin-inline:auto; /* ✅ ده اللي كان ناقص عندك */
+      box-shadow: var(--shadow);
     }
-    .footer-card .line1{ font-weight:1000; color:#0f172a; }
-    .footer-card .line2{ margin-top:6px; font-weight:900; }
+    .site-footer .line1{ font-weight:1000; color:#0f172a; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; }
 
     .qrBox{
       margin-top:14px;
@@ -415,159 +301,429 @@
       font-weight:1000;
       color:#334155;
     }
+
+    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
   </style>
 </head>
 
 <body>
-  <main class="wrap">
-    <!-- TOPBAR -->
-    <div class="topbar" role="banner">
+  <div class="container">
+
+    <header class="topbar">
       <div class="brand">
-        <div class="logo" aria-hidden="true">
-          <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
+        <div class="logo">
+          <img src="assets/logo.png" alt="BS Logo">
         </div>
         <div>
           <h1>B.S Medical & Aesthetic</h1>
-          <p>المخزون (Inventory)</p>
+          <p>(Inventory) المخزون</p>
         </div>
       </div>
 
       <div class="actions">
-        <button class="btn" id="goDashboardBtn" type="button">← رجوع للداش بورد</button>
-        <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
+        <button class="btn" type="button" id="btnBack">← رجوع للداش بورد</button>
+        <button class="btn danger" type="button" id="btnLogout">تسجيل خروج</button>
       </div>
-    </div>
+    </header>
 
-    <!-- FILTERS -->
-    <section class="card" aria-label="بحث وفلترة">
-      <h2>بحث وفلترة</h2>
+    <section class="grid">
+      <!-- Filters -->
+      <aside class="card">
+        <h2>بحث وفلترة</h2>
 
-      <div class="grid">
-        <div>
-          <label for="q">بحث (SKU / الاسم / الباركود)</label>
-          <input id="q" type="search" placeholder="ابحث..." autocomplete="off" />
+        <div class="filters">
+          <div>
+            <label for="q">بحث (SKU / الاسم / الباركود)</label>
+            <input id="q" type="text" placeholder="ابحث..." autocomplete="off" />
+          </div>
+
+          <div>
+            <label for="status">الحالة</label>
+            <select id="status">
+              <option value="ALL">الكل</option>
+              <option value="OK">متوفر</option>
+              <option value="LOW">منخفض</option>
+              <option value="OUT">نفد</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="minQty">كمية من</label>
+            <input id="minQty" type="number" min="0" step="1" value="0" />
+          </div>
+
+          <div>
+            <label for="sort">ترتيب</label>
+            <select id="sort">
+              <option value="NAME_ASC">الاسم (أ-ي)</option>
+              <option value="NAME_DESC">الاسم (ي-أ)</option>
+              <option value="QTY_DESC">الكمية (الأكبر أولاً)</option>
+              <option value="QTY_ASC">الكمية (الأصغر أولاً)</option>
+              <option value="MIN_DESC">Min (الأكبر أولاً)</option>
+              <option value="MIN_ASC">Min (الأصغر أولاً)</option>
+            </select>
+          </div>
         </div>
 
-        <div>
-          <label for="status">الحالة</label>
-          <select id="status">
-            <option value="">الكل</option>
-            <option value="ok">ok</option>
-            <option value="low">low</option>
-            <option value="out">out</option>
-          </select>
+        <div class="toolbar">
+          <button class="btn primary" id="btnRefresh" type="button">تحديث</button>
+          <button class="btn" id="btnRebuild" type="button">مسح الكاش</button>
+          <button class="btn" id="btnCsv" type="button">تصدير CSV</button>
         </div>
 
-        <div>
-          <label for="minQty">كمية من</label>
-          <input id="minQty" type="number" min="0" value="0" />
+        <div id="msgOk" class="msg ok"></div>
+        <div id="msgWarn" class="msg warn"></div>
+        <div id="msgBad" class="msg bad"></div>
+
+        <div class="miniBar" style="margin-top:12px">
+          <div><span>عدد النتائج:</span> <strong id="statCount">0</strong></div>
+          <div><span>إجمالي الكمية:</span> <strong id="statQty">0</strong></div>
         </div>
 
-        <div>
-          <label for="sortBy">ترتيب</label>
-          <select id="sortBy">
-            <option value="nameAsc">الاسم (أ-ي)</option>
-            <option value="nameDesc">الاسم (ي-أ)</option>
-            <option value="qtyDesc">الكمية (الأكثر)</option>
-            <option value="qtyAsc">الكمية (الأقل)</option>
-          </select>
+        <div class="miniBar">
+          <div><span>آخر تحديث:</span> <strong id="statUpdated">—</strong></div>
         </div>
-      </div>
+      </aside>
 
-      <div class="filtersRow">
-        <button class="btn primary" id="refreshBtn" type="button">تحديث</button>
-        <button class="btn" id="exportBtn" type="button">تصدير CSV</button>
-        <button class="btn" id="importOpenBtn" type="button">مسح الكاش</button>
-      </div>
+      <!-- Table -->
+      <main class="card">
+        <h2>قائمة المخزون</h2>
+        <p class="muted">عرض المخزون من Inventory_View (حسب المخزن الافتراضي).</p>
 
-      <div class="summary">
-        <div class="muted" id="lastSync">آخر تحديث: —</div>
-        <div id="countInfo">عدد النتائج: 0</div>
-        <div id="sumInfo">إجمالي الكمية: 0</div>
-      </div>
-
-      <div id="loadingBox" class="empty loading" style="display:none;margin-top:10px">
-        جاري التحميل...
-      </div>
+        <div class="tableWrap" aria-label="Inventory table container">
+          <table aria-label="Inventory">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>SKU</th>
+                <th>اسم المنتج</th>
+                <th>الكمية</th>
+                <th>Min</th>
+                <th>الحالة</th>
+                <th>إجراء</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="7">جاري التحميل…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
     </section>
 
-    <!-- TABLE -->
-    <section class="card tableCard" aria-label="قائمة المخزون">
-      <div style="padding:14px 14px 0">
-        <h2 style="margin:0">قائمة المخزون</h2>
-        <div class="hint">عرض المخزون من <b>Inventory_View</b> (حسب المخزن الافتراضي).</div>
-      </div>
-
-      <div style="padding:0 14px 14px">
-        <table aria-describedby="inventoryTableDesc">
-          <caption id="inventoryTableDesc" style="position:absolute;left:-9999px;">
-            جدول عرض المخزون
-          </caption>
-          <thead>
-            <tr>
-              <th style="min-width:70px">#</th>
-              <th style="min-width:140px">SKU</th>
-              <th style="min-width:220px">اسم المنتج</th>
-              <th style="min-width:120px">الكمية</th>
-              <th style="min-width:120px">Min</th>
-              <th style="min-width:140px">الحالة</th>
-              <th style="min-width:200px">إجراءات</th>
-            </tr>
-          </thead>
-          <tbody id="invBody"></tbody>
-        </table>
-
-        <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
-          لا توجد نتائج مطابقة للفلترة الحالية.
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="footer-card">
+    <footer class="site-footer">
       <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
       <div class="line2">By Ahmed Hamouda</div>
 
       <div class="qrBox">
+        <!-- ✅ خلي اللينك بتاع صفحة الـ links -->
         <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
           <img src="assets/qr.png" alt="QR Code">
           <span class="qrText">Scan me</span>
         </a>
       </div>
-    </div>
-  </footer>
+    </footer>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-  <!-- Import Modal -->
-  <div class="modalWrap" id="importModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-label="استيراد المخزون">
-      <div class="modalHead">
-        <div>📥 استيراد المخزون</div>
-        <button class="xbtn" id="closeImportBtn" type="button">✖</button>
-      </div>
-      <div class="modalBody">
-        <div class="hint" style="margin-top:0">
-          الصق <b>JSON Array</b> أو <b>CSV</b>.
-          <br>JSON مثال: <span dir="ltr">[{"sku":"101234","name":"Product","qty":10,"min":3},{"sku":"...","name":"...","qty":0}]</span>
-          <br>CSV مثال: <span dir="ltr">sku,name,qty,min,status</span>
-        </div>
-        <textarea id="importTa" rows="7" placeholder="الصق JSON/CSV هنا..."></textarea>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-          <button class="btn" id="importBtn" type="button">✅ استيراد</button>
-          <button class="btn" id="clearImportBtn" type="button">مسح</button>
-          <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح المخزون المحلي</button>
-        </div>
-      </div>
-    </div>
   </div>
 
-  <!-- App scripts -->
   <script src="config.js"></script>
   <script src="app.js"></script>
 
-  <!-- NOTE: منطق تحميل/عرض المخزون الحالي عندك بيشتغل من خلال app.js -->
+  <script>
+    (function(){
+      "use strict";
+
+      // ===== Auth guard =====
+      if (window.AxentroAuth && AxentroAuth.requireAuth) AxentroAuth.requireAuth();
+
+      // ===== Elements =====
+      const el = {
+        q: document.getElementById("q"),
+        status: document.getElementById("status"),
+        minQty: document.getElementById("minQty"),
+        sort: document.getElementById("sort"),
+        tbody: document.getElementById("tbody"),
+        statCount: document.getElementById("statCount"),
+        statQty: document.getElementById("statQty"),
+        statUpdated: document.getElementById("statUpdated"),
+        msgOk: document.getElementById("msgOk"),
+        msgWarn: document.getElementById("msgWarn"),
+        msgBad: document.getElementById("msgBad"),
+        btnRefresh: document.getElementById("btnRefresh"),
+        btnRebuild: document.getElementById("btnRebuild"),
+        btnCsv: document.getElementById("btnCsv"),
+        btnLogout: document.getElementById("btnLogout"),
+        btnBack: document.getElementById("btnBack"),
+      };
+
+      function showMsg(type, text){
+        el.msgOk.style.display = "none";
+        el.msgWarn.style.display = "none";
+        el.msgBad.style.display = "none";
+        if(!text) return;
+        const box = type === "ok" ? el.msgOk : (type === "warn" ? el.msgWarn : el.msgBad);
+        box.textContent = text;
+        box.style.display = "block";
+      }
+
+      function esc(s){
+        return String(s ?? "").replace(/[&<>"']/g, c => ({
+          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+        }[c]));
+      }
+
+      function fmtNum(n){
+        const x = Number(n||0);
+        return (Number.isFinite(x) ? x : 0);
+      }
+
+      /* ✅ حل مشكلة "الحالة فاضية": نحسبها هنا حتى لو السيرفر ما رجّعهاش */
+      function computeStatus(qty, min){
+        const q = fmtNum(qty);
+        const m = Math.max(0, fmtNum(min));
+        if(q <= 0) return "OUT";
+        if(q <= m) return "LOW";
+        return "OK";
+      }
+
+      function statusPill(status){
+        if(status === "OK") return '<span class="pill ok">متوفر</span>';
+        if(status === "LOW") return '<span class="pill low">منخفض</span>';
+        if(status === "OUT") return '<span class="pill out">نفد</span>';
+        return '<span class="pill">'+esc(status)+'</span>';
+      }
+
+      let rawItems = [];
+
+      function applyFilters(){
+        const q = (el.q.value || "").trim().toLowerCase();
+        const st = el.status.value || "ALL";
+        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
+        const sort = el.sort.value || "NAME_ASC";
+
+        let items = rawItems.slice();
+
+        if(q){
+          items = items.filter(it => {
+            const hay = [it.sku, it.name, it.barcode]
+              .map(v => String(v||"").toLowerCase())
+              .join(" ");
+            return hay.includes(q);
+          });
+        }
+
+        if(st !== "ALL"){
+          items = items.filter(it => String(it._status||"") === st);
+        }
+
+        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
+
+        items.sort((a,b) => {
+          const an = String(a.name||"");
+          const bn = String(b.name||"");
+          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
+          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
+          switch(sort){
+            case "NAME_DESC": return bn.localeCompare(an, "ar");
+            case "QTY_DESC": return bq - aq;
+            case "QTY_ASC": return aq - bq;
+            case "MIN_DESC": return bmin - amin;
+            case "MIN_ASC": return amin - bmin;
+            default: return an.localeCompare(bn, "ar");
+          }
+        });
+
+        render(items);
+      }
+
+      function render(items){
+        const totalQty = items.reduce((acc,it)=> acc + fmtNum(it.on_hand_qty), 0);
+        el.statCount.textContent = String(items.length);
+        el.statQty.textContent = String(totalQty);
+
+        if(!items.length){
+          el.tbody.innerHTML = '<tr><td colspan="7">لا توجد نتائج.</td></tr>';
+          return;
+        }
+
+        el.tbody.innerHTML = items.map((it, idx) => {
+          const sku = esc(it.sku || "");
+          const name = esc(it.name || "");
+          const qty = fmtNum(it.on_hand_qty);
+          const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
+          const st = String(it._status || "");
+          const pid = esc(it.product_id || "");
+          return `
+            <tr>
+              <td>${idx+1}</td>
+              <td>${sku}</td>
+              <td>${name}</td>
+              <td>${qty}</td>
+              <td>${minEff}</td>
+              <td>${statusPill(st)}</td>
+              <td>
+                <button class="btn" type="button" data-edit-min="${pid}">تعديل</button>
+              </td>
+            </tr>
+          `;
+        }).join("");
+
+        // attach edit handlers
+        el.tbody.querySelectorAll("[data-edit-min]").forEach(btn => {
+          btn.addEventListener("click", async () => {
+            const pid = btn.getAttribute("data-edit-min");
+            const row = rawItems.find(x => String(x.product_id) === String(pid));
+            const current = row && row.min_effective != null ? fmtNum(row.min_effective) : 0;
+
+            const v = prompt("اكتب Min الجديد (رقم صحيح >= 0). اتركه فارغًا لإزالته.", String(current));
+            if(v === null) return;
+
+            let min_qty = v.trim();
+            if(min_qty === ""){
+              min_qty = "";
+            } else {
+              const n = Math.floor(Number(min_qty));
+              if(!Number.isFinite(n) || n < 0){
+                alert("قيمة غير صحيحة.");
+                return;
+              }
+              min_qty = n;
+            }
+
+            try{
+              showMsg("warn", "جاري تحديث Min...");
+              await AxentroApi.updateProductMinQty({ product_id: pid, min_qty });
+              showMsg("ok", "تم تحديث Min بنجاح.");
+              await loadData();
+            }catch(e){
+              showMsg("bad", (e && e.message) ? e.message : String(e));
+            }
+          });
+        });
+      }
+
+      async function loadData(){
+        try{
+          showMsg("warn", "جاري التحميل...");
+          el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
+
+          const out = await AxentroApi.getInventoryView();
+          const items = (out && out.items) ? out.items : [];
+
+          // ✅ جهّز status حتى لو السيرفر مش بيرجعه
+          rawItems = items.map(it => {
+            const minEff = (it.min_effective == null ? 0 : it.min_effective);
+            const st = it.status ? String(it.status) : computeStatus(it.on_hand_qty, minEff);
+            return Object.assign({}, it, { _status: st });
+          });
+
+          const last = out && out.updated_at ? out.updated_at : null;
+          el.statUpdated.textContent = last ? String(last) : "—";
+
+          showMsg("", "");
+          applyFilters();
+        }catch(e){
+          rawItems = [];
+          el.statUpdated.textContent = "—";
+          el.statCount.textContent = "0";
+          el.statQty.textContent = "0";
+          el.tbody.innerHTML = '<tr><td colspan="7">تعذر تحميل البيانات.</td></tr>';
+          showMsg("bad", (e && e.message) ? e.message : String(e));
+        }
+      }
+
+      function exportCsv(){
+        const rows = [];
+        rows.push(["sku","name","barcode","on_hand_qty","min_effective","status"].join(","));
+
+        // filter again
+        const q = (el.q.value || "").trim().toLowerCase();
+        const st = el.status.value || "ALL";
+        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
+        const sort = el.sort.value || "NAME_ASC";
+
+        let items = rawItems.slice();
+        if(q){
+          items = items.filter(it => {
+            const hay = [it.sku,it.name,it.barcode].map(v=>String(v||"").toLowerCase()).join(" ");
+            return hay.includes(q);
+          });
+        }
+        if(st !== "ALL") items = items.filter(it => String(it._status||"") === st);
+        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
+
+        items.sort((a,b) => {
+          const an = String(a.name||""), bn = String(b.name||"");
+          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
+          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
+          switch(sort){
+            case "NAME_DESC": return bn.localeCompare(an, "ar");
+            case "QTY_DESC": return bq - aq;
+            case "QTY_ASC": return aq - bq;
+            case "MIN_DESC": return bmin - amin;
+            case "MIN_ASC": return amin - bmin;
+            default: return an.localeCompare(bn, "ar");
+          }
+        });
+
+        for(const it of items){
+          const line = [
+            JSON.stringify(String(it.sku||"")),
+            JSON.stringify(String(it.name||"")),
+            JSON.stringify(String(it.barcode||"")),
+            fmtNum(it.on_hand_qty),
+            fmtNum(it.min_effective),
+            JSON.stringify(String(it._status||""))
+          ].join(",");
+          rows.push(line);
+        }
+
+        const csv = rows.join("\n");
+        const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "inventory.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // ===== Events =====
+      ["input","change"].forEach(ev => {
+        el.q.addEventListener(ev, applyFilters);
+        el.status.addEventListener(ev, applyFilters);
+        el.minQty.addEventListener(ev, applyFilters);
+        el.sort.addEventListener(ev, applyFilters);
+      });
+
+      el.btnRefresh.addEventListener("click", loadData);
+
+      el.btnRebuild.addEventListener("click", async () => {
+        try{
+          showMsg("warn", "جاري إعادة بناء Inventory View...");
+          await AxentroApi.rebuildInventoryView();
+          showMsg("ok", "تم إعادة البناء. جاري التحميل...");
+          await loadData();
+        }catch(e){
+          showMsg("bad", (e && e.message) ? e.message : String(e));
+        }
+      });
+
+      el.btnCsv.addEventListener("click", exportCsv);
+
+      el.btnLogout.addEventListener("click", () => {
+        try{ AxentroAuth.logout(); }catch(e){ location.href="login.html"; }
+      });
+
+      el.btnBack.addEventListener("click", () => {
+        location.href = "dashboard.html";
+      });
+
+      // start
+      loadData();
+    })();
+  </script>
 </body>
 </html>
