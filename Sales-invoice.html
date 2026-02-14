@@ -101,6 +101,9 @@
       cursor:pointer;
       font-weight:1000;
       line-height:1.4;
+      /* مهم للموبايل */
+      touch-action: manipulation;
+      user-select: none;
     }
     .suggestItem:hover{ background: rgba(176,141,87,.10); }
     .suggestItem.active{ background: rgba(176,141,87,.16); outline: 2px solid rgba(176,141,87,.22); }
@@ -656,6 +659,9 @@
   let suggestIndex = -1;
   let suggestTimer = null;
 
+  // ✅ FIX: منع blur/input من إلغاء الاختيار في أول ضغطة (مشكلة الموبايل)
+  let isPickingSuggestion = false;
+
   function normalize(s){ return String(s||"").trim().toLowerCase(); }
 
   function closeSuggest(){
@@ -667,13 +673,42 @@
     }
   }
 
+  function selectSuggested(i){
+    const p = suggestItems[i];
+    if(!p) return;
+
+    isPickingSuggestion = true;
+
+    // اقفل القائمة فورًا (قبل أي blur) + ثبت القيمة
+    closeSuggest();
+
+    // امسح الأول لمنع بعض أجهزة الموبايل من إعادة إدخال query القديم
+    barcodeInp.value = "";
+
+    requestAnimationFrame(()=>{
+      barcodeInp.value = p.barcode || p.name || "";
+
+      fillProductNameByBarcode(); // will set name + price when barcode is present
+      if((!productNameInp.value || productNameInp.value === "—") && p.name){
+        productNameInp.value = p.name;
+      }
+
+      unitPriceInp.focus();
+      try{ unitPriceInp.select(); }catch(e){}
+
+      setTimeout(()=>{ isPickingSuggestion = false; }, 0);
+    });
+  }
+
   function renderSuggest(){
     if(!suggestBox) return;
+
     if(!suggestItems.length){
       suggestBox.innerHTML = '<div class="suggestEmpty">لا توجد نتائج</div>';
       suggestBox.hidden = false;
       return;
     }
+
     suggestBox.hidden = false;
     suggestBox.innerHTML = suggestItems.map((p, i)=>{
       const name = esc(p.name);
@@ -684,27 +719,27 @@
       </div>`;
     }).join("");
 
-    // click select
+    // ✅ FIX: استخدم pointerdown/touchstart/mousedown بدل click (قبل blur)
     suggestBox.querySelectorAll('.suggestItem').forEach(node=>{
-      node.addEventListener('click', ()=>{
+      const handler = (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
+        const i = Number(node.getAttribute('data-idx'));
+        if(Number.isFinite(i)) selectSuggested(i);
+      };
+
+      node.addEventListener('pointerdown', handler, { passive:false });
+      node.addEventListener('touchstart', handler, { passive:false });
+      node.addEventListener('mousedown', handler, { passive:false });
+
+      // fallback (مش أساسي)
+      node.addEventListener('click', (e)=>{
+        e.preventDefault();
+        e.stopPropagation();
         const i = Number(node.getAttribute('data-idx'));
         if(Number.isFinite(i)) selectSuggested(i);
       });
     });
-  }
-
-  function selectSuggested(i){
-    const p = suggestItems[i];
-    if(!p) return;
-    barcodeInp.value = p.barcode || p.name || "";
-    closeSuggest();
-    fillProductNameByBarcode(); // will set name + price when barcode is present
-    // If barcode empty but name exists, still fill using name match
-    if((!productNameInp.value || productNameInp.value === "—") && p.name){
-      productNameInp.value = p.name;
-    }
-    unitPriceInp.focus();
-    unitPriceInp.select();
   }
 
   function findByName(q){
@@ -792,14 +827,25 @@
     productNameInp.value = '';
   }
 
-  barcodeInp.addEventListener('input', ()=>{ fillProductNameByBarcode(); debounceSuggest(); });
+  // ✅ FIX: تجاهل input أثناء اختيار suggestion
+  barcodeInp.addEventListener('input', ()=>{
+    if(isPickingSuggestion) return;
+    fillProductNameByBarcode();
+    debounceSuggest();
+  });
+
   barcodeInp.addEventListener('change', ()=>{ fillProductNameByBarcode(); closeSuggest(); });
 
   // فتح القائمة أثناء التركيز (مفيد للموبايل)
   barcodeInp.addEventListener('focus', ()=>{ debounceSuggest(); });
 
-  // اقفل القائمة بعد blur مع تأخير بسيط علشان click على عنصر يشتغل
-  barcodeInp.addEventListener('blur', ()=>{ setTimeout(()=> closeSuggest(), 160); });
+  // ✅ FIX: blur لا يقفل لو إحنا بنختار suggestion
+  barcodeInp.addEventListener('blur', ()=>{
+    setTimeout(()=>{
+      if(isPickingSuggestion) return;
+      closeSuggest();
+    }, 220);
+  });
 
   // Keyboard navigation: ↑ ↓ Enter + Escape
   barcodeInp.addEventListener('keydown', (e)=>{
@@ -1295,8 +1341,6 @@
   // ===== Invoice number SA001 =====
   (async function initInvoiceNo(){
     try{
-      // لو السيرفر بيرجع رقم جاهز استخدمه
-      // fallback: SA001
       const fallback = "SA001";
       const el = document.getElementById('invNo');
       if(!el.value) el.value = fallback;
@@ -1357,7 +1401,6 @@
 
     track = stream.getVideoTracks()[0] || null;
 
-    // BarcodeDetector if available
     if("BarcodeDetector" in window){
       const detector = new BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});
       const tick = async ()=>{
