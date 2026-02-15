@@ -30,7 +30,7 @@
       min-height:100vh;
       display:flex;
       flex-direction:column;
-      /* ملاحظة: شلنا overflow-x:hidden لأنه كان بيعمل إحساس "تزحزح" بالـ RTL مع عناصر واسعة */
+      overflow-x:hidden;
     }
 
     .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
@@ -46,7 +46,7 @@
       flex-wrap:wrap;
       margin-bottom:16px;
     }
-    .brand{display:flex; align-items:center; gap:12px; min-width:0;}
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
     .logo{
       width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
@@ -55,12 +55,8 @@
       overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:900; line-height:1.2;}
+    .brandTitle{font-weight:900}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
-
-    /* ✅ Top actions: ثابتة جنب بعض زي Purchase Invoice */
-    .topActions{display:flex; gap:10px; align-items:center; flex-wrap:nowrap; min-width:220px;}
-    .topActions .btn{flex:1 1 0; text-align:center; white-space:nowrap;}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -96,7 +92,6 @@
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
       input, select, textarea{ font-size:16px; }
-      .topActions{min-width:0;}
     }
 
     .btn{
@@ -139,7 +134,7 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      min-width:1120px;
+      min-width:1180px;
       background:#fff;
       border-radius:12px;
       overflow:hidden;
@@ -182,7 +177,6 @@
       display:none;
     }
 
-    /* Responsive table on small screens */
     @media (max-width: 820px){
       .table-wrap{ overflow:visible; }
       table{ min-width:0; }
@@ -255,13 +249,46 @@
       pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
       z-index:9999;
-      max-width:min(92vw, 520px);
+      max-width:min(92vw, 720px);
       text-align:center;
       white-space:pre-line;
       line-height:1.7;
     }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
 
+    .modal{
+      position:fixed; inset:0;
+      background:rgba(2,6,23,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:14px;
+      backdrop-filter: blur(10px);
+    }
+    .modal .modalCard{
+      width:min(94vw, 820px);
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:18px;
+      box-shadow:0 22px 60px rgba(2,6,23,.22);
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .modalHeader strong{font-weight:1000}
+    .modalBody{padding:12px}
+    .modalGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    @media (max-width:720px){ .modalGrid{grid-template-columns:1fr;} }
+    .modalActions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
   </style>
 </head>
@@ -281,7 +308,7 @@
       </div>
     </div>
 
-    <div class="topActions">
+    <div class="topActions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
@@ -355,6 +382,7 @@
             <th style="min-width:160px">الهاتف</th>
             <th style="min-width:140px">عدد الأصناف</th>
             <th style="min-width:160px">الإجمالي</th>
+            <th style="min-width:220px">إجراءات</th>
           </tr>
         </thead>
         <tbody id="logBody"></tbody>
@@ -377,6 +405,63 @@
   </footer>
 </div>
 
+<!-- Edit Modal -->
+<div class="modal" id="editModal" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-label="تعديل فاتورة بيع">
+    <div class="modalHeader">
+      <strong>✏️ تعديل فاتورة بيع</strong>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <button class="btn danger" id="closeEditBtn" type="button">✖ إغلاق</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="modalGrid">
+        <div>
+          <label for="eInvNo">رقم الفاتورة</label>
+          <input id="eInvNo" readonly />
+        </div>
+        <div>
+          <label for="eOrderId">Order ID</label>
+          <input id="eOrderId" />
+        </div>
+        <div>
+          <label for="eDate">التاريخ</label>
+          <input id="eDate" type="date" />
+        </div>
+        <div>
+          <label for="eTime">الوقت</label>
+          <input id="eTime" placeholder="مثال: 10:30 AM" />
+        </div>
+        <div>
+          <label for="eCustName">اسم العميل</label>
+          <input id="eCustName" />
+        </div>
+        <div>
+          <label for="eCustPhone">رقم الهاتف</label>
+          <input id="eCustPhone" inputmode="tel" />
+        </div>
+        <div>
+          <label for="eItemsCount">عدد الأصناف</label>
+          <input id="eItemsCount" type="number" min="0" step="1" />
+        </div>
+        <div>
+          <label for="eFinalTotal">الإجمالي</label>
+          <input id="eFinalTotal" type="number" min="0" step="0.01" />
+        </div>
+      </div>
+
+      <div class="modalActions">
+        <button class="btn" id="saveEditBtn" type="button">💾 حفظ التعديل</button>
+        <button class="btn danger" id="deleteInvBtn" type="button">🗑️ حذف الفاتورة</button>
+      </div>
+
+      <div style="margin-top:10px;color:var(--muted);font-weight:900;line-height:1.7">
+        ملاحظة: تحديث المخزون/الأرباح على تعديل/حذف الفاتورة سيتم تفعيله من طرف <b>App Script</b> في الخطوة اللاحقة (Code.gs).
+      </div>
+    </div>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
@@ -387,31 +472,51 @@
 
   const $ = (id)=>document.getElementById(id);
 
-  // ===== Toast =====
   const toastEl = $("toast");
   function showToast(msg){
     if(!toastEl) return alert(msg);
     toastEl.textContent = msg;
     toastEl.classList.add("show");
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 2000);
   }
 
-  // ===== Logout =====
   $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  // ===== Config =====
-  const SALES_LOG_API_URL =
-    "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=sales_log";
+  const GAS_WEB_APP_URL = (window.AXENTRO_CONFIG && AXENTRO_CONFIG.GAS_WEB_APP_URL) ? AXENTRO_CONFIG.GAS_WEB_APP_URL : "";
 
-  const CACHE_KEY = "AX_SALES_LOG_CACHE_V1";
-  const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V1";
+  function getSession(){
+    try{
+      const raw = localStorage.getItem("axentro_session_v2");
+      if(!raw) return null;
+      const s = JSON.parse(raw);
+      return (s && typeof s === "object") ? s : null;
+    }catch(e){ return null; }
+  }
+
+  async function apiCall(action, payload){
+    if(!GAS_WEB_APP_URL) throw new Error("Missing GAS_WEB_APP_URL");
+    const session = getSession();
+    const body = JSON.stringify({ action, ...(payload||{}), session });
+    const res = await fetch(GAS_WEB_APP_URL, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body
+    });
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    if(data && data.ok === false) throw new Error(data.error || data.message || "API error");
+    return data;
+  }
+
+  const CACHE_KEY = "AX_SALES_LOG_CACHE_V2";
+  const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V2";
   const CACHE_TTL_MS = 3 * 60 * 1000;
 
   let RAW = [];
   let VIEW = [];
+  let EDITING = null;
 
-  // ===== Helpers =====
   function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
   function norm(s){ return String(s||"").trim().toLowerCase(); }
 
@@ -465,23 +570,8 @@
     }catch(e){ return null; }
   }
 
-  async function fetchSalesLog(){
-    const res = await fetch(SALES_LOG_API_URL, { cache:"no-store" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-
-    if(Array.isArray(data)) return data;
-
-    if(data && typeof data === "object"){
-      if(Array.isArray(data.data)) return data.data;
-      if(Array.isArray(data.items)) return data.items;
-      if(Array.isArray(data.rows)) return data.rows;
-    }
-    return [];
-  }
-
   function normalizeRow(r){
-    const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.id || "";
+    const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.inv_no || r.id || "";
     const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.day || "");
     const time  = r.time || r.invTime || r.invoice_time || "";
     const orderId = r.orderId || r.order_id || r.order || "";
@@ -502,6 +592,20 @@
     };
   }
 
+  async function fetchSalesLog(){
+    if(window.AxentroApi && typeof AxentroApi.getSalesLog === "function"){
+      const out = await AxentroApi.getSalesLog();
+      if(out && out.ok && Array.isArray(out.sales)) return out.sales;
+      if(Array.isArray(out)) return out;
+      if(out && Array.isArray(out.data)) return out.data;
+      return [];
+    }
+
+    const out = await apiCall("get_sales_log", {});
+    const list = (out && (out.sales || out.data || out.items || out.rows)) || [];
+    return Array.isArray(list) ? list : [];
+  }
+
   async function loadSalesSmart(force=false){
     const cached = loadCache();
     const now = Date.now();
@@ -515,7 +619,7 @@
     }
 
     if(!force && fresh){
-      setTimeout(()=> refreshFromNet(false), 300);
+      setTimeout(()=> refreshFromNet(false), 250);
     }else{
       await refreshFromNet(true);
     }
@@ -532,7 +636,14 @@
       if(showMsg) showToast("✅ تم تحديث سجل المبيعات");
     }catch(e){
       console.warn(e);
-      if(showMsg) showToast("⚠️ تعذر تحميل السجل الآن.\nتم عرض آخر نسخة محفوظة إن وُجدت.");
+      if(showMsg){
+        const cached = loadCache();
+        if(cached && cached.list && cached.list.length){
+          showToast("⚠️ تعذر تحميل السجل الآن.\nتم عرض آخر نسخة محفوظة إن وُجدت.");
+        }else{
+          showToast("⚠️ تعذر تحميل سجل المبيعات.\nتحقق من الاتصال أو إعدادات الـ API.");
+        }
+      }
     }
   }
 
@@ -585,7 +696,90 @@
 
   function escapeHtml(str){
     return String(str || "")
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/\"/g,"&quot;");
+  }
+
+  function showEditModal(row){
+    EDITING = normalizeRow(row || {});
+    $("eInvNo").value = EDITING.invNo || "";
+    $("eOrderId").value = EDITING.orderId || "";
+    $("eDate").value = EDITING.date || "";
+    $("eTime").value = EDITING.time || "";
+    $("eCustName").value = EDITING.custName || "";
+    $("eCustPhone").value = EDITING.custPhone || "";
+    $("eItemsCount").value = String(Number(EDITING.itemsCount||0));
+    $("eFinalTotal").value = String(money(EDITING.finalTotal));
+
+    const modal = $("editModal");
+    modal.style.display = "flex";
+    modal.setAttribute("aria-hidden","false");
+  }
+
+  function hideEditModal(){
+    const modal = $("editModal");
+    modal.style.display = "none";
+    modal.setAttribute("aria-hidden","true");
+    EDITING = null;
+  }
+
+  async function saveEdit(){
+    if(!EDITING || !EDITING.invNo){
+      showToast("⚠️ لا توجد فاتورة محددة للتعديل");
+      return;
+    }
+
+    const payload = {
+      invNo: $("eInvNo").value || "",
+      orderId: $("eOrderId").value || "",
+      date: $("eDate").value || "",
+      time: $("eTime").value || "",
+      custName: $("eCustName").value || "",
+      custPhone: $("eCustPhone").value || "",
+      itemsCount: Number($("eItemsCount").value || 0) || 0,
+      finalTotal: money($("eFinalTotal").value)
+    };
+
+    try{
+      showToast("⏳ جاري حفظ التعديل...");
+      await apiCall("update_sales_invoice", payload);
+
+      RAW = RAW.map(r => (String(r.invNo||"") === String(payload.invNo||"")) ? normalizeRow(payload) : r);
+      saveCache(RAW);
+      setLastSync(Date.now());
+      applyFiltersAndRender();
+      hideEditModal();
+      showToast("✅ تم حفظ التعديل");
+    }catch(e){
+      console.warn(e);
+      showToast("⚠️ فشل حفظ التعديل.\n" + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  async function deleteInvoice(){
+    if(!EDITING || !EDITING.invNo){
+      showToast("⚠️ لا توجد فاتورة محددة للحذف");
+      return;
+    }
+    const invNo = EDITING.invNo;
+
+    if(!confirm("تأكيد حذف الفاتورة بالكامل?\nسيتم تحديث المخزون/الأرباح من السيرفر عندما يتم تفعيلها.")) return;
+
+    try{
+      showToast("⏳ جاري الحذف...");
+      await apiCall("delete_sales_invoice", { invNo });
+      RAW = RAW.filter(r => String(r.invNo||"") !== String(invNo));
+      saveCache(RAW);
+      setLastSync(Date.now());
+      applyFiltersAndRender();
+      hideEditModal();
+      showToast("✅ تم حذف الفاتورة");
+    }catch(e){
+      console.warn(e);
+      showToast("⚠️ فشل حذف الفاتورة.\n" + (e && e.message ? e.message : String(e)));
+    }
   }
 
   function render(){
@@ -619,18 +813,35 @@
         <td data-label="التاريخ">${escapeHtml(r.date || "—")}</td>
         <td data-label="الوقت">${escapeHtml(r.time || "—")}</td>
         <td data-label="Order ID">${escapeHtml(r.orderId || "—")}</td>
-        <td data-label="العميل" class="left">
-          <div style="font-weight:900">${escapeHtml(r.custName || "—")}</div>
-        </td>
+        <td data-label="العميل" class="left"><div style="font-weight:900">${escapeHtml(r.custName || "—")}</div></td>
         <td data-label="الهاتف">${escapeHtml(r.custPhone || "—")}</td>
-        <td data-label="عدد الأصناف">
-          <span class="tag ok">${Number(r.itemsCount||0)}</span>
-        </td>
-        <td data-label="الإجمالي">
-          <span class="tag">${fmtMoney(r.finalTotal)}</span>
+        <td data-label="عدد الأصناف"><span class="tag ok">${Number(r.itemsCount||0)}</span></td>
+        <td data-label="الإجمالي"><span class="tag">${fmtMoney(r.finalTotal)}</span></td>
+        <td data-label="إجراءات">
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button class="btn secondary" type="button" data-edit="${escapeHtml(r.invNo||"")}">✏️ تعديل</button>
+            <button class="btn danger" type="button" data-del="${escapeHtml(r.invNo||"")}">🗑️ حذف</button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll("[data-edit]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const inv = btn.getAttribute("data-edit") || "";
+        const row = RAW.find(x => String(x.invNo||"") === String(inv));
+        if(!row){ showToast("⚠️ لم يتم العثور على الفاتورة"); return; }
+        showEditModal(row);
+      });
+    });
+    tbody.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const inv = btn.getAttribute("data-del") || "";
+        const row = RAW.find(x => String(x.invNo||"") === String(inv));
+        if(!row){ showToast("⚠️ لم يتم العثور على الفاتورة"); return; }
+        showEditModal(row);
+      });
     });
   }
 
@@ -639,7 +850,6 @@
     render();
   }
 
-  // ===== UI events =====
   $("refreshBtn")?.addEventListener("click", ()=> loadSalesSmart(true));
   $("clearFiltersBtn")?.addEventListener("click", ()=>{
     $("q").value = "";
@@ -657,7 +867,10 @@
     $(id)?.addEventListener("change", applyFiltersAndRender);
   });
 
-  // ===== BOOT =====
+  $("closeEditBtn")?.addEventListener("click", hideEditModal);
+  $("saveEditBtn")?.addEventListener("click", saveEdit);
+  $("deleteInvBtn")?.addEventListener("click", deleteInvoice);
+
   loadSalesSmart(false);
 
 })();
