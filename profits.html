@@ -108,7 +108,6 @@
       input, textarea, select{ font-size:16px; }
     }
 
-    /* ✅ نفس زرار صفحة Purchase Invoice */
     .btn{
       padding:12px;
       border-radius:14px;
@@ -245,7 +244,6 @@
       tbody td.center{ text-align:center; }
     }
 
-    /* ✅ Footer الموحد + QR */
     .site-footer{
       margin-top:auto;
       padding:16px 16px 18px;
@@ -279,7 +277,6 @@
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
-    /* ✅ Toast موحد */
     .toast{
       position:fixed;
       left:50%;
@@ -313,7 +310,8 @@
   <div class="topbar">
     <div class="brand">
       <div class="logo">
-        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+        <!-- ✅ توحيد مسار اللوجو زي باقي الصفحات -->
+        <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
@@ -383,44 +381,10 @@
     </div>
   </div>
 
-  <div class="card" id="importCard">
-    <h2>استيراد يدوي (اختياري)</h2>
-    <div class="muted" style="line-height:1.8">
-      لو لسه مش جاهز الربط: الصق هنا <b>JSON Array</b> أو <b>CSV</b> لكل نوع، ثم اضغط استيراد.
-      <br><b>Sales CSV</b>: <span dir="ltr">date,total,invNo</span>
-      <br><b>Purchases CSV</b>: <span dir="ltr">date,total,invNo</span>
-      <br><b>Expenses CSV</b>: <span dir="ltr">date,amount,cat</span>
-    </div>
-
-    <div class="row3" style="margin-top:10px">
-      <div>
-        <label for="importType">نوع البيانات</label>
-        <select id="importType">
-          <option value="sales">مبيعات</option>
-          <option value="purchases">مشتريات</option>
-          <option value="expenses">مصروفات</option>
-        </select>
-      </div>
-      <div style="grid-column: span 2;">
-        <label for="importTa">الصق البيانات</label>
-        <textarea id="importTa" rows="5" placeholder="الصق JSON/CSV هنا..."></textarea>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="importBtn" type="button">📥 استيراد</button>
-      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
-      <button class="btn" id="exportBtn" type="button">📤 تصدير النتائج CSV</button>
-      <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح بيانات الأرباح المحلية</button>
-    </div>
-
-    <div class="muted" style="margin-top:10px">
-      الاستيراد هنا يخزن داخل LocalStorage بمفاتيح خاصة بصفحة الأرباح فقط.
-    </div>
-  </div>
+  <!-- ✅ شيلنا Import/Export المحلي لأنه غير مُفعّل وبيقلل احترافية الصفحة -->
 
   <div class="card">
-    <h2>ملخص بحسب النوع</h2>
+    <h2>ملخص</h2>
     <div class="table-wrap" aria-live="polite">
       <table id="summaryTable" role="table" aria-label="ملخص الأرباح">
         <thead>
@@ -478,7 +442,6 @@
 
   const $=(id)=>document.getElementById(id);
 
-  // ✅ Toast موحد (بدون تغيير منطق الداتا)
   function toast(msg){
     const el = $("toast");
     if(!el) return alert(msg);
@@ -488,7 +451,6 @@
     toast._t = setTimeout(()=> el.classList.remove("show"), 2200);
   }
 
-  // Logout (نفس النظام)
   $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
   const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
@@ -522,7 +484,6 @@
     $("expCount").textContent = `${e.length} بند`;
     $("lastSyncTxt").textContent = `${new Date().toLocaleString("ar-EG")}`;
 
-    // summary table
     const sb=$("summaryBody"); sb.innerHTML="";
     const rows=[
       ["إجمالي المبيعات", revenue],
@@ -537,7 +498,6 @@
       sb.appendChild(tr);
     }
 
-    // details: sales invoices
     const db=$("detailsBody"); db.innerHTML="";
     if(s.length===0){ $("emptyBox").style.display="block"; return; }
     $("emptyBox").style.display="none";
@@ -575,11 +535,6 @@
   ["fromDate","toDate","mode"].forEach(id=>{ $(id)?.addEventListener("change",apply); });
   $("refreshBtn")?.addEventListener("click",load);
   $("clearFiltersBtn")?.addEventListener("click",()=>{ $("fromDate").value=""; $("toDate").value=""; apply(); });
-
-  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1"));
-  $("exportBtn")?.addEventListener("click",()=>toast("Export غير مفعّل في v1"));
-  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي"));
-  $("clearImportBtn")?.addEventListener("click",()=>{ const ta=$("importTa"); if(ta) ta.value=""; toast("تم المسح"); });
 
   load();
 })();
