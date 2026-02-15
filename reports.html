@@ -26,23 +26,19 @@
     }
 
     *{box-sizing:border-box}
-    html,body{
-      height:100%;
-      width:100%;
-      max-width:100%;
-      overflow-x:hidden;
-    }
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
-      min-height:100%;
+      min-height:100vh;
       display:flex;
       flex-direction:column;
+      overflow-x:hidden;
       -webkit-font-smoothing:antialiased;
     }
 
@@ -56,32 +52,35 @@
     }
     @media (max-width:520px){
       .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+      input, select{ font-size:16px; }
     }
 
+    /* ===== Topbar (same style as Purchase Invoice) ===== */
     .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:12px 14px;border:1px solid var(--stroke);
-      border-radius:18px;background:rgba(255,255,255,.86);
-      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 14px;
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      background:rgba(255,255,255,.88);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
       flex-wrap:wrap;
       margin-bottom:16px;
     }
     .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
     .logo{
-      width:44px;height:44px;border-radius:999px;
-      display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
       border:1px solid rgba(176,141,87,.35);
       box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden;
-      padding:6px;
-      flex:0 0 auto;
+      overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:1000}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
+    .brandTitle{font-weight:900}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
-    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    /* مهم: نخلي الأزرار جنب بعض حتى على الموبايل */
+    .topActions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -93,8 +92,8 @@
       max-width:100%;
     }
 
-    h2{margin:0 0 10px;font-weight:1000}
-    label{font-size:12px;color:var(--muted);font-weight:1000}
+    h2{margin:0 0 10px;font-weight:900}
+    label{font-size:12px;color:var(--muted);font-weight:800}
     input, select{
       width:100%;
       padding:10px;
@@ -103,13 +102,9 @@
       background:#fff;
       color:var(--text);
       outline:none;
-      box-shadow:0 8px 18px rgba(15,23,42,.05);
       max-width:100%;
     }
-    input:focus, select:focus{
-      border-color: rgba(176,141,87,.55);
-      box-shadow:0 10px 22px rgba(176,141,87,.14);
-    }
+    input::placeholder{color:#94a3b8}
 
     .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -117,14 +112,8 @@
       .row{grid-template-columns:repeat(2,1fr);}
       .row2{grid-template-columns:repeat(1,1fr);}
     }
-    @media (max-width:720px){
-      .topbar{flex-direction:column;align-items:stretch}
-      .topActions{justify-content:stretch}
-      .topActions a,.topActions button{width:100%}
-    }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
-      input, select{ font-size:16px; }
     }
 
     .btn{
@@ -133,31 +122,33 @@
       border:1px solid rgba(176,141,87,.35);
       background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
       color:var(--text);
-      font-weight:1000;
+      font-weight:900;
       cursor:pointer;
       touch-action: manipulation;
       user-select:none;
-      max-width:100%;
       white-space:nowrap;
     }
     .btn:hover{filter:brightness(1.02)}
-    .btn:active{transform:translateY(1px)}
     .btn.secondary{
       border-color: rgba(15,23,42,.14);
       background:#fff;
       opacity:.95;
+    }
+    .btn.danger{
+      border-color: rgba(220,38,38,.22);
+      background: rgba(220,38,38,.06);
+      color:#991b1b;
     }
 
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       border:1px solid rgba(15,23,42,.10);
       background:#fff;border-radius:999px;
-      padding:8px 10px;font-weight:1000;
+      padding:8px 10px;font-weight:900;
       color:#334155;
       white-space:nowrap;
       max-width:100%;
     }
-    .pill b{color:var(--text)}
     .muted{color:var(--muted);font-weight:900}
 
     .grid4{
@@ -176,8 +167,8 @@
       padding:14px;
       box-shadow: 0 10px 28px rgba(2,6,23,.06);
     }
-    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
-    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:900}
+    .kpi .v{font-size:22px;font-weight:900;margin-top:6px}
     .kpi .v.ok{color:#166534}
     .kpi .v.bad{color:#991b1b}
 
@@ -202,20 +193,19 @@
       padding:4px 6px 10px;
       flex-wrap:wrap;
     }
-    .chartTitle{font-weight:1000}
+    .chartTitle{font-weight:900}
     .chartNote{font-size:12px;color:var(--muted);font-weight:900}
 
-    /* ✅ FIX: منع تمدد الصفحة بسبب canvas */
+    /* منع أي تمدد/إزاحة بسبب Canvas */
     canvas{
-      width:100% !important;
       display:block;
+      width:100% !important;
       max-width:100%;
       height: 420px !important;
       max-height: 520px !important;
       min-height: 240px !important;
     }
     #lineCanvas{ height: 360px !important; }
-    #barCanvas, #pieCanvas{ height: 420px !important; }
 
     .table-wrap{
       overflow:auto;
@@ -240,18 +230,19 @@
       text-align:center;
       vertical-align:middle;
       word-break:break-word;
+      white-space:nowrap;
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:1000;
+      font-weight:900;
     }
-    td.left{text-align:right}
+    td.left{text-align:right; white-space:normal;}
 
     .tag{
       display:inline-block;
       padding:6px 10px;border-radius:999px;
       border:1px solid rgba(15,23,42,.12);
-      background:#fff;font-weight:1000;font-size:12px;
+      background:#fff;font-weight:900;font-size:12px;
       white-space:nowrap;
     }
     .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
@@ -263,7 +254,7 @@
       border-radius:14px;
       background:rgba(255,255,255,.75);
       color:var(--muted);
-      font-weight:1000;
+      font-weight:900;
       text-align:center;
       line-height:1.8;
     }
@@ -281,53 +272,72 @@
         margin-bottom:10px;
         box-shadow: 0 10px 28px rgba(2,6,23,.06);
       }
-      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
       tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
       tbody td[data-label]::before{
         content: attr(data-label);
         display:block;
         font-size:12px;color: var(--muted);
-        font-weight:1000;margin-bottom:6px;
+        font-weight:900;margin-bottom:6px;
       }
     }
 
+    /* Footer (same card-style as other pages) */
     .site-footer{
       margin-top:auto;
-      padding:16px 16px 22px;
+      padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border-top:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      border-radius:16px;
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
+      margin-bottom: calc(12px + env(safe-area-inset-bottom));
     }
-    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line1{ font-weight:900; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .qrLink img{
+      width:132px; height:132px; max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
+    .qrText{ font-size:12px; font-weight:900; color:#334155; }
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
     .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,.92);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 1000;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:22px;
+      padding:12px 14px;
+      background:#0f172a;
+      color:#fff;
+      border-radius:14px;
+      font-weight:900;
+      box-shadow:0 16px 40px rgba(2,6,23,.25);
+      opacity:0;
+      pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index: 9999;
-      max-width: min(680px, 92vw);
+      z-index:9999;
+      max-width:min(92vw, 720px);
       text-align:center;
-      line-height:1.7;
       white-space:pre-line;
+      line-height:1.7;
     }
-    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-4px); }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
 
     /* Print / PDF */
     .printOnly{display:none}
@@ -346,11 +356,13 @@
 </head>
 
 <body>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
       <div class="logo">
-        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+        <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
@@ -359,15 +371,15 @@
     </div>
 
     <div class="topActions noPrint">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
-      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none">← رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
 
   <!-- Print header -->
   <div class="card printOnly">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="font-weight:1000;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
+      <div style="font-weight:900;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
       <div class="muted" id="printMeta">—</div>
     </div>
   </div>
@@ -392,13 +404,13 @@
       <div>
         <label for="fromDate">من تاريخ</label>
         <input id="fromDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printFrom" style="font-weight:1000">—</div>
+        <div class="printOnly" id="printFrom" style="font-weight:900">—</div>
       </div>
 
       <div>
         <label for="toDate">إلى تاريخ</label>
         <input id="toDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printTo" style="font-weight:1000">—</div>
+        <div class="printOnly" id="printTo" style="font-weight:900">—</div>
       </div>
 
       <div>
@@ -406,7 +418,7 @@
         <div style="display:flex;gap:10px;flex-wrap:wrap" class="noPrint">
           <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
           <button class="btn secondary" id="exportBtn" type="button">📤 تصدير CSV</button>
-          <button class="btn" id="pdfBtn" type="button">🧾 PDF</button>
+          <button class="btn secondary" id="pdfBtn" type="button">🧾 PDF</button>
         </div>
       </div>
     </div>
@@ -438,7 +450,7 @@
     </div>
 
     <div class="muted" style="margin-top:10px;line-height:1.8">
-      ✅ حاليًا كل القيم = 0 لحد ما تربطها بجوجل شيت. (الواجهة جاهزة)
+      ملاحظة: هذه الصفحة واجهة تقارير فقط. البيانات ستظهر بعد ربطها بـ Google Sheet.
     </div>
   </div>
 
@@ -463,7 +475,7 @@
       </div>
     </div>
     <div class="muted" style="margin-top:10px;line-height:1.8">
-      صافي (تقديري) = مبيعات - مشتريات - مصروفات (لحد ما نعمل FIFO كامل).
+      صافي (تقديري) = مبيعات - مشتريات - مصروفات (إلى أن نركّب منطق الأرباح/FIFO لاحقًا).
     </div>
   </div>
 
@@ -475,7 +487,7 @@
         <div class="chartHead">
           <div>
             <div class="chartTitle">مبيعات / مشتريات / مصروفات (حسب التجميع)</div>
-            <div class="chartNote">رسم بسيط — يومي/أسبوعي/شهري</div>
+            <div class="chartNote">Bar — يومي/أسبوعي/شهري</div>
           </div>
         </div>
         <canvas id="barCanvas" width="1200" height="420" aria-label="Bar chart"></canvas>
@@ -485,7 +497,7 @@
         <div class="chartHead">
           <div>
             <div class="chartTitle">توزيع المصروفات حسب النوع</div>
-            <div class="chartNote">Pie بسيط (قائمًا على البيانات لاحقًا)</div>
+            <div class="chartNote">Pie — سيتم تغذيتها لاحقًا</div>
           </div>
         </div>
         <canvas id="pieCanvas" width="800" height="420" aria-label="Pie chart"></canvas>
@@ -495,7 +507,7 @@
         <div class="chartHead">
           <div>
             <div class="chartTitle">صافي الفترة (تقديري)</div>
-            <div class="chartNote">Line بسيط</div>
+            <div class="chartNote">Line — سيتم تغذيته لاحقًا</div>
           </div>
         </div>
         <canvas id="lineCanvas" width="1200" height="360" aria-label="Line chart"></canvas>
@@ -511,7 +523,7 @@
         <div class="chartHead" style="padding:0 0 10px">
           <div>
             <div class="chartTitle">الأصناف الأكثر مبيعًا</div>
-            <div class="chartNote">هيتم تغذيتها من Google Sheet لاحقًا</div>
+            <div class="chartNote">Top Items — لاحقًا</div>
           </div>
           <div class="tag ok">Top</div>
         </div>
@@ -531,7 +543,7 @@
         </div>
 
         <div id="topEmpty" class="empty" style="margin-top:10px">
-          لا توجد بيانات بعد — (كل القيم 0 حاليًا).
+          لا توجد بيانات بعد.
         </div>
       </div>
 
@@ -539,7 +551,7 @@
         <div class="chartHead" style="padding:0 0 10px">
           <div>
             <div class="chartTitle">أصناف غير متحركة</div>
-            <div class="chartNote">هيتم تغذيتها من Google Sheet لاحقًا</div>
+            <div class="chartNote">Slow Moving — لاحقًا</div>
           </div>
           <div class="tag bad">Slow</div>
         </div>
@@ -558,7 +570,7 @@
         </div>
 
         <div id="deadEmpty" class="empty" style="margin-top:10px">
-          لا توجد بيانات بعد — (كل القيم 0 حاليًا).
+          لا توجد بيانات بعد.
         </div>
       </div>
     </div>
@@ -584,22 +596,60 @@
       لا توجد بيانات في الفترة المحددة.
     </div>
   </div>
+
+  <footer class="site-footer">
+    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+    <div class="line2">By Ahmed Hamouda</div>
+
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
+        <span class="qrText">Scan me</span>
+      </a>
+    </div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-  <div class="line2">By Ahmed Hamouda</div>
-</footer>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
 
 <script>
-  const _lb = document.getElementById("logoutBtn");
-  if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
+(function(){
+  "use strict";
+
+  const $ = (id)=>document.getElementById(id);
+
+  // Toast (consistent)
+  const toastEl = $("toast");
+  function showToast(msg){
+    if(!toastEl) return alert(msg);
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+  }
+
+  // Logout
+  $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+
+  // Print meta placeholders
+  function setPrintMeta(){
+    try{
+      const now = new Date();
+      const s = now.toLocaleString("ar-EG");
+      const el = $("printMeta");
+      if(el) el.textContent = "تم الإنشاء: " + s;
+    }catch(e){}
+  }
+  setPrintMeta();
+
+  // Buttons placeholders (UI only for now)
+  $("pdfBtn")?.addEventListener("click", ()=> window.print());
+  $("exportBtn")?.addEventListener("click", ()=> showToast("واجهة فقط الآن — تصدير CSV بعد ربط الشيت."));
+  $("refreshBtn")?.addEventListener("click", ()=> showToast("واجهة فقط الآن — تحديث بعد ربط الشيت."));
+
+})();
 </script>
 </body>
 </html>
