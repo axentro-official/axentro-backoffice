@@ -30,7 +30,7 @@
       min-height:100vh;
       display:flex;
       flex-direction:column;
-      overflow-x:hidden; /* ✅ يمنع أي إزاحة أفقية */
+      overflow-x:hidden;
     }
 
     .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
@@ -46,7 +46,6 @@
       flex-wrap:wrap;
       margin-bottom:16px;
     }
-
     .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
     .logo{
       width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
@@ -59,14 +58,6 @@
     .brandTitle{font-weight:900}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
-    /* ✅ نفس Purchase Invoice */
-    .topActions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
     .card{
       background:rgba(255,255,255,.92);
       border:1px solid var(--stroke);
@@ -75,10 +66,8 @@
       padding:16px;
       margin-bottom:16px;
     }
-
     h2{margin:0 0 10px;font-weight:900}
     label{font-size:12px;color:var(--muted);font-weight:800}
-
     input, select, textarea{
       width:100%;
       padding:10px;
@@ -92,10 +81,12 @@
     input::placeholder, textarea::placeholder{color:#94a3b8}
 
     .row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+    .row2{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
     .row3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
 
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
       .row3{grid-template-columns:repeat(1,1fr);}
     }
     @media (max-width:520px){
@@ -113,13 +104,6 @@
       cursor:pointer;
       touch-action: manipulation;
       white-space:nowrap;
-
-      /* ✅ عشان الـ <a> يبقى زي <button> */
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      text-decoration:none;
-      line-height:1;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn.secondary{
@@ -132,7 +116,6 @@
       background: rgba(220,38,38,.06);
       color:#991b1b;
     }
-    .btn[disabled]{opacity:.65; cursor:not-allowed}
 
     .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
     .pill{
@@ -151,7 +134,7 @@
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      min-width:1120px;
+      min-width:980px;
       background:#fff;
       border-radius:12px;
       overflow:hidden;
@@ -180,6 +163,9 @@
       white-space:nowrap;
     }
     .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
+
+    .actions{ display:flex; gap:8px; justify-content:center; flex-wrap:wrap; }
+    .actions .btn{ padding:10px 12px; border-radius:12px; }
 
     .empty{
       margin-top:10px;
@@ -218,6 +204,7 @@
         margin-bottom:6px;
       }
       tbody button{ width:100%; }
+      .actions{ justify-content:stretch; }
     }
 
     .site-footer{
@@ -273,17 +260,81 @@
     }
     .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
 
-    /* ✅ حماية النصوص الطويلة LTR */
-    .ltrExample{
-      direction:ltr;
-      unicode-bidi:embed;
-      display:block;
-      margin-top:6px;
+    /* ===== Modal (Edit Invoice) ===== */
+    .modal{
+      position:fixed; inset:0;
+      background:rgba(2,6,23,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:14px;
+      backdrop-filter: blur(10px);
+    }
+    .modal .modalCard{
+      width:min(96vw, 980px);
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:18px;
+      box-shadow:0 22px 60px rgba(2,6,23,.22);
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      flex-wrap:wrap;
+      align-items:center;
+    }
+    .modalHeader strong{font-weight:1000}
+    .modalBody{padding:12px}
+
+    .lookupWrap{ position:relative; }
+    .lookupRow{ display:flex; gap:8px; align-items:center; }
+    .suggest{
+      position:absolute;
+      inset-inline:0;
+      top: calc(100% + 8px);
+      background: rgba(255,255,255,.98);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.14);
+      max-height: 320px;
+      overflow:auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 50;
+      padding:6px;
+    }
+    .suggestItem{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 10px;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:1000;
+      line-height:1.4;
+      touch-action: manipulation;
+      user-select: none;
+    }
+    .suggestItem:hover{ background: rgba(176,141,87,.10); }
+    .suggestItem.active{ background: rgba(176,141,87,.16); outline: 2px solid rgba(176,141,87,.22); }
+    .suggestItem .meta{
+      color: var(--muted);
       font-weight:900;
       font-size:12px;
-      color:#334155;
-      overflow-wrap:anywhere;
-      word-break:break-word;
+      white-space:nowrap;
+      direction:ltr;
+      unicode-bidi:embed;
+    }
+    .suggestEmpty{
+      padding:10px 10px;
+      color: var(--muted);
+      font-weight:900;
+      font-size:12px;
     }
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
@@ -305,7 +356,7 @@
       </div>
     </div>
 
-    <div class="topActions">
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
@@ -317,7 +368,7 @@
     <div class="row" role="region" aria-label="فلترة سجل المبيعات">
       <div>
         <label for="q">بحث سريع</label>
-        <input id="q" placeholder="ابحث بـ رقم الفاتورة / Order ID / اسم العميل / رقم الهاتف..." autocomplete="off" inputmode="search" />
+        <input id="q" placeholder="ابحث بـ رقم الفاتورة / Order ID / اسم العميل / رقم الهاتف..." autocomplete="off" />
       </div>
       <div>
         <label for="fromDate">من تاريخ</label>
@@ -341,11 +392,11 @@
     <div class="row3" style="margin-top:10px">
       <div>
         <label for="minTotal">إجمالي من (اختياري)</label>
-        <input id="minTotal" type="number" min="0" step="0.01" placeholder="0" inputmode="decimal" />
+        <input id="minTotal" type="number" min="0" step="0.01" placeholder="0" />
       </div>
       <div>
         <label for="maxTotal">إجمالي إلى (اختياري)</label>
-        <input id="maxTotal" type="number" min="0" step="0.01" placeholder="0" inputmode="decimal" />
+        <input id="maxTotal" type="number" min="0" step="0.01" placeholder="0" />
       </div>
       <div>
         <label>&nbsp;</label>
@@ -359,26 +410,8 @@
     <div class="pillRow">
       <div class="pill"><span class="k">عدد النتائج:</span> <span id="countTxt">0</span></div>
       <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span></div>
+      <div class="pill"><span class="k">أرباح النتائج:</span> <span id="profitTxt">0.00</span></div>
       <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
-    </div>
-  </div>
-
-  <!-- ✅ مخفي افتراضيًا (Debug only) -->
-  <div class="card" id="importCard">
-    <h2>استيراد يدوي (اختياري)</h2>
-    <div style="color:var(--muted);font-weight:900;line-height:1.8">
-      لو الـ API بتاع السجل لسه مش جاهز: الصق هنا سجل بصيغة <b>JSON Array</b> أو <b>CSV</b>.
-      <div>JSON مثال:</div>
-      <span class="ltrExample">[{"invNo":"SALE-...","date":"2026-02-01","time":"10:30 AM","orderId":"123","custName":"...","custPhone":"...","finalTotal":1500,"itemsCount":3}]</span>
-      <div style="margin-top:6px">CSV مثال:</div>
-      <span class="ltrExample">invNo,date,time,orderId,custName,custPhone,finalTotal,itemsCount</span>
-    </div>
-
-    <textarea id="importTa" rows="5" placeholder="الصق JSON/CSV هنا..."></textarea>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="importBtn" type="button">📥 استيراد للسجل المحلي</button>
-      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
-      <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح السجل المحلي</button>
     </div>
   </div>
 
@@ -398,6 +431,7 @@
             <th style="min-width:160px">الهاتف</th>
             <th style="min-width:140px">عدد الأصناف</th>
             <th style="min-width:160px">الإجمالي</th>
+            <th style="min-width:210px">إجراءات</th>
           </tr>
         </thead>
         <tbody id="logBody"></tbody>
@@ -420,6 +454,107 @@
   </footer>
 </div>
 
+<!-- ===== Edit Modal ===== -->
+<div class="modal" id="editModal" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-label="تعديل فاتورة">
+    <div class="modalHeader">
+      <strong>✏️ تعديل فاتورة: <span id="editInvNo">—</span></strong>
+      <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap">
+        <button class="btn" id="saveEditBtn" type="button">💾 حفظ التعديل</button>
+        <button class="btn secondary" id="cancelEditBtn" type="button">✖ إلغاء</button>
+      </div>
+    </div>
+    <div class="modalBody">
+      <div class="card" style="margin:0 0 12px">
+        <h2 style="font-size:16px;margin-bottom:8px">بيانات الفاتورة</h2>
+        <div class="row">
+          <div>
+            <label for="eInvDate">التاريخ</label>
+            <input id="eInvDate" type="date" />
+          </div>
+          <div>
+            <label for="ePayMethod">طريقة الدفع</label>
+            <select id="ePayMethod">
+              <option value="CASH">كاش</option>
+              <option value="VISA">فيزا</option>
+              <option value="INSTAPAY">انستاباي</option>
+              <option value="WALLET">محفظة إلكترونية</option>
+            </select>
+          </div>
+          <div>
+            <label for="eCustomerName">اسم العميل</label>
+            <input id="eCustomerName" placeholder="اسم العميل" />
+          </div>
+          <div>
+            <label for="eCustomerPhone">رقم العميل</label>
+            <input id="eCustomerPhone" placeholder="01xxxxxxxxx" inputmode="tel" />
+          </div>
+        </div>
+
+        <div class="row2" style="margin-top:10px">
+          <div>
+            <label for="eDiscount">خصم (جنيه)</label>
+            <input id="eDiscount" type="number" step="0.01" min="0" value="0" />
+          </div>
+          <div>
+            <label for="eShipping">شحن / توصيل (جنيه)</label>
+            <input id="eShipping" type="number" step="0.01" min="0" value="0" />
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin:0">
+        <h2 style="font-size:16px;margin-bottom:8px">الأصناف</h2>
+
+        <div class="row">
+          <div>
+            <label for="eLookup">باركود / اسم الصنف</label>
+            <div class="lookupWrap">
+              <div class="lookupRow">
+                <input id="eLookup" placeholder="اكتب باركود أو اسم..." autocomplete="off" inputmode="search" />
+                <button class="btn secondary" id="eAddLineBtn" type="button">＋ إضافة</button>
+              </div>
+              <div id="eSuggest" class="suggest" role="listbox" aria-label="نتائج البحث" hidden></div>
+            </div>
+          </div>
+          <div>
+            <label for="eQty">الكمية</label>
+            <input id="eQty" type="number" min="1" value="1" />
+          </div>
+          <div>
+            <label for="eUnitPrice">السعر</label>
+            <input id="eUnitPrice" type="number" step="0.01" min="0" value="" placeholder="السعر" />
+          </div>
+          <div>
+            <label for="eName">اسم المنتج (تلقائي)</label>
+            <input id="eName" readonly placeholder="سيظهر الاسم" />
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table aria-label="Edit items">
+            <thead>
+              <tr>
+                <th style="width:60px">#</th>
+                <th>الباركود</th>
+                <th>المنتج</th>
+                <th>الكمية</th>
+                <th>السعر</th>
+                <th>الإجمالي</th>
+                <th>حذف</th>
+              </tr>
+            </thead>
+            <tbody id="eItemsBody"></tbody>
+          </table>
+        </div>
+
+        <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px" id="eTotals"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
@@ -430,49 +565,26 @@
 
   const $ = (id)=>document.getElementById(id);
 
-  // ✅ Production default: اخفاء الاستيراد اليدوي
-  const ENABLE_MANUAL_IMPORT = false;
-  if(!ENABLE_MANUAL_IMPORT){
-    const c = $("importCard");
-    if(c) c.style.display = "none";
-  }
-
-  // ===== Toast =====
   const toastEl = $("toast");
   function showToast(msg){
-    if(!toastEl) return alert(msg);
     toastEl.textContent = msg;
     toastEl.classList.add("show");
     clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 2000);
   }
 
-  // ===== Logout =====
   $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  // ===== Config =====
-  const SALES_LOG_API_URL =
-    "https://script.google.com/macros/s/AKfycbwsPPw3UiW6TBngBcbFxY4E8rB7JYgK1W2LRn0WaS9C7OitA1FgZ1vAz9Qr1u_ojlZ8/exec?mode=sales_log";
-
-  const LOCAL_LOG_KEY = "AX_SALES_LOG_LOCAL_V1";
-  const CACHE_KEY = "AX_SALES_LOG_CACHE_V1";
-  const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V1";
+  const CACHE_KEY = "AX_SALES_LOG_CACHE_V2";
+  const CACHE_TS  = "AX_SALES_LOG_CACHE_TS_V2";
   const CACHE_TTL_MS = 3 * 60 * 1000;
 
   let RAW = [];
   let VIEW = [];
-  let isLoading = false;
 
-  function setLoading(on){
-    isLoading = !!on;
-    const btn = $("refreshBtn");
-    if(btn){
-      btn.disabled = isLoading;
-      btn.textContent = isLoading ? "⏳ جاري التحديث..." : "🔄 تحديث السجل";
-    }
-  }
+  let productsByBarcode = new Map();
+  let productsList = [];
 
-  // ===== Helpers =====
   function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
   function norm(s){ return String(s||"").trim().toLowerCase(); }
 
@@ -503,7 +615,6 @@
 
   function setLastSync(ts){
     const el = $("lastSyncTxt");
-    if(!el) return;
     if(!ts){ el.textContent = "—"; return; }
     const d = new Date(ts);
     el.textContent = d.toLocaleString("ar-EG");
@@ -526,41 +637,31 @@
     }catch(e){ return null; }
   }
 
-  function saveLocal(list){
-    try{ localStorage.setItem(LOCAL_LOG_KEY, JSON.stringify(list)); }catch(e){}
-  }
-  function loadLocal(){
+  async function loadProducts(){
     try{
-      const raw = localStorage.getItem(LOCAL_LOG_KEY);
-      if(!raw) return [];
-      const list = JSON.parse(raw);
-      return Array.isArray(list) ? list : [];
-    }catch(e){ return []; }
-  }
-
-  async function fetchSalesLog(){
-    const res = await fetch(SALES_LOG_API_URL, { cache:"no-store" });
-    if(!res.ok) throw new Error("HTTP " + res.status);
-    const data = await res.json();
-
-    if(Array.isArray(data)) return data;
-    if(data && typeof data === "object"){
-      if(Array.isArray(data.data)) return data.data;
-      if(Array.isArray(data.items)) return data.items;
-      if(Array.isArray(data.rows)) return data.rows;
-    }
-    return [];
+      const res = await AxentroApi.getProducts();
+      if(res && res.ok && Array.isArray(res.products)){
+        productsList = res.products.map(p=>({
+          barcode: String(p.barcode||""),
+          name: String(p.name||""),
+          price: Number(p.price||0),
+          raw: p
+        }));
+        productsByBarcode = new Map(productsList.filter(p=>p.barcode).map(p=>[p.barcode, p]));
+      }
+    }catch(e){}
   }
 
   function normalizeRow(r){
-    const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.id || "";
-    const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.day || "");
-    const time  = r.time || r.invTime || r.invoice_time || "";
+    const invNo = r.sale_invoice_no || r.invNo || r.invoice_no || r.invoiceNo || r.id || "";
+    const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.sale_date || r.day || "");
+    const time  = r.time || r.invTime || r.invoice_time || r.sale_time || "";
     const orderId = r.orderId || r.order_id || r.order || "";
-    const custName = r.custName || r.customer || r.customer_name || r.name || "";
+    const custName = r.custName || r.customer || r.customer_name || r.customerName || r.name || "";
     const custPhone = r.custPhone || r.phone || r.customer_phone || "";
-    const itemsCount = Number(r.itemsCount ?? r.items_count ?? r.count ?? (Array.isArray(r.items)? r.items.length : 0) ?? 0) || 0;
-    const finalTotal = money(r.finalTotal ?? r.total ?? r.grandTotal ?? r.amount ?? 0);
+    const itemsCount = Number(r.items_count ?? r.itemsCount ?? r.count ?? (Array.isArray(r.items)? r.items.length : 0) ?? 0) || 0;
+    const finalTotal = money(r.final_total ?? r.finalTotal ?? r.total ?? r.grandTotal ?? r.amount ?? 0);
+    const profit = money(r.total_profit ?? r.profit ?? 0);
 
     return {
       invNo: String(invNo||"").trim(),
@@ -570,8 +671,16 @@
       custName: String(custName||"").trim(),
       custPhone: String(custPhone||"").trim(),
       itemsCount,
-      finalTotal
+      finalTotal,
+      profit
     };
+  }
+
+  async function fetchSalesLog(){
+    const out = await AxentroApi.getSalesLog();
+    if(!out || !out.ok) throw new Error((out && (out.error||out.message)) ? (out.error||out.message) : "Failed to load sales log");
+    const list = Array.isArray(out.items) ? out.items : (Array.isArray(out.sales) ? out.sales : (Array.isArray(out.data) ? out.data : []));
+    return list;
   }
 
   async function loadSalesSmart(force=false){
@@ -580,15 +689,6 @@
     const hasCache = cached && cached.list && cached.list.length;
     const fresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
 
-    const local = loadLocal();
-    const localNorm = local.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
-    if(localNorm.length){
-      RAW = localNorm;
-      saveCache(localNorm);
-      setLastSync(cached?.ts || Date.now());
-      applyFiltersAndRender();
-    }
-
     if(hasCache){
       RAW = cached.list.map(normalizeRow);
       setLastSync(cached.ts);
@@ -596,14 +696,13 @@
     }
 
     if(!force && fresh){
-      setTimeout(()=> refreshFromNet(false), 300);
+      setTimeout(()=> refreshFromNet(false), 250);
     }else{
       await refreshFromNet(true);
     }
   }
 
   async function refreshFromNet(showMsg){
-    setLoading(true);
     try{
       const list = await fetchSalesLog();
       const normed = list.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
@@ -615,8 +714,6 @@
     }catch(e){
       console.warn(e);
       if(showMsg) showToast("⚠️ تعذر تحميل السجل الآن.\nتم عرض آخر نسخة محفوظة إن وُجدت.");
-    }finally{
-      setLoading(false);
     }
   }
 
@@ -669,27 +766,28 @@
 
   function escapeHtml(str){
     return String(str || "")
-      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+      .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;");
   }
 
   function render(){
     const tbody = $("logBody");
     const empty = $("emptyBox");
-    if(!tbody) return;
-
     tbody.innerHTML = "";
     const list = Array.isArray(VIEW) ? VIEW : [];
 
     const count = list.length;
     const sum = list.reduce((s,r)=> s + money(r.finalTotal), 0);
+    const profit = list.reduce((s,r)=> s + money(r.profit), 0);
+
     $("countTxt").textContent = String(count);
     $("sumTxt").textContent = sum.toFixed(2);
+    $("profitTxt").textContent = profit.toFixed(2);
 
     if(!count){
-      if(empty) empty.style.display = "block";
+      empty.style.display = "block";
       return;
     }else{
-      if(empty) empty.style.display = "none";
+      empty.style.display = "none";
     }
 
     list.forEach((r, idx)=>{
@@ -703,14 +801,26 @@
         <td data-label="التاريخ">${escapeHtml(r.date || "—")}</td>
         <td data-label="الوقت">${escapeHtml(r.time || "—")}</td>
         <td data-label="Order ID">${escapeHtml(r.orderId || "—")}</td>
-        <td data-label="العميل" class="left">
-          <div style="font-weight:900">${escapeHtml(r.custName || "—")}</div>
-        </td>
+        <td data-label="العميل" class="left"><div style="font-weight:900">${escapeHtml(r.custName || "—")}</div></td>
         <td data-label="الهاتف">${escapeHtml(r.custPhone || "—")}</td>
         <td data-label="عدد الأصناف"><span class="tag ok">${Number(r.itemsCount||0)}</span></td>
         <td data-label="الإجمالي"><span class="tag">${fmtMoney(r.finalTotal)}</span></td>
+        <td data-label="إجراءات">
+          <div class="actions">
+            <button class="btn secondary" type="button" data-edit="${escapeHtml(r.invNo)}">✏️ تعديل</button>
+            <button class="btn danger" type="button" data-del="${escapeHtml(r.invNo)}">🗑 حذف</button>
+          </div>
+        </td>
       `;
       tbody.appendChild(tr);
+    });
+
+    tbody.querySelectorAll("[data-edit]").forEach(btn=>{
+      btn.addEventListener("click", ()=> openEdit(btn.getAttribute("data-edit")));
+    });
+
+    tbody.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=> onDelete(btn.getAttribute("data-del")));
     });
   }
 
@@ -719,68 +829,379 @@
     render();
   }
 
-  // ===== Import manual (Debug only) =====
-  function parseCSV(text){
-    const lines = String(text||"").trim().split(/\r?\n/).map(l=>l.trim()).filter(Boolean);
-    if(lines.length < 2) return [];
-    const header = lines[0].split(",").map(h=>h.trim());
-    const out = [];
-    for(let i=1;i<lines.length;i++){
-      const cells = lines[i].split(",").map(c=>c.trim());
-      const obj = {};
-      header.forEach((h, idx)=> obj[h] = cells[idx] ?? "");
-      out.push(obj);
-    }
-    return out;
+  // ===== Edit Modal =====
+  const editModal = $("editModal");
+  const eSuggest = $("eSuggest");
+
+  let editItems = [];
+  let editInvNo = "";
+
+  function showModal(){
+    editModal.style.display = "flex";
+    editModal.setAttribute("aria-hidden","false");
+  }
+  function hideModal(){
+    editModal.style.display = "none";
+    editModal.setAttribute("aria-hidden","true");
+    closeSuggest();
   }
 
-  function importManual(){
-    const ta = $("importTa");
-    const raw = String(ta?.value || "").trim();
-    if(!raw){ showToast("الصق بيانات للاستيراد أولاً"); return; }
+  $("cancelEditBtn").addEventListener("click", hideModal);
+  editModal.addEventListener("click", (e)=>{ if(e.target === editModal) hideModal(); });
 
-    let list = [];
+  function calcLineTotal(it){ return money(it.qty) * money(it.unit_price); }
+
+  function renderEditItems(){
+    const body = $("eItemsBody");
+    body.innerHTML = editItems.map((it, idx)=>{
+      const total = calcLineTotal(it);
+      return `
+        <tr>
+          <td data-label="#">${idx+1}</td>
+          <td data-label="الباركود">${escapeHtml(it.barcode||"")}</td>
+          <td data-label="المنتج">${escapeHtml(it.name||"")}</td>
+          <td data-label="الكمية"><input type="number" min="1" value="${escapeHtml(it.qty)}" data-idx="${idx}" data-f="qty"></td>
+          <td data-label="السعر"><input type="number" step="0.01" min="0" value="${escapeHtml(it.unit_price)}" data-idx="${idx}" data-f="unit_price"></td>
+          <td data-label="الإجمالي">${total.toFixed(2)} جنيه</td>
+          <td data-label="حذف"><button class="btn secondary" type="button" data-rm="${idx}">✖ حذف</button></td>
+        </tr>
+      `;
+    }).join("");
+
+    const totalBefore = editItems.reduce((s,it)=> s + calcLineTotal(it), 0);
+    const discount = Math.max(0, money($("eDiscount").value));
+    const afterDiscount = Math.max(0, totalBefore - discount);
+    const shipping = Math.max(0, money($("eShipping").value));
+    const finalTotal = afterDiscount + shipping;
+
+    $("eTotals").innerHTML = `
+      <div class="tag" style="text-align:center">الإجمالي قبل الخصم: <b>${totalBefore.toFixed(2)}</b></div>
+      <div class="tag" style="text-align:center">بعد الخصم: <b>${afterDiscount.toFixed(2)}</b></div>
+      <div class="tag" style="text-align:center">الإجمالي النهائي: <b>${finalTotal.toFixed(2)}</b></div>
+    `;
+
+    body.querySelectorAll("[data-rm]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const i = Number(btn.getAttribute("data-rm"));
+        editItems.splice(i,1);
+        renderEditItems();
+      });
+    });
+
+    body.querySelectorAll("input[data-idx]").forEach(inp=>{
+      inp.addEventListener("input", ()=>{
+        const i = Number(inp.getAttribute("data-idx"));
+        const f = inp.getAttribute("data-f");
+        if(!editItems[i]) return;
+        editItems[i][f] = inp.value;
+        renderEditItems();
+      });
+    });
+  }
+
+  ["eDiscount","eShipping"].forEach(id=> $(id).addEventListener("input", renderEditItems));
+
+  async function openEdit(invNo){
     try{
-      if(raw.startsWith("[") || raw.startsWith("{")){
-        const j = JSON.parse(raw);
-        if(Array.isArray(j)) list = j;
-        else if(j && typeof j === "object"){
-          if(Array.isArray(j.data)) list = j.data;
-          else if(Array.isArray(j.items)) list = j.items;
-          else list = [j];
-        }
-      }else{
-        list = parseCSV(raw);
-      }
+      if(!invNo) return;
+      showToast("جاري تحميل الفاتورة...");
+
+      const out = await AxentroApi.getSale(invNo);
+      if(!out || !out.ok) throw new Error((out && (out.error||out.message)) ? (out.error||out.message) : "فشل تحميل الفاتورة");
+
+      const sale = out.sale || out.data || {};
+      const items = Array.isArray(out.items) ? out.items : (Array.isArray(sale.items) ? sale.items : []);
+
+      editInvNo = invNo;
+      $("editInvNo").textContent = invNo;
+      $("eInvDate").value = toISODateMaybe(sale.invoice_date || sale.date || "");
+      $("ePayMethod").value = String(sale.payment_method || sale.pay_method || "CASH");
+      $("eCustomerName").value = String(sale.customer_name || sale.customer || sale.custName || "");
+      $("eCustomerPhone").value = String(sale.customer_phone || sale.phone || sale.custPhone || "");
+      $("eDiscount").value = String(money(sale.discount||0));
+      $("eShipping").value = String(money(sale.shipping||0));
+
+      editItems = items.map(it=>({
+        barcode: String(it.barcode||"").trim(),
+        product_id: String(it.product_id||"").trim(),
+        name: String(it.product_name || it.name || "").trim(),
+        qty: Number(it.qty ?? it.quantity ?? 1) || 1,
+        unit_price: Number(it.unit_price ?? it.price ?? 0) || 0
+      }));
+
+      renderEditItems();
+      showModal();
     }catch(e){
-      showToast("❌ صيغة غير صحيحة.\nجرّب JSON Array أو CSV.");
+      showToast("❌ " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  async function onDelete(invNo){
+    if(!invNo) return;
+    const ok = confirm(`تأكيد حذف الفاتورة ${invNo}؟\nسيتم إرجاع المخزون بالكامل وتحديث الأرباح.`);
+    if(!ok) return;
+
+    try{
+      showToast("جاري الحذف...");
+      const out = await AxentroApi.deleteSale(invNo);
+      if(!out || !out.ok) throw new Error((out && (out.error||out.message)) ? (out.error||out.message) : "فشل الحذف");
+      showToast("✅ تم حذف الفاتورة وإرجاع المخزون");
+      await loadSalesSmart(true);
+    }catch(e){
+      showToast("❌ " + (e && e.message ? e.message : String(e)));
+    }
+  }
+
+  $("saveEditBtn").addEventListener("click", async ()=>{
+    try{
+      if(!editInvNo) return;
+      if(!editItems.length){ showToast("أضف أصناف أولاً"); return; }
+
+      const payload = {
+        sale_invoice_no: editInvNo,
+        invoice_date: $("eInvDate").value,
+        customer_name: $("eCustomerName").value,
+        customer_phone: $("eCustomerPhone").value,
+        pay_method: $("ePayMethod").value,
+        discount: money($("eDiscount").value),
+        shipping: money($("eShipping").value),
+        items: editItems.map(it=>({
+          barcode: String(it.barcode||"").trim(),
+          product_id: String(it.product_id||"").trim(),
+          name: String(it.name||"").trim(),
+          qty: money(it.qty),
+          unit_price: money(it.unit_price)
+        }))
+      };
+
+      showToast("جاري حفظ التعديل...");
+      const out = await AxentroApi.updateSale(payload);
+      if(!out || !out.ok) throw new Error((out && (out.error||out.message)) ? (out.error||out.message) : "فشل حفظ التعديل");
+
+      hideModal();
+      showToast("✅ تم تعديل الفاتورة وتحديث المخزون/الأرباح");
+      await loadSalesSmart(true);
+    }catch(e){
+      showToast("❌ " + (e && e.message ? e.message : String(e)));
+    }
+  });
+
+  // ===== Add line (Lookup) =====
+  const eLookup = $("eLookup");
+  const eQty = $("eQty");
+  const eUnitPrice = $("eUnitPrice");
+  const eName = $("eName");
+
+  let suggestItems = [];
+  let suggestIndex = -1;
+  let suggestTimer = null;
+  let isPickingSuggestion = false;
+
+  function closeSuggest(){
+    suggestItems = [];
+    suggestIndex = -1;
+    eSuggest.hidden = true;
+    eSuggest.innerHTML = "";
+  }
+
+  function esc(s){
+    return String(s||'')
+      .replaceAll('&','&amp;')
+      .replaceAll('<','&lt;')
+      .replaceAll('>','&gt;')
+      .replaceAll('"','&quot;')
+      .replaceAll("'",'&#039;');
+  }
+
+  function renderSuggest(){
+    if(!suggestItems.length){
+      eSuggest.innerHTML = '<div class="suggestEmpty">لا توجد نتائج</div>';
+      eSuggest.hidden = false;
+      return;
+    }
+    eSuggest.hidden = false;
+    eSuggest.innerHTML = suggestItems.map((p, i)=>{
+      const name = esc(p.name);
+      const bc = esc(p.barcode);
+      return `<div class="suggestItem${i===suggestIndex? " active": ""}" role="option" aria-selected="${i===suggestIndex}" data-idx="${i}">
+        <span>${name}</span>
+        <span class="meta">${bc}</span>
+      </div>`;
+    }).join("");
+
+    eSuggest.querySelectorAll('.suggestItem').forEach(node=>{
+      const handler = (ev)=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        const i = Number(node.getAttribute('data-idx'));
+        if(Number.isFinite(i)) selectSuggested(i);
+      };
+      node.addEventListener('pointerdown', handler, { passive:false });
+      node.addEventListener('touchstart', handler, { passive:false });
+      node.addEventListener('mousedown', handler, { passive:false });
+      node.addEventListener('click', handler);
+    });
+  }
+
+  function selectSuggested(i){
+    const p = suggestItems[i];
+    if(!p) return;
+    isPickingSuggestion = true;
+    closeSuggest();
+
+    eLookup.value = "";
+    requestAnimationFrame(()=>{
+      eLookup.value = p.barcode || p.name || "";
+      eName.value = p.name || "";
+      if(String(eUnitPrice.value||"").trim()==='' || Number(eUnitPrice.value||0)===0){
+        eUnitPrice.value = Number(p.price||0) ? String(Number(p.price||0)) : '';
+      }
+      eUnitPrice.focus();
+      try{ eUnitPrice.select(); }catch(e){}
+      setTimeout(()=>{ isPickingSuggestion = false; }, 0);
+    });
+  }
+
+  function findByName(q){
+    const nq = norm(q);
+    if(!nq) return null;
+    let hit = productsList.find(p => norm(p.name) === nq);
+    if(hit) return hit;
+    hit = productsList.find(p => norm(p.name).includes(nq));
+    return hit || null;
+  }
+
+  function fillNamePrice(){
+    const raw = String(eLookup.value||"").trim();
+    if(!raw){ eName.value = ""; return; }
+
+    const byBarcode = productsByBarcode.get(raw);
+    if(byBarcode){
+      eName.value = byBarcode.name || "";
+      if(String(eUnitPrice.value||"").trim()==='' || Number(eUnitPrice.value||0)===0){
+        eUnitPrice.value = Number(byBarcode.price||0) ? String(Number(byBarcode.price||0)) : '';
+      }
       return;
     }
 
-    const normed = list.map(normalizeRow).filter(x=>x.invNo || x.custName || x.orderId);
-    if(!normed.length){
-      showToast("⚠️ لم يتم العثور على بيانات صالحة للاستيراد.");
+    const byName = findByName(raw);
+    if(byName){
+      eName.value = byName.name || "";
+      if(String(eUnitPrice.value||"").trim()==='' || Number(eUnitPrice.value||0)===0){
+        eUnitPrice.value = Number(byName.price||0) ? String(Number(byName.price||0)) : '';
+      }
       return;
     }
 
-    saveLocal(normed);
-    RAW = normed;
-    saveCache(normed);
-    setLastSync(Date.now());
-    applyFiltersAndRender();
-    showToast("✅ تم استيراد السجل المحلي");
+    eName.value = "";
   }
 
-  function clearLocal(){
-    localStorage.removeItem(LOCAL_LOG_KEY);
-    RAW = [];
-    VIEW = [];
-    applyFiltersAndRender();
-    showToast("✅ تم مسح السجل المحلي");
+  function runSuggestSearch(){
+    const q = norm(eLookup.value);
+    if(!q){ closeSuggest(); return; }
+
+    const list = [];
+    for(const p of productsList){
+      if(list.length >= 12) break;
+      const bc = norm(p.barcode);
+      const nm = norm(p.name);
+      if((bc && bc.includes(q)) || (nm && nm.includes(q))){
+        list.push(p);
+      }
+    }
+    suggestItems = list;
+    suggestIndex = list.length ? 0 : -1;
+    renderSuggest();
   }
 
-  // ===== UI events =====
+  function debounceSuggest(){
+    if(suggestTimer) clearTimeout(suggestTimer);
+    suggestTimer = setTimeout(runSuggestSearch, 120);
+  }
+
+  eLookup.addEventListener("input", ()=>{
+    if(isPickingSuggestion) return;
+    fillNamePrice();
+    debounceSuggest();
+  });
+  eLookup.addEventListener("change", ()=>{ fillNamePrice(); closeSuggest(); });
+  eLookup.addEventListener("focus", ()=>{ debounceSuggest(); });
+  eLookup.addEventListener("blur", ()=>{ setTimeout(()=>{ if(isPickingSuggestion) return; closeSuggest(); }, 220); });
+
+  eLookup.addEventListener("keydown", (e)=>{
+    if(eSuggest.hidden) return;
+
+    if(e.key === 'ArrowDown'){
+      e.preventDefault();
+      if(!suggestItems.length) return;
+      suggestIndex = Math.min(suggestItems.length - 1, suggestIndex + 1);
+      renderSuggest();
+      return;
+    }
+    if(e.key === 'ArrowUp'){
+      e.preventDefault();
+      if(!suggestItems.length) return;
+      suggestIndex = Math.max(0, suggestIndex - 1);
+      renderSuggest();
+      return;
+    }
+    if(e.key === 'Enter'){
+      if(suggestItems.length && suggestIndex >= 0){
+        e.preventDefault();
+        selectSuggested(suggestIndex);
+      }
+      return;
+    }
+    if(e.key === 'Escape'){
+      closeSuggest();
+      return;
+    }
+  });
+
+  document.addEventListener('click', (ev)=>{
+    if(eSuggest.hidden) return;
+    const inside = ev.target === eLookup || eSuggest.contains(ev.target);
+    if(!inside) closeSuggest();
+  }, true);
+
+  $("eAddLineBtn").addEventListener("click", ()=>{
+    const raw = String(eLookup.value||"").trim();
+    const qty = money(eQty.value);
+    const price = money(eUnitPrice.value);
+
+    if(!raw) return showToast("اكتب باركود/اسم الصنف أولاً");
+    if(qty <= 0) return showToast("الكمية غير صحيحة");
+    if(price < 0) return showToast("السعر غير صحيح");
+
+    let p = productsByBarcode.get(raw) || null;
+    let barcode = raw;
+    if(!p){
+      const byName = findByName(raw);
+      if(byName){ p = byName; barcode = byName.barcode || raw; }
+    }
+
+    const name = p ? (p.name||"") : (String(eName.value||"") || raw);
+    if(!name) return showToast("تعذر تحديد اسم الصنف");
+
+    editItems.push({
+      barcode,
+      product_id: p ? (p.raw && p.raw.product_id ? p.raw.product_id : (p.product_id || '')) : '',
+      name,
+      qty,
+      unit_price: price
+    });
+
+    eLookup.value = "";
+    eName.value = "";
+    eQty.value = "1";
+    eUnitPrice.value = "";
+    closeSuggest();
+    eLookup.focus();
+    renderEditItems();
+  });
+
   $("refreshBtn")?.addEventListener("click", ()=> loadSalesSmart(true));
+
   $("clearFiltersBtn")?.addEventListener("click", ()=>{
     $("q").value = "";
     $("fromDate").value = "";
@@ -792,27 +1213,15 @@
     showToast("✅ تم مسح الفلاتر");
   });
 
-  // ✅ Debounce للفلترة
-  function debounce(fn, wait){
-    let t = null;
-    return function(){
-      clearTimeout(t);
-      t = setTimeout(fn, wait);
-    };
-  }
-  const applyDebounced = debounce(applyFiltersAndRender, 120);
-
   ["q","fromDate","toDate","minTotal","maxTotal","sortBy"].forEach(id=>{
-    $(id)?.addEventListener("input", applyDebounced);
-    $(id)?.addEventListener("change", applyDebounced);
+    $(id)?.addEventListener("input", applyFiltersAndRender);
+    $(id)?.addEventListener("change", applyFiltersAndRender);
   });
 
-  $("importBtn")?.addEventListener("click", importManual);
-  $("clearImportBtn")?.addEventListener("click", ()=>{ $("importTa").value = ""; });
-  $("clearLocalBtn")?.addEventListener("click", clearLocal);
-
-  // ===== BOOT =====
-  loadSalesSmart(false);
+  (async function boot(){
+    await loadProducts();
+    await loadSalesSmart(false);
+  })();
 
 })();
 </script>
