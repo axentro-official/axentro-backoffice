@@ -81,10 +81,8 @@
     .brandTitle{font-weight:1000}
     .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900;line-height:1.5}
 
-    .topActions{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      justify-content:flex-end;
-    }
+    /* ✅ زي صفحاتنا دايمًا */
+    .topActions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -149,6 +147,7 @@
       align-items:center;
       justify-content:center;
       gap:8px;
+      text-decoration:none;
     }
     .btn:hover{filter:brightness(1.02)}
     .btn:active{transform:translateY(1px)}
@@ -176,7 +175,6 @@
     .pill .k{color:var(--muted);font-weight:900}
     .muted{color:var(--muted);font-weight:900}
 
-    /* ===== ERP KPIs ===== */
     .kpiGrid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -223,7 +221,6 @@
       font-weight:1000;
     }
 
-    /* ===== Charts ===== */
     .chartGrid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
@@ -248,7 +245,6 @@
     .chartTitle{font-weight:1000}
     .chartNote{font-size:12px;color:var(--muted);font-weight:900}
 
-    /* منع تمدد الصفحة بسبب canvas */
     canvas{
       width:100% !important;
       display:block;
@@ -271,7 +267,6 @@
       margin-top:10px;
     }
 
-    /* ===== Tables ===== */
     .table-wrap{
       overflow:auto;
       margin-top:10px;
@@ -347,7 +342,6 @@
       }
     }
 
-    /* ===== Footer ===== */
     .site-footer{
       margin-top:auto;
       padding:16px 16px 22px;
@@ -363,7 +357,6 @@
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
-    /* ===== Toast ===== */
     .toast{
       position: fixed;
       left: 50%;
@@ -387,7 +380,6 @@
     }
     .toast.show{ opacity:1; transform: translateX(-50%) translateY(-4px); }
 
-    /* ===== Modal (Drilldown) ===== */
     .modal{
       position:fixed; inset:0;
       background:rgba(2,6,23,.55);
@@ -422,7 +414,6 @@
     .modalActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .modalActions .btn{padding:10px 12px;border-radius:12px}
 
-    /* Print / PDF */
     .printOnly{display:none}
     @media print{
       body{ background:#fff !important; }
@@ -451,9 +442,10 @@
       </div>
     </div>
 
+    <!-- ✅ نفس شكل الصفحات اللي عندنا (زي Purchase Invoice) -->
     <div class="topActions noPrint">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none">⬅ رجوع للداش بورد</a>
-      <button class="btn danger" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
 
@@ -499,14 +491,13 @@
         <label for="compareMode">مقارنة</label>
         <select id="compareMode" class="noPrint">
           <option value="none" selected>بدون</option>
-          <option value="prev_period">الفترة السابقة (Period-over-Period)</option>
+          <option value="prev_period">الفترة السابقة (PoP)</option>
           <option value="prev_month">نفس المدة الشهر الماضي</option>
           <option value="prev_year">نفس المدة السنة الماضية (YoY)</option>
         </select>
       </div>
     </div>
 
-    <!-- ERP extra filters -->
     <div class="row3" style="margin-top:10px">
       <div class="noPrint">
         <label for="warehouse">المخزن</label>
@@ -564,6 +555,7 @@
 
     <div class="subnote">
       ملاحظة: الصفحة جاهزة ERP-Style. ربط الأرقام/الشارت سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
+      <br>COGS سيتم حسابها FIFO (الأدق ERP).
     </div>
   </div>
 
@@ -600,7 +592,7 @@
       </div>
 
       <div class="kpi">
-        <div class="t">COGS (تكلفة البضاعة)</div>
+        <div class="t">COGS (تكلفة البضاعة — FIFO)</div>
         <div class="v" id="kpiCogs">0.00</div>
         <div class="s"><span>Compare</span><b id="kpiCogsCmp">—</b></div>
         <div class="miniActions noPrint">
@@ -648,7 +640,7 @@
     <div class="subnote">
       الصيغ القياسية (ERP):
       Net Sales = Gross Sales - Returns
-      — Gross Profit = Net Sales - COGS
+      — Gross Profit = Net Sales - COGS (FIFO)
       — Net Profit = Gross Profit - Expenses
     </div>
   </div>
@@ -662,7 +654,7 @@
         <div class="chartHead">
           <div>
             <div class="chartTitle">Sales / Purchases / Expenses</div>
-            <div class="chartNote">حسب التجميع المحدد (Daily/Weekly/Monthly)</div>
+            <div class="chartNote">حسب التجميع (Daily/Weekly/Monthly)</div>
           </div>
           <div class="tag warn">Pending Data</div>
         </div>
@@ -842,7 +834,7 @@
     toast._t = setTimeout(()=>toastEl.classList.remove("show"), 1900);
   }
 
-  // ===== Logout =====
+  // ===== Logout (زي صفحاتنا) =====
   $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
   // ===== Dates helpers =====
@@ -859,7 +851,6 @@
     let from = null, to = null;
 
     if(p === "custom"){
-      // leave as is
       return;
     }
 
@@ -877,35 +868,32 @@
     if($("toDate")) $("toDate").value = toISO(to);
   }
 
-  // Init preset dates
   applyPreset();
 
   $("preset")?.addEventListener("change", ()=>{
     applyPreset();
+    updatePrintMeta();
   });
 
   // ===== Print meta =====
   function updatePrintMeta(){
     const from = $("fromDate")?.value || "—";
     const to = $("toDate")?.value || "—";
-    const presetTxt = $("preset")?.options[$("preset")?.selectedIndex]?.textContent || "—";
     const aggTxt = $("aggMode")?.options[$("aggMode")?.selectedIndex]?.textContent || "—";
     const cmpTxt = $("compareMode")?.options[$("compareMode")?.selectedIndex]?.textContent || "—";
-
     $("printMeta").textContent = `الفترة: ${from} → ${to} | التجميع: ${aggTxt} | المقارنة: ${cmpTxt}`;
-    $("printPreset").textContent = presetTxt;
+    $("printPreset").textContent = $("preset")?.options[$("preset")?.selectedIndex]?.textContent || "—";
     $("printFrom").textContent = from;
     $("printTo").textContent = to;
   }
   updatePrintMeta();
-  ["fromDate","toDate","aggMode","compareMode","preset"].forEach(id=>{
+  ["fromDate","toDate","aggMode","compareMode"].forEach(id=>{
     $(id)?.addEventListener("change", updatePrintMeta);
     $(id)?.addEventListener("input", updatePrintMeta);
   });
 
   // ===== Buttons (placeholders for later) =====
   $("refreshBtn")?.addEventListener("click", ()=>{
-    // لاحقًا: fetch reports data from Code.gs
     $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
     $("srcSales").textContent = "Pending";
     $("srcPurch").textContent = "Pending";
@@ -953,7 +941,7 @@
     toast("📤 تصدير تفاصيل Drilldown سيتم بعد ربط البيانات");
   });
 
-  // ===== Initial sources placeholders =====
+  // ===== Initial placeholders =====
   $("lastSyncTxt").textContent = "—";
   $("srcSales").textContent = "—";
   $("srcPurch").textContent = "—";
