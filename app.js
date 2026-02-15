@@ -62,37 +62,32 @@
   }
 
   // ====== API helper ======
-  async function apiCall(action, payload) {
-    const url = AxentroConfig.apiUrl;
-    const body = JSON.stringify(Object.assign({ action }, payload || {}));
-
-    // Timeout (default 25s) — keeps UI responsive on bad networks
-    const timeoutMs = Number(AxentroConfig.apiTimeoutMs || 25000);
-    const ctrl = ("AbortController" in window) ? new AbortController() : null;
-    const t = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, timeoutMs) : null;
-
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body,
-        signal: ctrl ? ctrl.signal : undefined
-      });
-
-      const text = await res.text();
-      let json = null;
-      try { json = text ? JSON.parse(text) : {}; } catch(e) { json = { ok:false, error: "Bad JSON from server", raw: text }; }
-
-      if (!res.ok) {
-        return { ok:false, error: (json && (json.error || json.message)) ? (json.error || json.message) : ("HTTP " + res.status), status: res.status, raw: text };
-      }
-      return json || {};
-    } catch (e) {
-      const msg = (e && e.name === "AbortError") ? "Request timeout" : (e && e.message ? e.message : String(e));
-      return { ok:false, error: msg };
-    } finally {
-      if (t) clearTimeout(t);
+  async function apiCall(action, payload){
+    if(!CFG.GAS_WEB_APP_URL){
+      throw new Error("GAS_WEB_APP_URL is not set in AXENTRO_CONFIG.");
     }
+    const sess = getSession();
+    const body = Object.assign({}, payload || {}, {
+      action,
+      session_token: sess ? sess.token : null
+    });
+
+    // ملاحظة: استخدام text/plain يتجنب غالبًا طلب OPTIONS (CORS preflight) في المتصفح.
+    // Apps Script يقرأ e.postData.contents بغض النظر عن Content-Type.
+    const res = await fetch(CFG.GAS_WEB_APP_URL, {
+      method: "POST",
+      headers: { "Content-Type":"text/plain;charset=UTF-8" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+    const data = await res.json().catch(()=> ({}));
+    if(!res.ok || data.ok === false){
+      const msg = data && (data.error || data.message) ? (data.error || data.message) : ("HTTP " + res.status);
+      const err = new Error(msg);
+      err.data = data;
+      throw err;
+    }
+    return data;
   }
 
   // ====== Auth facade (keeps old API names) ======
@@ -131,20 +126,6 @@
       return data;
     },
 
-    // جاهزة للمرحلة الجاية (Username/Password) بدون كسر Google
-    async loginWithPassword(username, password){
-      const data = await apiCall("auth_login", { username, password });
-      if(data && data.ok && data.session_token){
-        setSession({
-          token: data.session_token,
-          email: data.email || username || "",
-          role: data.role || "user",
-          expiresAt: nowMs() + (Number(data.expires_in || 3600) * 1000)
-        });
-      }
-      return data;
-    },
-
     async me(){
       return apiCall("auth_me", {});
     }
@@ -159,15 +140,17 @@
       return apiCall("create_purchase", purchasePayload);
     },
 
-    // ===== Sales =====
+    // ===== Sales (in case the page needs it) =====
     async createSale(salePayload){
       return apiCall("create_sale", salePayload);
     },
+
 
     // ===== Warehouses =====
     async getWarehouses(){
       return apiCall("get_warehouses", {});
     },
+
 
     // ===== Inventory =====
     async getInventoryView(){
