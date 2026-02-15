@@ -3,88 +3,60 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>سجل المشتريات — B.S Medical &amp; Aesthetic</title>
+  <title>( Purchase Log ) سجل المشتريات — B.S Medical &amp; Aesthetic</title>
 
   <style>
     :root{
-      --bg:#f7f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --stroke:rgba(15,23,42,.10);
-      --shadow: 0 18px 50px rgba(2,6,23,.12);
-      --radius:18px;
-
-      --gold:#b08d57;
-      --gold2:#d7b97a;
-
-      --ok:#16a34a;
-      --bad:#dc2626;
-
+      --bg:#f7f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --stroke:rgba(15,23,42,.10); --shadow:0 18px 50px rgba(2,6,23,.12);
+      --radius:18px; --gold:#b08d57; --gold2:#d7b97a;
+      --ok:#16a34a; --okSoft: rgba(22,163,74,.10);
+      --warn:#f59e0b; --warnSoft: rgba(245,158,11,.12);
+      --bad:#dc2626; --badSoft: rgba(220,38,38,.10);
       --container-max:1100px;
     }
 
     *{box-sizing:border-box}
-    html,body{
-      height:100%;
-      width:100%;
-      max-width:100%;
-      overflow-x:hidden;
-    }
+    html,body{height:100%}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
-        linear-gradient(180deg, #ffffff, var(--bg));
-      min-height:100%;
+        linear-gradient(180deg, #fff, var(--bg));
+      padding:18px;
+      min-height:100vh;
       display:flex;
       flex-direction:column;
-      -webkit-font-smoothing:antialiased;
-      padding:0;
+      overflow-x:hidden;
     }
 
-    .wrap{
-      max-width:var(--container-max);
-      margin:0 auto;
-      width:100%;
-      flex:1;
-      padding:18px;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
-    }
-    @media (max-width:520px){
-      .wrap{
-        padding:14px;
-        padding-bottom: calc(14px + env(safe-area-inset-bottom));
-      }
-    }
+    .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
 
     .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:12px 14px;border:1px solid var(--stroke);
-      border-radius:18px;background:rgba(255,255,255,.86);
-      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 14px;
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      background:rgba(255,255,255,.88);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
       flex-wrap:wrap;
       margin-bottom:16px;
     }
     .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
     .logo{
-      width:44px;height:44px;border-radius:999px;
-      display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
       border:1px solid rgba(176,141,87,.35);
       box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden;
-      padding:6px;
-      flex:0 0 auto;
+      overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:1000}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
-
-    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .brandTitle{font-weight:900}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -93,12 +65,10 @@
       box-shadow:var(--shadow);
       padding:16px;
       margin-bottom:16px;
-      max-width:100%;
     }
-
-    h2{margin:0 0 10px;font-weight:1000}
-    label{font-size:12px;color:var(--muted);font-weight:1000}
-    input, textarea, select{
+    h2{margin:0 0 10px;font-weight:900}
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input, select{
       width:100%;
       padding:10px;
       border-radius:12px;
@@ -106,30 +76,20 @@
       background:#fff;
       color:var(--text);
       outline:none;
-      box-shadow:0 8px 18px rgba(15,23,42,.05);
       max-width:100%;
     }
-    input::placeholder, textarea::placeholder{color:#94a3b8}
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(176,141,87,.55);
-      box-shadow:0 10px 22px rgba(176,141,87,.14);
-    }
+    input::placeholder{color:#94a3b8}
 
-    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
-    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+    .row3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
 
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
       .row3{grid-template-columns:repeat(1,1fr);}
     }
-    @media (max-width:720px){
-      .topbar{flex-direction:column;align-items:stretch}
-      .topActions{justify-content:stretch}
-      .topActions a,.topActions button{width:100%}
-    }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
-      input, textarea, select{ font-size:16px; }
+      input, select{ font-size:16px; }
     }
 
     .btn{
@@ -138,85 +98,81 @@
       border:1px solid rgba(176,141,87,.35);
       background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
       color:var(--text);
-      font-weight:1000;
+      font-weight:900;
       cursor:pointer;
       touch-action: manipulation;
-      user-select:none;
-      max-width:100%;
+      white-space:nowrap;
     }
     .btn:hover{filter:brightness(1.02)}
-    .btn:active{transform:translateY(1px)}
     .btn.secondary{
       border-color: rgba(15,23,42,.14);
       background:#fff;
       opacity:.95;
     }
     .btn.danger{
-      border-color: rgba(220,38,38,.25);
+      border-color: rgba(220,38,38,.22);
       background: rgba(220,38,38,.06);
       color:#991b1b;
     }
 
+    .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
     .pill{
-      display:inline-flex;align-items:center;gap:8px;
+      display:inline-flex; align-items:center; gap:8px;
       border:1px solid rgba(15,23,42,.10);
-      background:#fff;border-radius:999px;
-      padding:8px 10px;font-weight:1000;
+      background:#fff; border-radius:999px;
+      padding:8px 10px;
+      font-weight:900;
       color:#334155;
       white-space:nowrap;
-      max-width:100%;
     }
-    .pill b{color:var(--text)}
-    .muted{color:var(--muted);font-weight:900}
+    .pill .k{color:var(--muted);font-weight:900}
 
-    .table-wrap{
-      overflow:auto;
-      margin-top:10px;
-      border-radius:12px;
-      max-width:100%;
-      -webkit-overflow-scrolling:touch;
-    }
+    .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
     table{
       width:100%;
       border-collapse:collapse;
       font-size:13px;
-      min-width:1120px;
+      min-width:1180px;
       background:#fff;
       border-radius:12px;
       overflow:hidden;
-      max-width:100%;
     }
     th, td{
       border:1px solid rgba(15,23,42,.10);
       padding:8px;
       text-align:center;
       vertical-align:middle;
-      word-break:break-word;
+      white-space:nowrap;
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:1000;
+      font-weight:900;
     }
-    td.left{text-align:right}
-    td.small{font-size:12px;color:#334155;font-weight:900}
+    td.left{ text-align:right; white-space:normal; }
 
     .tag{
       display:inline-block;
-      padding:6px 10px;border-radius:999px;
+      padding:6px 10px;
+      border-radius:999px;
       border:1px solid rgba(15,23,42,.12);
-      background:#fff;font-weight:1000;font-size:12px;
+      background:#fff;
+      font-weight:900;
+      font-size:12px;
+      white-space:nowrap;
     }
     .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
 
     .empty{
+      margin-top:10px;
       padding:14px;
       border:1px dashed rgba(15,23,42,.18);
       border-radius:14px;
       background:rgba(255,255,255,.75);
       color:var(--muted);
-      font-weight:1000;
+      font-weight:900;
       text-align:center;
       line-height:1.8;
+      display:none;
     }
 
     @media (max-width: 820px){
@@ -226,84 +182,99 @@
       thead{ display:none; }
       tbody tr{
         border:1px solid rgba(15,23,42,.12);
-        background:#fff;
-        border-radius:16px;
+        background: #fff;
+        border-radius: 16px;
         padding:10px;
         margin-bottom:10px;
         box-shadow: 0 10px 28px rgba(2,6,23,.06);
       }
-      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
       tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
       tbody td[data-label]::before{
         content: attr(data-label);
         display:block;
-        font-size:12px;color: var(--muted);
-        font-weight:1000;margin-bottom:6px;
+        font-size:12px;
+        color: var(--muted);
+        font-weight:900;
+        margin-bottom:6px;
       }
-      tbody td.center{ text-align:center; }
     }
 
     .site-footer{
       margin-top:auto;
-      padding:16px 16px 22px;
+      padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border-top:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      border-radius:16px;
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
     }
-    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
-    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
+    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .qrLink img{
+      width:132px; height:132px; max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
+    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
 
     .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,.92);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 1000;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:22px;
+      padding:12px 14px;
+      background:#0f172a;
+      color:#fff;
+      border-radius:14px;
+      font-weight:900;
+      box-shadow:0 16px 40px rgba(2,6,23,.25);
+      opacity:0;
+      pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index: 9999;
-      max-width: min(620px, 92vw);
+      z-index:9999;
+      max-width:min(92vw, 720px);
       text-align:center;
-      line-height:1.7;
       white-space:pre-line;
+      line-height:1.7;
     }
-    .toast.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
-    }
+    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
 
-    img, input, textarea, select, button{ max-width:100%; }
+    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
   </style>
 </head>
 
 <body>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
       <div class="logo">
-        <img src="images/bslogo.webp" alt="BS Logo" onerror="this.style.display='none'">
+        <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">سجل المشتريات (Purchases Log)</div>
+        <div class="brandSub">( Purchase Log ) سجل المشتريات</div>
       </div>
     </div>
 
-    <div class="topActions">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
-      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
 
@@ -313,7 +284,7 @@
     <div class="row" role="region" aria-label="فلترة سجل المشتريات">
       <div>
         <label for="q">بحث سريع</label>
-        <input id="q" placeholder="ابحث بـ رقم الفاتورة / مرجع المورد / اسم المورد / هاتف..." />
+        <input id="q" placeholder="ابحث بـ رقم الفاتورة / اسم المورد / رقم الهاتف / ملاحظة..." autocomplete="off" />
       </div>
       <div>
         <label for="fromDate">من تاريخ</label>
@@ -352,25 +323,10 @@
       </div>
     </div>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
-      <div class="pill"><span class="muted">عدد النتائج:</span> <b id="countTxt">0</b></div>
-      <div class="pill"><span class="muted">إجمالي النتائج:</span> <b id="sumTxt">0.00</b></div>
-      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
-    </div>
-  </div>
-
-  <div class="card" id="importCard">
-    <h2>استيراد يدوي (اختياري)</h2>
-    <div class="muted" style="line-height:1.8">
-      لو الـ API بتاع السجل لسه مش جاهز: الصق هنا سجل بصيغة <b>JSON Array</b> أو <b>CSV</b>.
-      <br>JSON مثال: <span dir="ltr">[{"invNo":"PINV-BS-...","date":"2026-02-01","time":"10:30 AM","refNo":"SUP-4589","supplierName":"...","supplierPhone":"...","finalTotal":1500,"itemsCount":3}]</span>
-      <br>CSV مثال: <span dir="ltr">invNo,date,time,refNo,supplierName,supplierPhone,finalTotal,itemsCount</span>
-    </div>
-    <textarea id="importTa" rows="5" placeholder="الصق JSON/CSV هنا..."></textarea>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
-      <button class="btn" id="importBtn" type="button">📥 استيراد للسجل المحلي</button>
-      <button class="btn secondary" id="clearImportBtn" type="button">مسح</button>
-      <button class="btn danger" id="clearLocalBtn" type="button">🧹 مسح السجل المحلي</button>
+    <div class="pillRow">
+      <div class="pill"><span class="k">عدد النتائج:</span> <span id="countTxt">0</span></div>
+      <div class="pill"><span class="k">إجمالي النتائج:</span> <span id="sumTxt">0.00</span></div>
+      <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
     </div>
   </div>
 
@@ -382,135 +338,333 @@
         <thead>
           <tr>
             <th style="width:60px">#</th>
-            <th style="min-width:230px">رقم الفاتورة</th>
+            <th style="min-width:220px">رقم الفاتورة</th>
             <th style="min-width:140px">التاريخ</th>
-            <th style="min-width:140px">الوقت</th>
-            <th style="min-width:180px">مرجع المورد</th>
-            <th style="min-width:240px">المورد</th>
-            <th style="min-width:170px">هاتف المورد</th>
+            <th style="min-width:220px">المورد</th>
+            <th style="min-width:160px">الهاتف</th>
             <th style="min-width:140px">عدد الأصناف</th>
-            <th style="min-width:170px">الإجمالي</th>
+            <th style="min-width:160px">الإجمالي</th>
+            <th style="min-width:160px">طريقة السداد</th>
+            <th style="min-width:260px">ملاحظة</th>
           </tr>
         </thead>
         <tbody id="logBody"></tbody>
       </table>
     </div>
 
-    <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
-      لا توجد نتائج مطابقة للفلترة الحالية.
-    </div>
+    <div id="emptyBox" class="empty">لا توجد نتائج مطابقة للفلترة الحالية.</div>
   </div>
+
+  <footer class="site-footer">
+    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+    <div class="line2">By Ahmed Hamouda</div>
+
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
+        <span class="qrText">Scan me</span>
+      </a>
+    </div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-  <div class="line2">By Ahmed Hamouda</div>
-</footer>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
 
 <script>
-  const _lb = document.getElementById("logoutBtn");
-  if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
-</script>
-<script>
-
 (function(){
   "use strict";
-  AxentroAuth.requireAuth();
-  const $=(id)=>document.getElementById(id);
-  const toast=(m,t="ok")=>{const el=$("toast"); if(!el) return alert(m); el.textContent=m; el.className="toast "+t; el.style.display="block"; clearTimeout(toast._tm); toast._tm=setTimeout(()=>el.style.display="none",2500);};
-  const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
-  let raw=[];
 
-  function parseDate(x){ const d=new Date(x); return isNaN(d)? null:d; }
-  function inRange(d,from,to){ if(!d) return false; if(from && d<from) return false; if(to && d>to) return false; return true; }
+  const $ = (id)=>document.getElementById(id);
 
-  function apply(){
-    const q=($("q").value||"").trim().toLowerCase();
-    const from=$("fromDate").value? new Date($("fromDate").value+"T00:00:00"):null;
-    const to=$("toDate").value? new Date($("toDate").value+"T23:59:59"):null;
-    const minT=Number($("minTotal").value||"");
-    const maxT=Number($("maxTotal").value||"");
-    const sort=($("sortBy").value||"date_desc");
-
-    let items=raw.slice();
-    if(q){
-      items=items.filter(it=> String(it.purchase_invoice_no||"").toLowerCase().includes(q) || String(it.supplier||"").toLowerCase().includes(q));
-    }
-    items=items.filter(it=>{
-      const d=parseDate(it.invoice_date);
-      if(!inRange(d,from,to)) return false;
-      const tot=Number(it.total||0);
-      if(!isNaN(minT) && $("minTotal").value!=="" && tot<minT) return false;
-      if(!isNaN(maxT) && $("maxTotal").value!=="" && tot>maxT) return false;
-      return true;
-    });
-
-    if(sort==="total_desc") items.sort((a,b)=>Number(b.total||0)-Number(a.total||0));
-    else if(sort==="total_asc") items.sort((a,b)=>Number(a.total||0)-Number(b.total||0));
-    else if(sort==="date_asc") items.sort((a,b)=>new Date(a.invoice_date)-new Date(b.invoice_date));
-    else items.sort((a,b)=>new Date(b.invoice_date)-new Date(a.invoice_date));
-
-    render(items);
+  // ===== Toast =====
+  const toastEl = $("toast");
+  function showToast(msg){
+    if(!toastEl) return alert(msg);
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
   }
 
-  function render(items){
-    const body=$("logBody"); body.innerHTML="";
-    const empty=$("emptyBox");
-    let sum=0;
-    items.forEach(it=>sum+=Number(it.total||0));
-    $("countTxt").textContent = `${items.length} فاتورة`;
-    $("sumTxt").textContent = `الإجمالي: ${fmt(sum)}`;
-    $("lastSyncTxt").textContent = `آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+  // ===== Logout =====
+  $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-    if(items.length===0){ empty.style.display="block"; return; }
-    empty.style.display="none";
+  // ===== API URL (from config.js) =====
+  const BASE = (window.AXENTRO_CONFIG && window.AXENTRO_CONFIG.GAS_WEB_APP_URL) ? window.AXENTRO_CONFIG.GAS_WEB_APP_URL : "";
+  const PURCHASES_LOG_API_URL = BASE ? (BASE + "?mode=purchases_log") : "";
 
-    for(const it of items){
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td class="mono">${it.purchase_invoice_no||""}</td>
-        <td>${it.supplier||""}</td>
-        <td class="mono">${new Date(it.invoice_date).toLocaleDateString("ar-EG")}</td>
-        <td class="mono">${fmt(it.total)}</td>
-        <td class="mono">${fmt(it.0)}</td>
-      `;
-      body.appendChild(tr);
+  const CACHE_KEY = "AX_PURCHASES_LOG_CACHE_V1";
+  const CACHE_TS  = "AX_PURCHASES_LOG_CACHE_TS_V1";
+  const CACHE_TTL_MS = 3 * 60 * 1000;
+
+  let RAW = [];
+  let VIEW = [];
+
+  // ===== Helpers =====
+  function money(n){ n = Number(n||0); return (isFinite(n)?n:0); }
+  function norm(s){ return String(s||"").trim().toLowerCase(); }
+
+  function toISODateMaybe(val){
+    const s = String(val||"").trim();
+    if(!s) return "";
+    if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+    let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+    if(m){
+      const dd = String(m[1]).padStart(2,"0");
+      const mm = String(m[2]).padStart(2,"0");
+      const yy = String(m[3]);
+      return `${yy}-${mm}-${dd}`;
     }
+
+    const d = new Date(s);
+    if(!isNaN(d.getTime())){
+      const y = d.getFullYear();
+      const mm = String(d.getMonth()+1).padStart(2,"0");
+      const dd = String(d.getDate()).padStart(2,"0");
+      return `${y}-${mm}-${dd}`;
+    }
+    return "";
   }
 
-  async function load(){
+  function fmtMoney(n){ return `${money(n).toFixed(2)} جنيه`; }
+
+  function setLastSync(ts){
+    const el = $("lastSyncTxt");
+    if(!el) return;
+    if(!ts){ el.textContent = "—"; return; }
+    const d = new Date(ts);
+    el.textContent = d.toLocaleString("ar-EG");
+  }
+
+  function saveCache(list){
     try{
-      const res=await AxentroApi.getPurchasesLog();
-      raw=Array.isArray(res.items)?res.items:[];
-      apply();
-    }catch(e){ toast(e.message||"فشل تحميل سجل المشتريات","bad");}
+      localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+      localStorage.setItem(CACHE_TS, String(Date.now()));
+    }catch(e){}
+  }
+  function loadCache(){
+    try{
+      const raw = localStorage.getItem(CACHE_KEY);
+      const ts  = Number(localStorage.getItem(CACHE_TS) || 0);
+      if(!raw) return null;
+      const list = JSON.parse(raw);
+      if(!Array.isArray(list)) return null;
+      return { list, ts };
+    }catch(e){ return null; }
   }
 
-  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault();AxentroAuth.logout();});
-  ["q","fromDate","toDate","sortBy","minTotal","maxTotal"].forEach(id=>{
-    $(id)?.addEventListener("input",apply);
-    $(id)?.addEventListener("change",apply);
-  });
-  $("refreshBtn")?.addEventListener("click",load);
-  $("clearFiltersBtn")?.addEventListener("click",()=>{
-    $("q").value=""; $("fromDate").value=""; $("toDate").value=""; $("minTotal").value=""; $("maxTotal").value="";
-    $("sortBy").value="date_desc"; apply();
+  async function fetchPurchasesLog(){
+    if(!PURCHASES_LOG_API_URL) throw new Error("GAS_WEB_APP_URL not set in config.js");
+    const res = await fetch(PURCHASES_LOG_API_URL, { cache:"no-store" });
+    if(!res.ok) throw new Error("HTTP " + res.status);
+    const data = await res.json();
+
+    if(Array.isArray(data)) return data;
+    if(data && typeof data === "object"){
+      if(Array.isArray(data.data)) return data.data;
+      if(Array.isArray(data.items)) return data.items;
+      if(Array.isArray(data.rows)) return data.rows;
+    }
+    return [];
+  }
+
+  function normalizeRow(r){
+    const invNo = r.invNo || r.invoice_no || r.invoiceNo || r.purchase_invoice_no || r.purchaseInvoiceNo || r.id || "";
+    const date  = toISODateMaybe(r.date || r.invDate || r.invoice_date || r.purchase_date || r.day || "");
+    const time  = String(r.time || r.invTime || r.invoice_time || r.purchase_time || "").trim();
+
+    const supplierName = String(r.supplierName || r.supplier || r.supplier_name || r.name || "").trim();
+    const supplierPhone = String(r.supplierPhone || r.phone || r.supplier_phone || "").trim();
+
+    const payMethod = String(r.payMethod || r.pay_method || r.method || "").trim();
+    const notes = String(r.notes || r.note || r.reference || "").trim();
+
+    const itemsCount = Number(
+      r.itemsCount ?? r.items_count ?? r.count ?? (Array.isArray(r.items)? r.items.length : 0) ?? 0
+    ) || 0;
+
+    const finalTotal = money(r.finalTotal ?? r.total ?? r.grandTotal ?? r.amount ?? r.final_total ?? 0);
+
+    return {
+      invNo: String(invNo||"").trim(),
+      date,
+      time,
+      supplierName,
+      supplierPhone,
+      itemsCount,
+      finalTotal,
+      payMethod,
+      notes
+    };
+  }
+
+  function getFilters(){
+    return {
+      q: norm($("q")?.value),
+      fromDate: $("fromDate")?.value || "",
+      toDate: $("toDate")?.value || "",
+      minTotal: money($("minTotal")?.value),
+      maxTotal: money($("maxTotal")?.value),
+      sortBy: $("sortBy")?.value || "date_desc"
+    };
+  }
+
+  function applyFilters(){
+    const f = getFilters();
+    let arr = Array.isArray(RAW) ? [...RAW] : [];
+    arr = arr.map(normalizeRow);
+
+    if(f.q){
+      arr = arr.filter(r=>{
+        const hay = [r.invNo, r.supplierName, r.supplierPhone, r.payMethod, r.notes, r.date, r.time]
+          .map(norm).join(" ");
+        return hay.includes(f.q);
+      });
+    }
+
+    if(f.fromDate) arr = arr.filter(r => r.date && r.date >= f.fromDate);
+    if(f.toDate)   arr = arr.filter(r => r.date && r.date <= f.toDate);
+
+    if(f.minTotal > 0) arr = arr.filter(r => money(r.finalTotal) >= f.minTotal);
+    if(f.maxTotal > 0) arr = arr.filter(r => money(r.finalTotal) <= f.maxTotal);
+
+    const byDate = (a,b)=>{
+      const ad = a.date || "";
+      const bd = b.date || "";
+      if(ad !== bd) return ad.localeCompare(bd);
+      return norm(a.invNo).localeCompare(norm(b.invNo));
+    };
+    const byTotal = (a,b)=> money(a.finalTotal) - money(b.finalTotal);
+
+    switch(f.sortBy){
+      case "date_asc":   arr.sort(byDate); break;
+      case "date_desc":  arr.sort((a,b)=> -byDate(a,b)); break;
+      case "total_asc":  arr.sort(byTotal); break;
+      case "total_desc": arr.sort((a,b)=> -byTotal(a,b)); break;
+    }
+
+    VIEW = arr;
+  }
+
+  function escapeHtml(str){
+    return String(str || "")
+      .replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/\\"/g,"&quot;");
+  }
+
+  function render(){
+    const tbody = $("logBody");
+    const empty = $("emptyBox");
+    if(!tbody) return;
+
+    tbody.innerHTML = "";
+    const list = Array.isArray(VIEW) ? VIEW : [];
+
+    const count = list.length;
+    const sum = list.reduce((s,r)=> s + money(r.finalTotal), 0);
+    $("countTxt").textContent = String(count);
+    $("sumTxt").textContent = sum.toFixed(2);
+
+    if(!count){
+      if(empty) empty.style.display = "block";
+      return;
+    }else{
+      if(empty) empty.style.display = "none";
+    }
+
+    list.forEach((r, idx)=>{
+      const tr = document.createElement("tr");
+      const inv = escapeHtml(r.invNo || "—");
+      const date = escapeHtml(r.date || "—");
+      const time = escapeHtml(r.time || "");
+      const supplierName = escapeHtml(r.supplierName || "—");
+      const supplierPhone = escapeHtml(r.supplierPhone || "—");
+      const pay = escapeHtml(r.payMethod || "—");
+      const notes = escapeHtml(r.notes || "");
+
+      tr.innerHTML = `
+        <td data-label="#" style="font-weight:900">${idx+1}</td>
+        <td data-label="رقم الفاتورة" class="left">
+          <div style="font-weight:900">${inv}</div>
+          <div style="font-size:12px;color:#64748b;font-weight:900">${time ? ("الوقت: " + time) : ""}</div>
+        </td>
+        <td data-label="التاريخ">${date}</td>
+        <td data-label="المورد" class="left"><div style="font-weight:900">${supplierName}</div></td>
+        <td data-label="الهاتف">${supplierPhone}</td>
+        <td data-label="عدد الأصناف"><span class="tag ok">${Number(r.itemsCount||0)}</span></td>
+        <td data-label="الإجمالي"><span class="tag">${fmtMoney(r.finalTotal)}</span></td>
+        <td data-label="طريقة السداد">${pay}</td>
+        <td data-label="ملاحظة" class="left">${notes || "—"}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function applyFiltersAndRender(){
+    applyFilters();
+    render();
+  }
+
+  async function loadPurchasesSmart(force=false){
+    const cached = loadCache();
+    const now = Date.now();
+    const hasCache = cached && cached.list && cached.list.length;
+    const fresh = hasCache && (now - cached.ts) < CACHE_TTL_MS;
+
+    if(hasCache){
+      RAW = cached.list.map(normalizeRow);
+      setLastSync(cached.ts);
+      applyFiltersAndRender();
+    }
+
+    if(!force && fresh){
+      setTimeout(()=> refreshFromNet(false), 300);
+    }else{
+      await refreshFromNet(true);
+    }
+  }
+
+  async function refreshFromNet(showMsg){
+    try{
+      const list = await fetchPurchasesLog();
+      const normed = list.map(normalizeRow).filter(x=>x.invNo || x.supplierName);
+      RAW = normed;
+      saveCache(normed);
+      setLastSync(Date.now());
+      applyFiltersAndRender();
+      if(showMsg) showToast("✅ تم تحديث سجل المشتريات");
+    }catch(e){
+      console.warn(e);
+      if(showMsg) showToast("⚠️ تعذر تحميل السجل الآن.\nتم عرض آخر نسخة محفوظة إن وُجدت.");
+    }
+  }
+
+  $("refreshBtn")?.addEventListener("click", ()=> loadPurchasesSmart(true));
+  $("clearFiltersBtn")?.addEventListener("click", ()=>{
+    $("q").value = "";
+    $("fromDate").value = "";
+    $("toDate").value = "";
+    $("minTotal").value = "";
+    $("maxTotal").value = "";
+    $("sortBy").value = "date_desc";
+    applyFiltersAndRender();
+    showToast("✅ تم مسح الفلاتر");
   });
 
-  // disable import/local buttons
-  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1","warn"));
-  $("clearImportBtn")?.addEventListener("click",()=>{ if($("importTa")) $("importTa").value=""; });
-  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+  ["q","fromDate","toDate","minTotal","maxTotal","sortBy"].forEach(id=>{
+    $(id)?.addEventListener("input", applyFiltersAndRender);
+    $(id)?.addEventListener("change", applyFiltersAndRender);
+  });
 
-  load();
+  loadPurchasesSmart(false);
+
 })();
-
 </script>
+
 </body>
 </html>
