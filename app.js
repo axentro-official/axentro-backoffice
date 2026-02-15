@@ -1,219 +1,199 @@
-/* app.js — Axentro Backoffice Core (Stable+)
-   - Keeps existing API method names
-   - Adds: timeout, robust error handling, safer storage, helper auth
+/* Axentro Backoffice - Shared App Logic (Google Auth + API helpers)
+   ملاحظات:
+   - الواجهة على GitHub Pages "لا يمكن" حمايتها 100% لوحدها.
+   - الحماية الحقيقية هنا: كل قراءة/كتابة تتم عبر Google Apps Script الذي يطبق Whitelist/Blacklist.
+   - تسجيل الدخول: Google Identity Services (GIS) + Apps Script token verification.
 */
-(function () {
+(function(){
   "use strict";
 
-  // ====== Config Guard ======
-  const SCRIPT_URL = (typeof window !== "undefined" && window.AXENTRO_SCRIPT_URL) ? window.AXENTRO_SCRIPT_URL : "";
-  const APP_KEY = (typeof window !== "undefined" && window.AXENTRO_APP_KEY) ? window.AXENTRO_APP_KEY : "";
-  const REQUEST_TIMEOUT_MS = (typeof window !== "undefined" && window.AXENTRO_REQUEST_TIMEOUT_MS)
-    ? Number(window.AXENTRO_REQUEST_TIMEOUT_MS || 0)
-    : 20000;
-
-  const STORAGE = {
-    token: "axentro_token",
-    username: "axentro_username",
-    user: "axentro_user", // optional cached user object
+  // ====== Config ======
+  const DEFAULTS = {
+    // ضع رابط Web App بعد ما تنشر Apps Script كـ Web App
+    // مثال: https://script.google.com/macros/s/XXXX/exec
+    GAS_WEB_APP_URL: "",
+    // ضع Google OAuth Client ID الخاص بـ GIS
+    GOOGLE_CLIENT_ID: "",
+    // أين تُرسل إشعارات طلبات الدخول (على السيرفر)
+    // لا تحتاج هنا.
   };
 
-  // ====== Utils ======
-  function safeJsonParse(text) {
-    try { return JSON.parse(text); } catch (e) { return null; }
-  }
-  function toStr(v) { return (v == null) ? "" : String(v); }
+  // يمكن لكل صفحة أن تضع قبل app.js:
+  // <script>window.AXENTRO_CONFIG={ GAS_WEB_APP_URL:"...", GOOGLE_CLIENT_ID:"..." };</script>
+  const CFG = Object.assign({}, DEFAULTS, (window.AXENTRO_CONFIG || {}));
 
-  function getToken() {
-    return localStorage.getItem(STORAGE.token) || "";
-  }
-  function setToken(t) {
-    if (!t) localStorage.removeItem(STORAGE.token);
-    else localStorage.setItem(STORAGE.token, String(t));
-  }
-  function getUsername() {
-    return localStorage.getItem(STORAGE.username) || "";
-  }
-  function setUsername(u) {
-    if (!u) localStorage.removeItem(STORAGE.username);
-    else localStorage.setItem(STORAGE.username, String(u));
-  }
-  function setUserCache(userObj) {
-    try {
-      if (!userObj) localStorage.removeItem(STORAGE.user);
-      else localStorage.setItem(STORAGE.user, JSON.stringify(userObj));
-    } catch (e) { /* ignore */ }
-  }
-  function getUserCache() {
-    try {
-      const raw = localStorage.getItem(STORAGE.user);
-      return raw ? JSON.parse(raw) : null;
-    } catch (e) {
-      return null;
-    }
+  // ====== Session storage ======
+  const STORAGE_KEY = "axentro_session_v2"; // {token,email,role,expiresAt}
+
+  function nowMs(){ return Date.now(); }
+
+  function getSession(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return null;
+      const s = JSON.parse(raw);
+      if(!s || !s.token || !s.expiresAt) return null;
+      if(Number(s.expiresAt) <= nowMs()){
+        localStorage.removeItem(STORAGE_KEY);
+        return null;
+      }
+      return s;
+    }catch(e){ return null; }
   }
 
-  function normalizeApiError(payload, fallbackMsg) {
-    // payload could be object or string
-    if (payload && typeof payload === "object") {
-      const msg = payload.error || payload.message || payload.msg;
-      if (msg) return new Error(String(msg));
-    }
-    if (typeof payload === "string" && payload.trim()) return new Error(payload);
-    return new Error(fallbackMsg || "Request failed");
+  function setSession(sess){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(sess));
+    // legacy compatibility (بعض الصفحات القديمة)
+    try{ sessionStorage.setItem("AX_BO_OK", "1"); }catch(e){}
   }
 
-  async function fetchWithTimeout(url, options, timeoutMs) {
-    const ctrl = new AbortController();
-    const t = setTimeout(() => ctrl.abort(), Math.max(1000, timeoutMs || REQUEST_TIMEOUT_MS || 20000));
-    try {
-      const res = await fetch(url, { ...options, signal: ctrl.signal });
-      return res;
-    } finally {
-      clearTimeout(t);
-    }
+  function clearSession(){
+    localStorage.removeItem(STORAGE_KEY);
+    try{ sessionStorage.removeItem("AX_BO_OK"); }catch(e){}
   }
 
+  function buildNextParam(){
+    const url = new URL(location.href);
+    return encodeURIComponent(url.pathname.split("/").pop() || "dashboard.html");
+  }
+
+  function redirectToLogin(){
+    location.replace("login.html?next=" + buildNextParam());
+  }
+
+  // ====== API helper ======
   async function apiCall(action, payload) {
-    if (!SCRIPT_URL) throw new Error("AXENTRO_SCRIPT_URL غير مضبوط في config.js");
-    if (!APP_KEY) throw new Error("AXENTRO_APP_KEY غير مضبوط في config.js");
+    const url = AxentroConfig.apiUrl;
+    const body = JSON.stringify(Object.assign({ action }, payload || {}));
 
-    const body = {
-      app_key: APP_KEY,
-      action: String(action || ""),
-      token: getToken(),
-      username: getUsername(),
-      payload: payload || {}
-    };
+    // Timeout (default 25s) — keeps UI responsive on bad networks
+    const timeoutMs = Number(AxentroConfig.apiTimeoutMs || 25000);
+    const ctrl = ("AbortController" in window) ? new AbortController() : null;
+    const t = ctrl ? setTimeout(() => { try { ctrl.abort(); } catch(e){} }, timeoutMs) : null;
 
-    let res;
     try {
-      res = await fetchWithTimeout(SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      }, REQUEST_TIMEOUT_MS);
-    } catch (e) {
-      // AbortError / network
-      if (e && e.name === "AbortError") throw new Error("انتهت مهلة الاتصال (Timeout)");
-      throw new Error("تعذر الاتصال بالسيرفر (Network)");
-    }
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        signal: ctrl ? ctrl.signal : undefined
+      });
 
-    const text = await res.text();
-    const data = safeJsonParse(text);
+      const text = await res.text();
+      let json = null;
+      try { json = text ? JSON.parse(text) : {}; } catch(e) { json = { ok:false, error: "Bad JSON from server", raw: text }; }
 
-    // If server returned non-JSON, keep a readable error
-    if (!data) {
-      if (!res.ok) throw new Error(`HTTP ${res.status} — ${text ? text.slice(0, 200) : "Bad Response"}`);
-      throw new Error(text ? text.slice(0, 200) : "Invalid JSON response");
-    }
-
-    // Common OK flags
-    const ok = !!(data.ok || data.success);
-    if (!ok) {
-      // Unauthorized patterns
-      const errTxt = toStr(data.error || data.message || "");
-      if (errTxt.toLowerCase().includes("unauthorized") || errTxt.includes("غير مصرح") || errTxt.includes("Token")) {
-        // Auto logout on auth failure
-        AxentroAuth.logout(true);
+      if (!res.ok) {
+        return { ok:false, error: (json && (json.error || json.message)) ? (json.error || json.message) : ("HTTP " + res.status), status: res.status, raw: text };
       }
-      throw normalizeApiError(data, "API Error");
+      return json || {};
+    } catch (e) {
+      const msg = (e && e.name === "AbortError") ? "Request timeout" : (e && e.message ? e.message : String(e));
+      return { ok:false, error: msg };
+    } finally {
+      if (t) clearTimeout(t);
     }
-
-    return data;
   }
 
-  // ====== Auth ======
+  // ====== Auth facade (keeps old API names) ======
   const AxentroAuth = {
-    isLoggedIn() {
-      return !!getToken();
+    cfg: CFG,
+
+    isAuthed(){
+      return !!getSession();
     },
 
-    async me() {
-      const out = await apiCall("me", {});
-      // Cache user for role-based UI usage
-      if (out && out.user) setUserCache(out.user);
-      return out;
+    getSession(){
+      return getSession();
     },
 
-    async login(username, password) {
-      const out = await apiCall("login", { username, password });
-      if (out && out.token) {
-        setToken(out.token);
-        setUsername(username);
-        if (out.user) setUserCache(out.user);
+    requireAuth(){
+      if(!getSession()) redirectToLogin();
+    },
+
+    logout(){
+      clearSession();
+      redirectToLogin();
+    },
+
+    async loginWithGoogleIdToken(idToken){
+      // Returns: {status:'APPROVED'|'PENDING'|'BLOCKED'|'REJECTED', ...}
+      const data = await apiCall("auth_login", { id_token: idToken });
+      // When approved, server returns session_token + expires_in
+      if(data.status === "APPROVED" && data.session_token){
+        setSession({
+          token: data.session_token,
+          email: data.email,
+          role: data.role || "user",
+          expiresAt: nowMs() + (Number(data.expires_in || 3600) * 1000)
+        });
       }
-      return out;
+      return data;
     },
 
-    logout(silent) {
-      setToken("");
-      setUsername("");
-      setUserCache(null);
-      if (!silent) {
-        try { alert("تم تسجيل الخروج"); } catch (e) {}
+    // جاهزة للمرحلة الجاية (Username/Password) بدون كسر Google
+    async loginWithPassword(username, password){
+      const data = await apiCall("auth_login", { username, password });
+      if(data && data.ok && data.session_token){
+        setSession({
+          token: data.session_token,
+          email: data.email || username || "",
+          role: data.role || "user",
+          expiresAt: nowMs() + (Number(data.expires_in || 3600) * 1000)
+        });
       }
-      // Always redirect to login
-      if (typeof window !== "undefined") window.location.href = "login.html";
+      return data;
     },
 
-    // Existing behavior: protect pages
-    requireAuth() {
-      if (!this.isLoggedIn()) {
-        if (typeof window !== "undefined") window.location.href = "login.html";
-        return;
-      }
-      // Optional background validation (non-blocking)
-      // If server rejects => auto logout inside apiCall
-      this.me().catch(() => {});
-    },
-
-    // Extra helpers (don’t break existing pages)
-    getCachedUser() {
-      return getUserCache();
-    },
-    hasRole(role) {
-      const u = getUserCache();
-      if (!u) return false;
-      return String(u.role || "").toLowerCase() === String(role || "").toLowerCase();
+    async me(){
+      return apiCall("auth_me", {});
     }
   };
 
-  // ====== API Surface (same names used by pages) ======
+  // ====== API facade ======
   const AxentroApi = {
-    ping: () => apiCall("ping", {}),
+    async getProducts(){
+      return apiCall("get_products", {});
+    },
+    async createPurchase(purchasePayload){
+      return apiCall("create_purchase", purchasePayload);
+    },
 
-    // products
-    getProducts: () => apiCall("getProducts", {}),
-    createProduct: (p) => apiCall("createProduct", p),
-    updateProduct: (p) => apiCall("updateProduct", p),
-    deleteProduct: (p) => apiCall("deleteProduct", p),
+    // ===== Sales =====
+    async createSale(salePayload){
+      return apiCall("create_sale", salePayload);
+    },
 
-    // purchases
-    createPurchase: (p) => apiCall("createPurchase", p),
-    getPurchasesLog: () => apiCall("getPurchasesLog", {}),
-    getPurchaseById: (id) => apiCall("getPurchaseById", { id }),
+    // ===== Warehouses =====
+    async getWarehouses(){
+      return apiCall("get_warehouses", {});
+    },
 
-    // sales
-    createSale: (p) => apiCall("createSale", p),
-    getSalesLog: () => apiCall("getSalesLog", {}),
-    getSaleById: (id) => apiCall("getSaleById", { id }),
+    // ===== Inventory =====
+    async getInventoryView(){
+      return apiCall("get_inventory_view", {});
+    },
+    async rebuildInventoryView(){
+      return apiCall("rebuild_inventory_view", {});
+    },
 
-    // expenses
-    getExpenses: () => apiCall("getExpenses", {}),
-    createExpense: (p) => apiCall("createExpense", p),
-    deleteExpense: (p) => apiCall("deleteExpense", p),
+    // ===== Products (Min Qty) =====
+    async updateProductMinQty(payload){
+      return apiCall("update_product_min_qty", payload);
+    },
 
-    // inventory / fifo
-    getInventoryView: () => apiCall("getInventoryView", {}),
-    rebuildInventoryView: () => apiCall("rebuildInventoryView", {}),
+    // ===== Logs / Reports =====
+    async getPurchasesLog(){ return apiCall("get_purchases_log", {}); },
+    async getSalesLog(){ return apiCall("get_sales_log", {}); },
+    async getProfitSummary(){ return apiCall("get_profit_summary", {}); },
+    async getDashboardSummary(){ return apiCall("get_dashboard_summary", {}); },
 
-    // summaries
-    getDashboardSummary: () => apiCall("getDashboardSummary", {}),
-    getProfitSummary: (p) => apiCall("getProfitSummary", p || {}),
+    // ===== Expenses =====
+    async getExpenses(){ return apiCall("get_expenses", {}); },
+    async createExpense(payload){ return apiCall("create_expense", payload); },
   };
 
-  // Expose to window (existing pages expect these globals)
+  // Expose globally
   window.AxentroAuth = AxentroAuth;
   window.AxentroApi = AxentroApi;
 
