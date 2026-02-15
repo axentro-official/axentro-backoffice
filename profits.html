@@ -7,22 +7,14 @@
 
   <style>
     :root{
-      --bg:#f7f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --stroke:rgba(15,23,42,.10);
-      --shadow: 0 18px 50px rgba(2,6,23,.12);
-      --radius:18px;
-
-      --gold:#b08d57;
-      --gold2:#d7b97a;
-
-      --ok:#16a34a;
-      --warn:#f59e0b;
-      --bad:#dc2626;
-
+      --bg:#f7f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --stroke:rgba(15,23,42,.10); --shadow:0 18px 50px rgba(2,6,23,.12);
+      --radius:18px; --gold:#b08d57; --gold2:#d7b97a;
       --container-max:1100px;
+
+      --ok:#16a34a; --okSoft: rgba(22,163,74,.10);
+      --warn:#f59e0b; --warnSoft: rgba(245,158,11,.12);
+      --bad:#dc2626; --badSoft: rgba(220,38,38,.10);
     }
 
     *{box-sizing:border-box}
@@ -34,15 +26,16 @@
     }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
-        linear-gradient(180deg, #ffffff, var(--bg));
+        linear-gradient(180deg, #fff, var(--bg));
       min-height:100%;
       display:flex;
       flex-direction:column;
+      padding:18px;
       -webkit-font-smoothing:antialiased;
     }
 
@@ -51,37 +44,30 @@
       margin:0 auto;
       width:100%;
       flex:1;
-      padding:18px;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
-    }
-    @media (max-width:520px){
-      .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
     }
 
     .topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      padding:12px 14px;border:1px solid var(--stroke);
-      border-radius:18px;background:rgba(255,255,255,.86);
-      box-shadow:var(--shadow);backdrop-filter:blur(10px);
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 14px;
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      background:rgba(255,255,255,.88);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
       flex-wrap:wrap;
       margin-bottom:16px;
     }
     .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
     .logo{
-      width:44px;height:44px;border-radius:999px;
-      display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
       border:1px solid rgba(176,141,87,.35);
       box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden;
-      padding:6px;
-      flex:0 0 auto;
+      overflow:hidden; padding:6px; flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:1000}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900}
-
-    .topActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .brandTitle{font-weight:900}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
 
     .card{
       background:rgba(255,255,255,.92);
@@ -93,8 +79,9 @@
       max-width:100%;
     }
 
-    h2{margin:0 0 10px;font-weight:1000}
-    label{font-size:12px;color:var(--muted);font-weight:1000}
+    h2{margin:0 0 10px;font-weight:900}
+
+    label{font-size:12px;color:var(--muted);font-weight:800}
     input, textarea, select{
       width:100%;
       padding:10px;
@@ -103,14 +90,9 @@
       background:#fff;
       color:var(--text);
       outline:none;
-      box-shadow:0 8px 18px rgba(15,23,42,.05);
       max-width:100%;
     }
     input::placeholder, textarea::placeholder{color:#94a3b8}
-    input:focus, textarea:focus, select:focus{
-      border-color: rgba(176,141,87,.55);
-      box-shadow:0 10px 22px rgba(176,141,87,.14);
-    }
 
     .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
@@ -121,38 +103,37 @@
       .row2{grid-template-columns:repeat(1,1fr);}
       .row3{grid-template-columns:repeat(1,1fr);}
     }
-    @media (max-width:720px){
-      .topbar{flex-direction:column;align-items:stretch}
-      .topActions{justify-content:stretch}
-      .topActions a,.topActions button{width:100%}
-    }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
       input, textarea, select{ font-size:16px; }
     }
 
+    /* ✅ نفس زرار صفحة Purchase Invoice */
     .btn{
       padding:12px;
       border-radius:14px;
       border:1px solid rgba(176,141,87,.35);
       background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
       color:var(--text);
-      font-weight:1000;
+      font-weight:900;
       cursor:pointer;
       touch-action: manipulation;
       user-select:none;
-      max-width:100%;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
       white-space:nowrap;
     }
     .btn:hover{filter:brightness(1.02)}
-    .btn:active{transform:translateY(1px)}
     .btn.secondary{
       border-color: rgba(15,23,42,.14);
       background:#fff;
       opacity:.95;
     }
     .btn.danger{
-      border-color: rgba(220,38,38,.25);
+      border-color: rgba(220,38,38,.22);
       background: rgba(220,38,38,.06);
       color:#991b1b;
     }
@@ -169,6 +150,14 @@
     .pill b{color:var(--text)}
     .muted{color:var(--muted);font-weight:900}
 
+    .mono{
+      direction:ltr;
+      unicode-bidi:embed;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      font-weight:900;
+    }
+
     .grid4{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -184,6 +173,7 @@
       border-radius:16px;
       padding:14px;
       box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      overflow:hidden;
     }
     .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
     .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
@@ -213,12 +203,12 @@
       text-align:center;
       vertical-align:middle;
       word-break:break-word;
+      white-space:nowrap;
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:1000;
+      font-weight:900;
     }
-    td.left{text-align:right}
 
     .empty{
       padding:14px;
@@ -244,61 +234,81 @@
         margin-bottom:10px;
         box-shadow: 0 10px 28px rgba(2,6,23,.06);
       }
-      tbody td{ border:none; padding:8px 0; text-align:right; }
+      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
       tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
       tbody td[data-label]::before{
         content: attr(data-label);
         display:block;
         font-size:12px;color: var(--muted);
-        font-weight:1000;margin-bottom:6px;
+        font-weight:900;margin-bottom:6px;
       }
       tbody td.center{ text-align:center; }
     }
 
+    /* ✅ Footer الموحد + QR */
     .site-footer{
       margin-top:auto;
-      padding:16px 16px 22px;
+      padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border-top:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.75);
+      border:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
-      padding-bottom: calc(22px + env(safe-area-inset-bottom));
+      border-radius:16px;
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
     }
-    .site-footer .line1{ font-weight:1000; color:#334155; }
+    .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
+
+    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
+    .qrLink img{
+      width:132px; height:132px; max-width:60vw;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background:#fff;
+      padding:10px;
+      box-shadow: 0 10px 26px rgba(2,6,23,.08);
+      object-fit:contain;
+      transition:transform .15s ease, box-shadow .15s ease;
+    }
+    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
+    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
+    /* ✅ Toast موحد */
     .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15,23,42,.92);
-      color: #fff;
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 1000;
-      font-size: 13px;
-      opacity: 0;
-      pointer-events: none;
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:22px;
+      padding:12px 14px;
+      background:#0f172a;
+      color:#fff;
+      border-radius:14px;
+      font-weight:900;
+      box-shadow:0 16px 40px rgba(2,6,23,.25);
+      opacity:0;
+      pointer-events:none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index: 9999;
-      max-width: min(680px, 92vw);
+      z-index:9999;
+      max-width:min(92vw, 520px);
       text-align:center;
-      line-height:1.7;
       white-space:pre-line;
     }
     .toast.show{
-      opacity: 1;
-      transform: translateX(-50%) translateY(-4px);
+      opacity:1;
+      transform:translateX(-50%) translateY(-2px);
     }
   </style>
 </head>
 
 <body>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
@@ -307,13 +317,13 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">الأرباح (Profits) — تقديري الآن</div>
+        <div class="brandSub">( Profits ) الأرباح</div>
       </div>
     </div>
 
-    <div class="topActions">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none;white-space:nowrap">⬅ رجوع للداش بورد</a>
-      <button class="btn secondary" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
 
@@ -348,19 +358,19 @@
     <div class="grid4">
       <div class="kpi">
         <div class="t">إجمالي المبيعات</div>
-        <div class="v" id="kpiSales">0.00</div>
+        <div class="v mono" id="kpiSales">0.00</div>
       </div>
       <div class="kpi">
         <div class="t">إجمالي المشتريات</div>
-        <div class="v" id="kpiPurch">0.00</div>
+        <div class="v mono" id="kpiPurch">0.00</div>
       </div>
       <div class="kpi">
         <div class="t">إجمالي المصروفات</div>
-        <div class="v" id="kpiExp">0.00</div>
+        <div class="v mono" id="kpiExp">0.00</div>
       </div>
       <div class="kpi">
         <div class="t">صافي الربح (تقديري)</div>
-        <div class="v" id="kpiProfit">0.00</div>
+        <div class="v mono" id="kpiProfit">0.00</div>
         <div class="t" id="kpiProfitHint" style="margin-top:6px">—</div>
       </div>
     </div>
@@ -415,9 +425,8 @@
       <table id="summaryTable" role="table" aria-label="ملخص الأرباح">
         <thead>
           <tr>
-            <th style="width:200px">النوع</th>
-            <th style="width:160px">عدد</th>
-            <th style="width:220px">الإجمالي</th>
+            <th style="min-width:240px">البند</th>
+            <th style="min-width:220px">القيمة</th>
           </tr>
         </thead>
         <tbody id="summaryBody"></tbody>
@@ -434,42 +443,54 @@
       <table id="detailsTable" role="table" aria-label="تفاصيل العمليات">
         <thead>
           <tr>
-            <th style="width:80px">#</th>
-            <th style="min-width:140px">النوع</th>
+            <th style="width:120px">رقم فاتورة</th>
+            <th style="min-width:220px">العميل</th>
             <th style="min-width:160px">التاريخ</th>
-            <th style="min-width:220px">مرجع</th>
-            <th style="min-width:180px">القيمة</th>
-            <th style="min-width:260px">ملاحظة</th>
+            <th style="min-width:180px">الإجمالي</th>
+            <th style="min-width:180px">الربح</th>
           </tr>
         </thead>
         <tbody id="detailsBody"></tbody>
       </table>
     </div>
   </div>
+
+  <footer class="site-footer">
+    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+    <div class="line2">By Ahmed Hamouda</div>
+
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
+        <span class="qrText">Scan me</span>
+      </a>
+    </div>
+  </footer>
 </div>
-
-<footer class="site-footer">
-  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-  <div class="line2">By Ahmed Hamouda</div>
-</footer>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>AxentroAuth.requireAuth();</script>
 
 <script>
-  const _lb = document.getElementById("logoutBtn");
-  if(_lb){ _lb.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); }); }
-</script>
-<script>
-
 (function(){
   "use strict";
-  AxentroAuth.requireAuth();
+
   const $=(id)=>document.getElementById(id);
-  const toast=(m,t="ok")=>{const el=$("toast"); if(!el) return alert(m); el.textContent=m; el.className="toast "+t; el.style.display="block"; clearTimeout(toast._tm); toast._tm=setTimeout(()=>el.style.display="none",2500);};
+
+  // ✅ Toast موحد (بدون تغيير منطق الداتا)
+  function toast(msg){
+    const el = $("toast");
+    if(!el) return alert(msg);
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> el.classList.remove("show"), 2200);
+  }
+
+  // Logout (نفس النظام)
+  $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+
   const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
 
   let sales=[], purchases=[], expenses=[];
@@ -499,7 +520,7 @@
     $("salesCount").textContent = `${s.length} فاتورة`;
     $("purchCount").textContent = `${p.length} فاتورة`;
     $("expCount").textContent = `${e.length} بند`;
-    $("lastSyncTxt").textContent = `آخر مزامنة: ${new Date().toLocaleString("ar-EG")}`;
+    $("lastSyncTxt").textContent = `${new Date().toLocaleString("ar-EG")}`;
 
     // summary table
     const sb=$("summaryBody"); sb.innerHTML="";
@@ -520,14 +541,15 @@
     const db=$("detailsBody"); db.innerHTML="";
     if(s.length===0){ $("emptyBox").style.display="block"; return; }
     $("emptyBox").style.display="none";
+
     for(const it of s){
       const tr=document.createElement("tr");
       tr.innerHTML=`
-        <td class="mono">${it.sale_invoice_no||""}</td>
-        <td>${it.customer||""}</td>
-        <td class="mono">${new Date(it.invoice_date).toLocaleDateString("ar-EG")}</td>
-        <td class="mono">${fmt(it.total)}</td>
-        <td class="mono">${fmt(it.profit_total||0)}</td>
+        <td data-label="رقم فاتورة" class="mono">${it.sale_invoice_no||""}</td>
+        <td data-label="العميل">${it.customer||""}</td>
+        <td data-label="التاريخ" class="mono">${it.invoice_date ? new Date(it.invoice_date).toLocaleDateString("ar-EG") : ""}</td>
+        <td data-label="الإجمالي" class="mono">${fmt(it.total)}</td>
+        <td data-label="الربح" class="mono">${fmt(it.profit_total||0)}</td>
       `;
       db.appendChild(tr);
     }
@@ -544,21 +566,23 @@
       purchases = Array.isArray(plog.items)?plog.items:[];
       expenses = Array.isArray(ex.items)?ex.items:[];
       apply();
-    }catch(e){ toast(e.message||"فشل تحميل بيانات الأرباح","bad"); }
+      toast("✅ تم تحديث الأرباح");
+    }catch(e){
+      toast(e.message||"فشل تحميل بيانات الأرباح");
+    }
   }
 
-  $("logoutBtn")?.addEventListener("click",(e)=>{e.preventDefault();AxentroAuth.logout();});
   ["fromDate","toDate","mode"].forEach(id=>{ $(id)?.addEventListener("change",apply); });
   $("refreshBtn")?.addEventListener("click",load);
   $("clearFiltersBtn")?.addEventListener("click",()=>{ $("fromDate").value=""; $("toDate").value=""; apply(); });
 
-  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1","warn"));
-  $("exportBtn")?.addEventListener("click",()=>toast("Export غير مفعّل في v1","warn"));
-  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي","warn"));
+  $("importBtn")?.addEventListener("click",()=>toast("Import غير مفعّل في v1"));
+  $("exportBtn")?.addEventListener("click",()=>toast("Export غير مفعّل في v1"));
+  $("clearLocalBtn")?.addEventListener("click",()=>toast("لا يوجد تخزين محلي"));
+  $("clearImportBtn")?.addEventListener("click",()=>{ const ta=$("importTa"); if(ta) ta.value=""; toast("تم المسح"); });
 
   load();
 })();
-
 </script>
 </body>
 </html>
