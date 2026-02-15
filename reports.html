@@ -26,7 +26,12 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
     body{
       margin:0;
       font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
@@ -35,12 +40,10 @@
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
-      padding:18px;
-      min-height:100vh;
+      min-height:100%;
       display:flex;
       flex-direction:column;
       -webkit-font-smoothing:antialiased;
-      overflow-x:hidden;
     }
 
     .wrap{
@@ -48,34 +51,58 @@
       margin:0 auto;
       width:100%;
       flex:1;
+      padding:18px;
+      padding-bottom: calc(18px + env(safe-area-inset-bottom));
+    }
+    @media (max-width:520px){
+      .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
     }
 
-    /* ===== Topbar (مطابق Purchase Invoice) ===== */
     .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      padding:12px 14px;
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      background:rgba(255,255,255,.88);
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(10px);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid var(--stroke);
+      border-radius:18px;background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
       flex-wrap:wrap;
       margin-bottom:16px;
     }
-    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .brand{display:flex; align-items:center; gap:12px; min-width:240px;}
     .logo{
-      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;
+      display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
       border:1px solid rgba(176,141,87,.35);
       box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden; padding:6px; flex:0 0 auto;
+      overflow:hidden;
+      padding:6px;
+      flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:900}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800;line-height:1.5}
+    .brandTitle{font-weight:1000}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900;line-height:1.5}
+
+    /* ✅ زي صفحاتنا دايمًا */
+    .topActions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+
+    /* ✅ FIX: خلي زرارين الهيدر زي Purchase Invoice (جنب بعض على الموبايل + بعرض كامل) */
+    .topActions .btn{flex:0 0 auto}
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .brand{justify-content:space-between; min-width:unset;}
+      .topActions{
+        width:100%;
+        justify-content:space-between;
+        gap:12px;
+      }
+      .topActions a,.topActions button{
+        width:calc(50% - 6px);
+      }
+    }
+    @media (max-width:520px){
+      .topActions a,.topActions button{
+        width:calc(50% - 6px);
+      }
+    }
 
     .card{
       background:rgba(255,255,255,.92);
@@ -87,10 +114,10 @@
       max-width:100%;
     }
 
-    h2{margin:0 0 10px;font-weight:900}
-    .subnote{margin-top:6px;color:var(--muted);font-weight:800;line-height:1.7}
+    h2{margin:0 0 10px;font-weight:1000}
+    .subnote{margin-top:6px;color:var(--muted);font-weight:900;line-height:1.7}
 
-    label{font-size:12px;color:var(--muted);font-weight:800}
+    label{font-size:12px;color:var(--muted);font-weight:1000}
     input, select{
       width:100%;
       padding:10px;
@@ -99,9 +126,9 @@
       background:#fff;
       color:var(--text);
       outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
       max-width:100%;
     }
-    input::placeholder{color:#94a3b8}
     input:focus, select:focus{
       border-color: rgba(176,141,87,.55);
       box-shadow:0 10px 22px rgba(176,141,87,.14);
@@ -110,7 +137,6 @@
     .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
     .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
       .row2,.row3{grid-template-columns:repeat(1,1fr);}
@@ -120,25 +146,26 @@
       input, select{ font-size:16px; }
     }
 
-    /* ===== Buttons (مطابق Purchase Invoice) ===== */
     .btn{
-      padding:12px;
+      padding:12px 14px;
       border-radius:14px;
       border:1px solid rgba(176,141,87,.35);
       background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
       color:var(--text);
-      font-weight:900;
+      font-weight:1000;
       cursor:pointer;
       touch-action: manipulation;
       user-select:none;
-      text-decoration:none;
+      max-width:100%;
+      white-space:nowrap;
       display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
-      white-space:nowrap;
+      text-decoration:none;
     }
     .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
     .btn.secondary{
       border-color: rgba(15,23,42,.14);
       background:#fff;
@@ -155,13 +182,15 @@
       display:inline-flex;align-items:center;gap:8px;
       border:1px solid rgba(15,23,42,.10);
       background:#fff;border-radius:999px;
-      padding:8px 10px;font-weight:900;
+      padding:8px 10px;font-weight:1000;
       color:#334155;
       white-space:nowrap;
       max-width:100%;
     }
-    .pill .k{color:var(--muted);font-weight:800}
+    .pill .k{color:var(--muted);font-weight:900}
+    .muted{color:var(--muted);font-weight:900}
 
+    /* ✅ KPI Grid: نخليه 4 أعمدة على الديسكتوب */
     .kpiGrid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -179,8 +208,8 @@
       box-shadow: 0 10px 28px rgba(2,6,23,.06);
       overflow:hidden;
     }
-    .kpi .t{font-size:12px;color:var(--muted);font-weight:900}
-    .kpi .v{font-size:22px;font-weight:900;margin-top:6px}
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
+    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
     .kpi .v.ok{color:#166534}
     .kpi .v.bad{color:#991b1b}
     .kpi .s{
@@ -194,7 +223,7 @@
       border-top:1px dashed rgba(15,23,42,.12);
       padding-top:8px;
     }
-    .kpi .s span{color:var(--muted);font-weight:800}
+    .kpi .s span{color:var(--muted);font-weight:900}
     .kpi .miniActions{
       margin-top:10px;
       display:flex;
@@ -205,7 +234,7 @@
       padding:10px 12px;
       border-radius:12px;
       font-size:12px;
-      font-weight:900;
+      font-weight:1000;
     }
 
     .chartGrid{
@@ -229,8 +258,8 @@
       padding:4px 6px 10px;
       flex-wrap:wrap;
     }
-    .chartTitle{font-weight:900}
-    .chartNote{font-size:12px;color:var(--muted);font-weight:800}
+    .chartTitle{font-weight:1000}
+    .chartNote{font-size:12px;color:var(--muted);font-weight:900}
 
     canvas{
       width:100% !important;
@@ -248,7 +277,7 @@
       padding:12px;
       background: rgba(15,23,42,.02);
       color: var(--muted);
-      font-weight:900;
+      font-weight:1000;
       text-align:center;
       line-height:1.7;
       margin-top:10px;
@@ -280,14 +309,15 @@
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:900;
+      font-weight:1000;
     }
+    td.left{text-align:right}
 
     .tag{
       display:inline-block;
       padding:6px 10px;border-radius:999px;
       border:1px solid rgba(15,23,42,.12);
-      background:#fff;font-weight:900;font-size:12px;
+      background:#fff;font-weight:1000;font-size:12px;
       white-space:nowrap;
     }
     .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
@@ -300,7 +330,7 @@
       border-radius:14px;
       background:rgba(255,255,255,.75);
       color:var(--muted);
-      font-weight:900;
+      font-weight:1000;
       text-align:center;
       line-height:1.8;
     }
@@ -324,41 +354,61 @@
         content: attr(data-label);
         display:block;
         font-size:12px;color: var(--muted);
-        font-weight:900;margin-bottom:6px;
+        font-weight:1000;margin-bottom:6px;
       }
     }
 
-    /* ===== Footer + QR (مطابق Purchase Invoice) ===== */
+    /* ✅ Footer + QR Card (زي الصورة) */
     .site-footer{
       margin-top:auto;
-      padding:16px 16px 18px;
+      padding:18px 16px 22px;
       text-align:center;
       color:var(--muted);
-      border:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.78);
+      border-top:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
       backdrop-filter: blur(10px);
-      border-radius:16px;
-      width:min(520px, 94vw);
-      margin-inline:auto;
-      box-shadow: var(--shadow);
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
     }
-    .site-footer .line1{ font-weight:1000; color:#0f172a; }
-    .site-footer .line2{ margin-top:6px; font-weight:900; }
+    .site-footer .line1{ font-weight:1000; color:#334155; font-size:18px; }
+    .site-footer .line2{ margin-top:6px; font-weight:900; font-size:16px; }
 
-    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
-    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .qrLink img{
-      width:132px; height:132px; max-width:60vw;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      padding:10px;
-      box-shadow: 0 10px 26px rgba(2,6,23,.08);
-      object-fit:contain;
-      transition:transform .15s ease, box-shadow .15s ease;
+    .qrWrap{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
     }
-    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
-    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
+    .qrCard{
+      width:min(520px, 92vw);
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:18px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.12);
+      padding:16px 14px;
+    }
+    .qrBox{
+      width: min(240px, 70vw);
+      aspect-ratio:1/1;
+      margin:14px auto 10px;
+      border-radius:18px;
+      border:2px solid rgba(15,23,42,.10);
+      background:#fff;
+      box-shadow: 0 14px 36px rgba(2,6,23,.10);
+      display:grid;
+      place-items:center;
+      overflow:hidden;
+    }
+    .qrBox img{
+      width:100%;
+      height:100%;
+      object-fit:contain;
+      display:block;
+    }
+    .scanMe{
+      margin-top:10px;
+      font-weight:1000;
+      color:#475569;
+      font-size:18px;
+    }
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
@@ -372,7 +422,7 @@
       padding: 10px 12px;
       border-radius: 14px;
       box-shadow: 0 18px 50px rgba(2,6,23,.18);
-      font-weight: 900;
+      font-weight: 1000;
       font-size: 13px;
       opacity: 0;
       pointer-events: none;
@@ -413,17 +463,17 @@
       align-items:center;
       flex-wrap:wrap;
     }
-    .modalHeader strong{font-weight:900}
+    .modalHeader strong{font-weight:1000}
     .modalBody{padding:12px}
-    .modalMeta{color:var(--muted);font-weight:800;font-size:12px}
+    .modalMeta{color:var(--muted);font-weight:900;font-size:12px}
     .modalActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
     .modalActions .btn{padding:10px 12px;border-radius:12px}
 
     .printOnly{display:none}
     @media print{
-      body{ background:#fff !important; padding:0 !important; }
-      .noPrint, .toast, .modal{ display:none !important; }
-      .wrap{ max-width: 100% !important; }
+      body{ background:#fff !important; }
+      .topActions, .noPrint, .toast, .modal{ display:none !important; }
+      .wrap{ max-width: 100% !important; padding:0 !important; }
       .card{ box-shadow:none !important; border-color:#ddd !important; }
       .printOnly{display:block !important;}
       canvas{ break-inside:avoid; }
@@ -435,8 +485,6 @@
 </head>
 
 <body>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
@@ -445,12 +493,13 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">( Reports ) التقارير</div>
+        <!-- ✅ FIX: اسم الصفحة تحت البراند (زي الصورة) -->
+        <div class="brandSub">التقارير (Reports)</div>
       </div>
     </div>
 
-    <!-- ✅ نفس شكل Purchase Invoice -->
-    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap" class="noPrint">
+    <!-- ✅ زرارين جنب بعض (زي Purchase Invoice) -->
+    <div class="topActions noPrint">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
@@ -459,7 +508,7 @@
   <!-- Print header -->
   <div class="card printOnly">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="font-weight:900;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
+      <div style="font-weight:1000;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
       <div class="muted" id="printMeta">—</div>
     </div>
   </div>
@@ -485,13 +534,13 @@
       <div>
         <label for="fromDate">من تاريخ</label>
         <input id="fromDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printFrom" style="font-weight:900">—</div>
+        <div class="printOnly" id="printFrom" style="font-weight:1000">—</div>
       </div>
 
       <div>
         <label for="toDate">إلى تاريخ</label>
         <input id="toDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printTo" style="font-weight:900">—</div>
+        <div class="printOnly" id="printTo" style="font-weight:1000">—</div>
       </div>
 
       <div>
@@ -561,8 +610,8 @@
     </div>
 
     <div class="subnote">
-      ملاحظة: الصفحة جاهزة ERP-Style. ربط الأرقام/الشارت سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
-      <br>COGS سيتم حسابها FIFO (الأدق ERP).
+      ملاحظة: واجهة Reports جاهزة ERP-Style. الربط الفعلي سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
+      <br><b>COGS سيتم حسابها FIFO</b> (الأدق ERP) بعد توحيد حركات المخزون + أسعار الشراء.
     </div>
   </div>
 
@@ -634,21 +683,52 @@
         </div>
       </div>
 
+      <!-- ✅ جديد: Sales invoice count + AOV sales -->
       <div class="kpi">
-        <div class="t">Invoices / AOV</div>
-        <div class="v" id="kpiInvoices">0</div>
-        <div class="s"><span>AOV</span><b id="kpiAov">0.00</b></div>
+        <div class="t">Sales Invoices (عدد فواتير البيع)</div>
+        <div class="v" id="kpiSalesInvCount">0</div>
+        <div class="s"><span>Sales AOV</span><b id="kpiSalesAov">0.00</b></div>
         <div class="miniActions noPrint">
-          <button class="btn secondary" data-drill="invoices" type="button">قائمة فواتير</button>
+          <button class="btn secondary" data-drill="sales_invoices" type="button">قائمة فواتير البيع</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Purchase invoice count + AOV purchase -->
+      <div class="kpi">
+        <div class="t">Purchase Invoices (عدد فواتير الشراء)</div>
+        <div class="v" id="kpiPurchInvCount">0</div>
+        <div class="s"><span>Purch AOV</span><b id="kpiPurchAov">0.00</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="purchase_invoices" type="button">قائمة فواتير الشراء</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Returns count -->
+      <div class="kpi">
+        <div class="t">Return Invoices (عدد المرتجعات)</div>
+        <div class="v bad" id="kpiReturnInvCount">0</div>
+        <div class="s"><span>Return Rate</span><b id="kpiReturnRate">0%</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="return_invoices" type="button">قائمة المرتجعات</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Orders health quick -->
+      <div class="kpi">
+        <div class="t">Quality (مؤشرات تشغيل)</div>
+        <div class="v" id="kpiHealth">—</div>
+        <div class="s"><span>Data</span><b id="kpiDataState">Pending</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="data_quality" type="button">تفاصيل</button>
         </div>
       </div>
     </div>
 
     <div class="subnote">
       الصيغ القياسية (ERP):
-      Net Sales = Gross Sales - Returns
-      — Gross Profit = Net Sales - COGS (FIFO)
-      — Net Profit = Gross Profit - Expenses
+      <br>Net Sales = Gross Sales - Returns
+      <br>Gross Profit = Net Sales - COGS (FIFO)
+      <br>Net Profit = Gross Profit - Expenses
     </div>
   </div>
 
@@ -767,12 +847,19 @@
       <table id="tbl" role="table" aria-label="تفاصيل">
         <thead>
           <tr>
-            <th style="min-width:180px">الفترة</th>
+            <th style="min-width:160px">الفترة</th>
+
+            <th style="min-width:160px">Sales Inv</th>
             <th style="min-width:160px">Gross Sales</th>
             <th style="min-width:160px">Returns</th>
             <th style="min-width:160px">Net Sales</th>
+
+            <th style="min-width:160px">Purch Inv</th>
+            <th style="min-width:160px">Purchases</th>
+
             <th style="min-width:160px">COGS</th>
             <th style="min-width:160px">Gross Profit</th>
+
             <th style="min-width:160px">Expenses</th>
             <th style="min-width:160px">Net Profit</th>
           </tr>
@@ -785,20 +872,25 @@
       لا توجد بيانات في الفترة المحددة.
     </div>
   </div>
-
-  <!-- ✅ Footer مطابق Purchase Invoice -->
-  <footer class="site-footer">
-    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-    <div class="line2">By Ahmed Hamouda</div>
-
-    <div class="qrBox">
-      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
-        <span class="qrText">Scan me</span>
-      </a>
-    </div>
-  </footer>
 </div>
+
+<footer class="site-footer">
+  <div class="qrWrap">
+    <div class="qrCard">
+      <div class="line1">© Axentro – All Rights Reserved 2024</div>
+      <div class="line2">By Ahmed Hamouda</div>
+
+      <div class="qrBox">
+        <!-- ✅ ضع نفس صورة QR المستخدمة في باقي الصفحات -->
+        <img src="assets/qr.png" alt="QR" onerror="this.style.display='none'">
+      </div>
+
+      <div class="scanMe">Scan me</div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Drilldown Modal -->
 <div class="modal" id="drillModal" aria-hidden="true">
@@ -837,7 +929,7 @@
 
   const $ = (id)=>document.getElementById(id);
 
-  // Toast
+  // ===== Toast =====
   const toastEl = $("toast");
   function toast(msg){
     if(!toastEl) return alert(msg);
@@ -847,12 +939,14 @@
     toast._t = setTimeout(()=>toastEl.classList.remove("show"), 1900);
   }
 
-  // Logout (مطابق صفحاتنا)
+  // ===== Logout (زي صفحاتنا) =====
   $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  // Dates helpers
+  // ===== Dates helpers =====
   function pad2(n){ return String(n).padStart(2,"0"); }
-  function toISO(d){ return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`; }
+  function toISO(d){
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  }
   function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
   function startOfYear(d){ return new Date(d.getFullYear(), 0, 1); }
 
@@ -861,12 +955,16 @@
     const now = new Date();
     let from = null, to = null;
 
-    if(p === "custom"){ return; }
+    if(p === "custom"){
+      return;
+    }
 
     to = new Date(now);
-    if(p === "mtd"){ from = startOfMonth(now); }
-    else if(p === "ytd"){ from = startOfYear(now); }
-    else{
+    if(p === "mtd"){
+      from = startOfMonth(now);
+    }else if(p === "ytd"){
+      from = startOfYear(now);
+    }else{
       const days = Number(p||30);
       from = new Date(now.getTime() - (Math.max(1,days) * 86400000));
     }
@@ -882,7 +980,7 @@
     updatePrintMeta();
   });
 
-  // Print meta
+  // ===== Print meta =====
   function updatePrintMeta(){
     const from = $("fromDate")?.value || "—";
     const to = $("toDate")?.value || "—";
@@ -899,27 +997,82 @@
     $(id)?.addEventListener("input", updatePrintMeta);
   });
 
-  // Buttons placeholders
+  // ===== KPI setters (placeholder) =====
+  function setText(id, v){
+    const el = $(id);
+    if(el) el.textContent = String(v ?? "—");
+  }
+  function setMoney(id, n){
+    const el = $(id);
+    if(!el) return;
+    const x = Number(n||0);
+    el.textContent = (isFinite(x) ? x.toFixed(2) : "0.00");
+  }
+
+  function resetUi(){
+    // Money
+    ["kpiGrossSales","kpiReturns","kpiNetSales","kpiCogs","kpiGrossProfit","kpiExpenses","kpiNetProfit"].forEach(id=> setMoney(id, 0));
+
+    // Compare
+    ["kpiGrossSalesCmp","kpiReturnsCmp","kpiNetSalesCmp","kpiCogsCmp","kpiExpensesCmp","kpiNetProfitCmp"].forEach(id=> setText(id, "—"));
+
+    // Margin / counts
+    setText("kpiMarginPct", "0%");
+    setText("kpiSalesInvCount", "0");
+    setText("kpiPurchInvCount", "0");
+    setText("kpiReturnInvCount", "0");
+    setText("kpiReturnRate", "0%");
+    setMoney("kpiSalesAov", 0);
+    setMoney("kpiPurchAov", 0);
+
+    // Quality
+    setText("kpiHealth", "—");
+    setText("kpiDataState", "Pending");
+
+    // Sources
+    setText("lastSyncTxt", "—");
+    setText("srcSales", "—");
+    setText("srcPurch", "—");
+    setText("srcExp", "—");
+
+    // Tables (placeholder empty)
+    const tbody = $("tbody");
+    if(tbody) tbody.innerHTML = "";
+  }
+
+  resetUi();
+
+  // ===== Buttons (placeholders for later) =====
   $("refreshBtn")?.addEventListener("click", ()=>{
-    $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
-    $("srcSales").textContent = "Pending";
-    $("srcPurch").textContent = "Pending";
-    $("srcExp").textContent = "Pending";
+    setText("lastSyncTxt", new Date().toLocaleString("ar-EG"));
+    setText("srcSales", "Pending");
+    setText("srcPurch", "Pending");
+    setText("srcExp", "Pending");
+
+    // Placeholder health
+    setText("kpiHealth", "OK");
+    setText("kpiDataState", "Pending");
+
     toast("✅ تم تحديث التقارير (واجهة فقط — الربط لاحقًا)");
   });
 
-  $("exportBtn")?.addEventListener("click", ()=> toast("📤 تصدير CSV سيتم تفعيله بعد ربط البيانات"));
+  $("exportBtn")?.addEventListener("click", ()=>{
+    toast("📤 تصدير CSV سيتم تفعيله بعد ربط البيانات");
+  });
+
   $("pdfBtn")?.addEventListener("click", ()=>{
     updatePrintMeta();
     toast("🧾 سيتم فتح نافذة الطباعة");
     setTimeout(()=>window.print(), 250);
   });
 
-  // Drilldown modal
+  // ===== Drilldown modal =====
   const drillModal = $("drillModal");
   function showDrill(title, meta){
     $("drillTitle").textContent = title || "تفاصيل";
     $("drillMeta").textContent = meta || "—";
+    $("drillEmpty").style.display = "block";
+    $("drillTblWrap").style.display = "none";
     drillModal.style.display = "flex";
     drillModal.setAttribute("aria-hidden","false");
   }
@@ -928,7 +1081,9 @@
     drillModal.setAttribute("aria-hidden","true");
   }
   $("drillCloseBtn")?.addEventListener("click", hideDrill);
-  drillModal?.addEventListener("click", (e)=>{ if(e.target === drillModal) hideDrill(); });
+  drillModal?.addEventListener("click", (e)=>{
+    if(e.target === drillModal) hideDrill();
+  });
 
   document.querySelectorAll("[data-drill]").forEach(btn=>{
     btn.addEventListener("click", ()=>{
@@ -939,13 +1094,10 @@
     });
   });
 
-  $("drillExportBtn")?.addEventListener("click", ()=> toast("📤 تصدير تفاصيل Drilldown سيتم بعد ربط البيانات"));
+  $("drillExportBtn")?.addEventListener("click", ()=>{
+    toast("📤 تصدير تفاصيل Drilldown سيتم بعد ربط البيانات");
+  });
 
-  // Initial placeholders
-  $("lastSyncTxt").textContent = "—";
-  $("srcSales").textContent = "—";
-  $("srcPurch").textContent = "—";
-  $("srcExp").textContent = "—";
 })();
 </script>
 </body>
