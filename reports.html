@@ -175,6 +175,7 @@
     .pill .k{color:var(--muted);font-weight:900}
     .muted{color:var(--muted);font-weight:900}
 
+    /* ✅ KPI Grid: نخليه 4 أعمدة على الديسكتوب */
     .kpiGrid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
@@ -438,7 +439,7 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">Reports — Dashboard / KPIs / Analytics / Drilldown</div>
+        <div class="brandSub">Reports — Financial KPIs / FIFO COGS / Analytics / Drilldown</div>
       </div>
     </div>
 
@@ -554,8 +555,8 @@
     </div>
 
     <div class="subnote">
-      ملاحظة: الصفحة جاهزة ERP-Style. ربط الأرقام/الشارت سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
-      <br>COGS سيتم حسابها FIFO (الأدق ERP).
+      ملاحظة: واجهة Reports جاهزة ERP-Style. الربط الفعلي سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
+      <br><b>COGS سيتم حسابها FIFO</b> (الأدق ERP) بعد توحيد حركات المخزون + أسعار الشراء.
     </div>
   </div>
 
@@ -627,21 +628,52 @@
         </div>
       </div>
 
+      <!-- ✅ جديد: Sales invoice count + AOV sales -->
       <div class="kpi">
-        <div class="t">Invoices / AOV</div>
-        <div class="v" id="kpiInvoices">0</div>
-        <div class="s"><span>AOV</span><b id="kpiAov">0.00</b></div>
+        <div class="t">Sales Invoices (عدد فواتير البيع)</div>
+        <div class="v" id="kpiSalesInvCount">0</div>
+        <div class="s"><span>Sales AOV</span><b id="kpiSalesAov">0.00</b></div>
         <div class="miniActions noPrint">
-          <button class="btn secondary" data-drill="invoices" type="button">قائمة فواتير</button>
+          <button class="btn secondary" data-drill="sales_invoices" type="button">قائمة فواتير البيع</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Purchase invoice count + AOV purchase -->
+      <div class="kpi">
+        <div class="t">Purchase Invoices (عدد فواتير الشراء)</div>
+        <div class="v" id="kpiPurchInvCount">0</div>
+        <div class="s"><span>Purch AOV</span><b id="kpiPurchAov">0.00</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="purchase_invoices" type="button">قائمة فواتير الشراء</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Returns count -->
+      <div class="kpi">
+        <div class="t">Return Invoices (عدد المرتجعات)</div>
+        <div class="v bad" id="kpiReturnInvCount">0</div>
+        <div class="s"><span>Return Rate</span><b id="kpiReturnRate">0%</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="return_invoices" type="button">قائمة المرتجعات</button>
+        </div>
+      </div>
+
+      <!-- ✅ جديد: Orders health quick -->
+      <div class="kpi">
+        <div class="t">Quality (مؤشرات تشغيل)</div>
+        <div class="v" id="kpiHealth">—</div>
+        <div class="s"><span>Data</span><b id="kpiDataState">Pending</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="data_quality" type="button">تفاصيل</button>
         </div>
       </div>
     </div>
 
     <div class="subnote">
       الصيغ القياسية (ERP):
-      Net Sales = Gross Sales - Returns
-      — Gross Profit = Net Sales - COGS (FIFO)
-      — Net Profit = Gross Profit - Expenses
+      <br>Net Sales = Gross Sales - Returns
+      <br>Gross Profit = Net Sales - COGS (FIFO)
+      <br>Net Profit = Gross Profit - Expenses
     </div>
   </div>
 
@@ -760,12 +792,19 @@
       <table id="tbl" role="table" aria-label="تفاصيل">
         <thead>
           <tr>
-            <th style="min-width:180px">الفترة</th>
+            <th style="min-width:160px">الفترة</th>
+
+            <th style="min-width:160px">Sales Inv</th>
             <th style="min-width:160px">Gross Sales</th>
             <th style="min-width:160px">Returns</th>
             <th style="min-width:160px">Net Sales</th>
+
+            <th style="min-width:160px">Purch Inv</th>
+            <th style="min-width:160px">Purchases</th>
+
             <th style="min-width:160px">COGS</th>
             <th style="min-width:160px">Gross Profit</th>
+
             <th style="min-width:160px">Expenses</th>
             <th style="min-width:160px">Net Profit</th>
           </tr>
@@ -892,12 +931,62 @@
     $(id)?.addEventListener("input", updatePrintMeta);
   });
 
+  // ===== KPI setters (placeholder) =====
+  function setText(id, v){
+    const el = $(id);
+    if(el) el.textContent = String(v ?? "—");
+  }
+  function setMoney(id, n){
+    const el = $(id);
+    if(!el) return;
+    const x = Number(n||0);
+    el.textContent = (isFinite(x) ? x.toFixed(2) : "0.00");
+  }
+
+  function resetUi(){
+    // Money
+    ["kpiGrossSales","kpiReturns","kpiNetSales","kpiCogs","kpiGrossProfit","kpiExpenses","kpiNetProfit"].forEach(id=> setMoney(id, 0));
+
+    // Compare
+    ["kpiGrossSalesCmp","kpiReturnsCmp","kpiNetSalesCmp","kpiCogsCmp","kpiExpensesCmp","kpiNetProfitCmp"].forEach(id=> setText(id, "—"));
+
+    // Margin / counts
+    setText("kpiMarginPct", "0%");
+    setText("kpiSalesInvCount", "0");
+    setText("kpiPurchInvCount", "0");
+    setText("kpiReturnInvCount", "0");
+    setText("kpiReturnRate", "0%");
+    setMoney("kpiSalesAov", 0);
+    setMoney("kpiPurchAov", 0);
+
+    // Quality
+    setText("kpiHealth", "—");
+    setText("kpiDataState", "Pending");
+
+    // Sources
+    setText("lastSyncTxt", "—");
+    setText("srcSales", "—");
+    setText("srcPurch", "—");
+    setText("srcExp", "—");
+
+    // Tables (placeholder empty)
+    const tbody = $("tbody");
+    if(tbody) tbody.innerHTML = "";
+  }
+
+  resetUi();
+
   // ===== Buttons (placeholders for later) =====
   $("refreshBtn")?.addEventListener("click", ()=>{
-    $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
-    $("srcSales").textContent = "Pending";
-    $("srcPurch").textContent = "Pending";
-    $("srcExp").textContent = "Pending";
+    setText("lastSyncTxt", new Date().toLocaleString("ar-EG"));
+    setText("srcSales", "Pending");
+    setText("srcPurch", "Pending");
+    setText("srcExp", "Pending");
+
+    // Placeholder health
+    setText("kpiHealth", "OK");
+    setText("kpiDataState", "Pending");
+
     toast("✅ تم تحديث التقارير (واجهة فقط — الربط لاحقًا)");
   });
 
@@ -916,6 +1005,8 @@
   function showDrill(title, meta){
     $("drillTitle").textContent = title || "تفاصيل";
     $("drillMeta").textContent = meta || "—";
+    $("drillEmpty").style.display = "block";
+    $("drillTblWrap").style.display = "none";
     drillModal.style.display = "flex";
     drillModal.setAttribute("aria-hidden","false");
   }
@@ -940,12 +1031,6 @@
   $("drillExportBtn")?.addEventListener("click", ()=>{
     toast("📤 تصدير تفاصيل Drilldown سيتم بعد ربط البيانات");
   });
-
-  // ===== Initial placeholders =====
-  $("lastSyncTxt").textContent = "—";
-  $("srcSales").textContent = "—";
-  $("srcPurch").textContent = "—";
-  $("srcExp").textContent = "—";
 
 })();
 </script>
