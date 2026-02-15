@@ -26,19 +26,23 @@
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
     body{
       margin:0;
-      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
         radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
         linear-gradient(180deg, #ffffff, var(--bg));
-      min-height:100vh;
+      min-height:100%;
       display:flex;
       flex-direction:column;
-      overflow-x:hidden;
       -webkit-font-smoothing:antialiased;
     }
 
@@ -52,35 +56,35 @@
     }
     @media (max-width:520px){
       .wrap{ padding:14px; padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
-      input, select{ font-size:16px; }
     }
 
-    /* ===== Topbar (same style as Purchase Invoice) ===== */
     .topbar{
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-      padding:12px 14px;
-      border:1px solid var(--stroke);
-      border-radius:18px;
-      background:rgba(255,255,255,.88);
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(10px);
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid var(--stroke);
+      border-radius:18px;background:rgba(255,255,255,.86);
+      box-shadow:var(--shadow);backdrop-filter:blur(10px);
       flex-wrap:wrap;
       margin-bottom:16px;
     }
-    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .brand{display:flex; align-items:center; gap:12px; min-width:240px;}
     .logo{
-      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
+      width:44px;height:44px;border-radius:999px;
+      display:grid;place-items:center;
       background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
       border:1px solid rgba(176,141,87,.35);
       box-shadow: 0 10px 24px rgba(2,6,23,.10);
-      overflow:hidden; padding:6px; flex:0 0 auto;
+      overflow:hidden;
+      padding:6px;
+      flex:0 0 auto;
     }
     .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brandTitle{font-weight:900}
-    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
+    .brandTitle{font-weight:1000}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:900;line-height:1.5}
 
-    /* مهم: نخلي الأزرار جنب بعض حتى على الموبايل */
-    .topActions{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .topActions{
+      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+      justify-content:flex-end;
+    }
 
     .card{
       background:rgba(255,255,255,.92);
@@ -92,8 +96,10 @@
       max-width:100%;
     }
 
-    h2{margin:0 0 10px;font-weight:900}
-    label{font-size:12px;color:var(--muted);font-weight:800}
+    h2{margin:0 0 10px;font-weight:1000}
+    .subnote{margin-top:6px;color:var(--muted);font-weight:900;line-height:1.7}
+
+    label{font-size:12px;color:var(--muted);font-weight:1000}
     input, select{
       width:100%;
       padding:10px;
@@ -102,33 +108,50 @@
       background:#fff;
       color:var(--text);
       outline:none;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
       max-width:100%;
     }
-    input::placeholder{color:#94a3b8}
+    input:focus, select:focus{
+      border-color: rgba(176,141,87,.55);
+      box-shadow:0 10px 22px rgba(176,141,87,.14);
+    }
 
     .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
     .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
     @media (max-width:920px){
       .row{grid-template-columns:repeat(2,1fr);}
-      .row2{grid-template-columns:repeat(1,1fr);}
+      .row2,.row3{grid-template-columns:repeat(1,1fr);}
+    }
+    @media (max-width:720px){
+      .topbar{flex-direction:column;align-items:stretch}
+      .topActions{justify-content:stretch}
+      .topActions a,.topActions button{width:100%}
     }
     @media (max-width:520px){
       .row{grid-template-columns:repeat(1,1fr);}
+      input, select{ font-size:16px; }
     }
 
     .btn{
-      padding:12px;
+      padding:12px 14px;
       border-radius:14px;
       border:1px solid rgba(176,141,87,.35);
       background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
       color:var(--text);
-      font-weight:900;
+      font-weight:1000;
       cursor:pointer;
       touch-action: manipulation;
       user-select:none;
+      max-width:100%;
       white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
     .btn:hover{filter:brightness(1.02)}
+    .btn:active{transform:translateY(1px)}
     .btn.secondary{
       border-color: rgba(15,23,42,.14);
       background:#fff;
@@ -140,25 +163,28 @@
       color:#991b1b;
     }
 
+    .pillRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       border:1px solid rgba(15,23,42,.10);
       background:#fff;border-radius:999px;
-      padding:8px 10px;font-weight:900;
+      padding:8px 10px;font-weight:1000;
       color:#334155;
       white-space:nowrap;
       max-width:100%;
     }
+    .pill .k{color:var(--muted);font-weight:900}
     .muted{color:var(--muted);font-weight:900}
 
-    .grid4{
+    /* ===== ERP KPIs ===== */
+    .kpiGrid{
       display:grid;
       grid-template-columns:repeat(4,1fr);
       gap:12px;
       margin-top:10px;
     }
-    @media (max-width:1000px){ .grid4{grid-template-columns:repeat(2,1fr)} }
-    @media (max-width:520px){ .grid4{grid-template-columns:1fr} }
+    @media (max-width:1000px){ .kpiGrid{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){ .kpiGrid{grid-template-columns:1fr} }
 
     .kpi{
       border:1px solid rgba(15,23,42,.10);
@@ -166,12 +192,38 @@
       border-radius:16px;
       padding:14px;
       box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      overflow:hidden;
     }
-    .kpi .t{font-size:12px;color:var(--muted);font-weight:900}
-    .kpi .v{font-size:22px;font-weight:900;margin-top:6px}
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
+    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
     .kpi .v.ok{color:#166534}
     .kpi .v.bad{color:#991b1b}
+    .kpi .s{
+      margin-top:8px;
+      font-size:12px;
+      color:#334155;
+      font-weight:900;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      border-top:1px dashed rgba(15,23,42,.12);
+      padding-top:8px;
+    }
+    .kpi .s span{color:var(--muted);font-weight:900}
+    .kpi .miniActions{
+      margin-top:10px;
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .kpi .miniActions .btn{
+      padding:10px 12px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:1000;
+    }
 
+    /* ===== Charts ===== */
     .chartGrid{
       display:grid;
       grid-template-columns: 1.2fr .8fr;
@@ -193,13 +245,13 @@
       padding:4px 6px 10px;
       flex-wrap:wrap;
     }
-    .chartTitle{font-weight:900}
+    .chartTitle{font-weight:1000}
     .chartNote{font-size:12px;color:var(--muted);font-weight:900}
 
-    /* منع أي تمدد/إزاحة بسبب Canvas */
+    /* منع تمدد الصفحة بسبب canvas */
     canvas{
-      display:block;
       width:100% !important;
+      display:block;
       max-width:100%;
       height: 420px !important;
       max-height: 520px !important;
@@ -207,6 +259,19 @@
     }
     #lineCanvas{ height: 360px !important; }
 
+    .chartEmpty{
+      border:1px dashed rgba(15,23,42,.16);
+      border-radius:14px;
+      padding:12px;
+      background: rgba(15,23,42,.02);
+      color: var(--muted);
+      font-weight:1000;
+      text-align:center;
+      line-height:1.7;
+      margin-top:10px;
+    }
+
+    /* ===== Tables ===== */
     .table-wrap{
       overflow:auto;
       margin-top:10px;
@@ -230,23 +295,23 @@
       text-align:center;
       vertical-align:middle;
       word-break:break-word;
-      white-space:nowrap;
     }
     th{
       background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:900;
+      font-weight:1000;
     }
-    td.left{text-align:right; white-space:normal;}
+    td.left{text-align:right}
 
     .tag{
       display:inline-block;
       padding:6px 10px;border-radius:999px;
       border:1px solid rgba(15,23,42,.12);
-      background:#fff;font-weight:900;font-size:12px;
+      background:#fff;font-weight:1000;font-size:12px;
       white-space:nowrap;
     }
     .tag.ok{border-color:rgba(22,163,74,.25);background:rgba(22,163,74,.06);color:#166534}
     .tag.bad{border-color:rgba(220,38,38,.25);background:rgba(220,38,38,.06);color:#991b1b}
+    .tag.warn{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.10);color:#7c2d12}
 
     .empty{
       padding:14px;
@@ -254,7 +319,7 @@
       border-radius:14px;
       background:rgba(255,255,255,.75);
       color:var(--muted);
-      font-weight:900;
+      font-weight:1000;
       text-align:center;
       line-height:1.8;
     }
@@ -272,78 +337,96 @@
         margin-bottom:10px;
         box-shadow: 0 10px 28px rgba(2,6,23,.06);
       }
-      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
+      tbody td{ border:none; padding:8px 0; text-align:right; }
       tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
       tbody td[data-label]::before{
         content: attr(data-label);
         display:block;
         font-size:12px;color: var(--muted);
-        font-weight:900;margin-bottom:6px;
+        font-weight:1000;margin-bottom:6px;
       }
     }
 
-    /* Footer (same card-style as other pages) */
+    /* ===== Footer ===== */
     .site-footer{
       margin-top:auto;
-      padding:16px 16px 18px;
+      padding:16px 16px 22px;
       text-align:center;
       color:var(--muted);
-      border:1px solid rgba(15,23,42,.10);
-      background: rgba(255,255,255,.78);
+      border-top:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
       backdrop-filter: blur(10px);
-      border-radius:16px;
-      width:min(520px, 94vw);
-      margin-inline:auto;
-      box-shadow: var(--shadow);
-      margin-bottom: calc(12px + env(safe-area-inset-bottom));
+      padding-bottom: calc(22px + env(safe-area-inset-bottom));
     }
-    .site-footer .line1{ font-weight:900; color:#0f172a; }
+    .site-footer .line1{ font-weight:1000; color:#334155; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
-
-    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
-    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .qrLink img{
-      width:132px; height:132px; max-width:60vw;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      padding:10px;
-      box-shadow: 0 10px 26px rgba(2,6,23,.08);
-      object-fit:contain;
-      transition:transform .15s ease, box-shadow .15s ease;
-    }
-    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
-    .qrText{ font-size:12px; font-weight:900; color:#334155; }
 
     :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
+    /* ===== Toast ===== */
     .toast{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:22px;
-      padding:12px 14px;
-      background:#0f172a;
-      color:#fff;
-      border-radius:14px;
-      font-weight:900;
-      box-shadow:0 16px 40px rgba(2,6,23,.25);
-      opacity:0;
-      pointer-events:none;
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: rgba(15,23,42,.92);
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 14px;
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      font-weight: 1000;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
       transition: opacity .18s ease, transform .18s ease;
-      z-index:9999;
-      max-width:min(92vw, 720px);
+      z-index: 9999;
+      max-width: min(680px, 92vw);
       text-align:center;
-      white-space:pre-line;
       line-height:1.7;
+      white-space:pre-line;
     }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
+    .toast.show{ opacity:1; transform: translateX(-50%) translateY(-4px); }
+
+    /* ===== Modal (Drilldown) ===== */
+    .modal{
+      position:fixed; inset:0;
+      background:rgba(2,6,23,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:999;
+      padding:14px;
+      backdrop-filter: blur(10px);
+    }
+    .modal .modalCard{
+      width:min(92vw, 920px);
+      background:rgba(255,255,255,.92);
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:18px;
+      box-shadow:0 22px 60px rgba(2,6,23,.22);
+      overflow:hidden;
+    }
+    .modalHeader{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:12px 14px;
+      border-bottom:1px solid rgba(15,23,42,.10);
+      background: rgba(255,255,255,.75);
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .modalHeader strong{font-weight:1000}
+    .modalBody{padding:12px}
+    .modalMeta{color:var(--muted);font-weight:900;font-size:12px}
+    .modalActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .modalActions .btn{padding:10px 12px;border-radius:12px}
 
     /* Print / PDF */
     .printOnly{display:none}
     @media print{
       body{ background:#fff !important; }
-      .topActions, .noPrint, .toast{ display:none !important; }
+      .topActions, .noPrint, .toast, .modal{ display:none !important; }
       .wrap{ max-width: 100% !important; padding:0 !important; }
       .card{ box-shadow:none !important; border-color:#ddd !important; }
       .printOnly{display:block !important;}
@@ -356,8 +439,6 @@
 </head>
 
 <body>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
 <div class="wrap" id="app">
   <div class="topbar">
     <div class="brand">
@@ -366,36 +447,37 @@
       </div>
       <div>
         <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">التقارير (Reports) — يومي/أسبوعي/شهري + تحليل أصناف</div>
+        <div class="brandSub">Reports — Dashboard / KPIs / Analytics / Drilldown</div>
       </div>
     </div>
 
     <div class="topActions noPrint">
-      <a class="btn secondary" href="dashboard.html" style="text-decoration:none">← رجوع للداش بورد</a>
-      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
+      <a class="btn secondary" href="dashboard.html" style="text-decoration:none">⬅ رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">🚪 تسجيل خروج</button>
     </div>
   </div>
 
   <!-- Print header -->
   <div class="card printOnly">
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="font-weight:900;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
+      <div style="font-weight:1000;font-size:16px">تقرير الإدارة — Axentro Backoffice</div>
       <div class="muted" id="printMeta">—</div>
     </div>
   </div>
 
+  <!-- Filters -->
   <div class="card">
-    <h2>فلترة الفترة</h2>
+    <h2>فلترة التقارير</h2>
 
-    <div class="row" role="region" aria-label="فلترة">
+    <div class="row" role="region" aria-label="فلترة التقارير">
       <div>
         <label for="preset">فترة سريعة</label>
         <select id="preset" class="noPrint">
           <option value="7">آخر 7 أيام</option>
           <option value="30" selected>آخر 30 يوم</option>
           <option value="90">آخر 90 يوم</option>
-          <option value="mtd">هذا الشهر</option>
-          <option value="ytd">من بداية السنة</option>
+          <option value="mtd">هذا الشهر (MTD)</option>
+          <option value="ytd">من بداية السنة (YTD)</option>
           <option value="custom">تخصيص</option>
         </select>
         <div class="printOnly muted" id="printPreset">—</div>
@@ -404,26 +486,46 @@
       <div>
         <label for="fromDate">من تاريخ</label>
         <input id="fromDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printFrom" style="font-weight:900">—</div>
+        <div class="printOnly" id="printFrom" style="font-weight:1000">—</div>
       </div>
 
       <div>
         <label for="toDate">إلى تاريخ</label>
         <input id="toDate" type="date" class="noPrint" />
-        <div class="printOnly" id="printTo" style="font-weight:900">—</div>
+        <div class="printOnly" id="printTo" style="font-weight:1000">—</div>
       </div>
 
       <div>
-        <label>&nbsp;</label>
-        <div style="display:flex;gap:10px;flex-wrap:wrap" class="noPrint">
-          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
-          <button class="btn secondary" id="exportBtn" type="button">📤 تصدير CSV</button>
-          <button class="btn secondary" id="pdfBtn" type="button">🧾 PDF</button>
-        </div>
+        <label for="compareMode">مقارنة</label>
+        <select id="compareMode" class="noPrint">
+          <option value="none" selected>بدون</option>
+          <option value="prev_period">الفترة السابقة (Period-over-Period)</option>
+          <option value="prev_month">نفس المدة الشهر الماضي</option>
+          <option value="prev_year">نفس المدة السنة الماضية (YoY)</option>
+        </select>
       </div>
     </div>
 
-    <div class="row2" style="margin-top:10px">
+    <!-- ERP extra filters -->
+    <div class="row3" style="margin-top:10px">
+      <div class="noPrint">
+        <label for="warehouse">المخزن</label>
+        <select id="warehouse">
+          <option value="all" selected>الكل</option>
+          <option value="main">Main</option>
+          <option value="branch1">Branch 1</option>
+        </select>
+      </div>
+      <div class="noPrint">
+        <label for="payMethod">طريقة الدفع</label>
+        <select id="payMethod">
+          <option value="all" selected>الكل</option>
+          <option value="cash">CASH</option>
+          <option value="visa">VISA</option>
+          <option value="instapay">INSTAPAY</option>
+          <option value="wallet">WALLET</option>
+        </select>
+      </div>
       <div class="noPrint">
         <label for="aggMode">التجميع</label>
         <select id="aggMode">
@@ -432,6 +534,9 @@
           <option value="monthly">شهري</option>
         </select>
       </div>
+    </div>
+
+    <div class="row2" style="margin-top:10px">
       <div class="noPrint">
         <label for="topN">أفضل أصناف (Top N)</label>
         <select id="topN">
@@ -440,45 +545,115 @@
           <option value="30">Top 30</option>
         </select>
       </div>
+      <div class="noPrint">
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+          <button class="btn secondary" id="exportBtn" type="button">📤 تصدير CSV</button>
+          <button class="btn" id="pdfBtn" type="button">🧾 PDF</button>
+        </div>
+      </div>
     </div>
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
-      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
-      <div class="pill"><span class="muted">مصدر المبيعات:</span> <b id="srcSales">—</b></div>
-      <div class="pill"><span class="muted">مصدر المصروفات:</span> <b id="srcExp">—</b></div>
-      <div class="pill"><span class="muted">مصدر المشتريات:</span> <b id="srcPurch">—</b></div>
+    <div class="pillRow">
+      <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
+      <div class="pill"><span class="k">مصدر المبيعات:</span> <span id="srcSales">—</span></div>
+      <div class="pill"><span class="k">مصدر المشتريات:</span> <span id="srcPurch">—</span></div>
+      <div class="pill"><span class="k">مصدر المصروفات:</span> <span id="srcExp">—</span></div>
     </div>
 
-    <div class="muted" style="margin-top:10px;line-height:1.8">
-      ملاحظة: هذه الصفحة واجهة تقارير فقط. البيانات ستظهر بعد ربطها بـ Google Sheet.
+    <div class="subnote">
+      ملاحظة: الصفحة جاهزة ERP-Style. ربط الأرقام/الشارت سيتم بعد تثبيت شكل الداتا في Google Sheet + Code.gs.
     </div>
   </div>
 
+  <!-- KPIs -->
   <div class="card">
-    <h2>ملخص سريع</h2>
-    <div class="grid4">
+    <h2>KPIs — ملخص الإدارة</h2>
+
+    <div class="kpiGrid">
       <div class="kpi">
-        <div class="t">إجمالي المبيعات</div>
-        <div class="v" id="kpiSales">0.00</div>
+        <div class="t">Gross Sales (إجمالي المبيعات)</div>
+        <div class="v" id="kpiGrossSales">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiGrossSalesCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="gross_sales" type="button">تفاصيل</button>
+        </div>
       </div>
+
       <div class="kpi">
-        <div class="t">إجمالي المشتريات</div>
-        <div class="v" id="kpiPurch">0.00</div>
+        <div class="t">Returns (مرتجعات)</div>
+        <div class="v bad" id="kpiReturns">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiReturnsCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="returns" type="button">تفاصيل</button>
+        </div>
       </div>
+
       <div class="kpi">
-        <div class="t">إجمالي المصروفات</div>
-        <div class="v" id="kpiExp">0.00</div>
+        <div class="t">Net Sales (صافي المبيعات)</div>
+        <div class="v ok" id="kpiNetSales">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiNetSalesCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="net_sales" type="button">تفاصيل</button>
+        </div>
       </div>
+
       <div class="kpi">
-        <div class="t">صافي (تقديري)</div>
-        <div class="v" id="kpiNet">0.00</div>
+        <div class="t">COGS (تكلفة البضاعة)</div>
+        <div class="v" id="kpiCogs">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiCogsCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="cogs" type="button">تفاصيل</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="t">Gross Profit (مجمل الربح)</div>
+        <div class="v ok" id="kpiGrossProfit">0.00</div>
+        <div class="s"><span>Margin %</span><b id="kpiMarginPct">0%</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="gross_profit" type="button">تفاصيل</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="t">Expenses (المصروفات)</div>
+        <div class="v" id="kpiExpenses">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiExpensesCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="expenses" type="button">تفاصيل</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="t">Net Profit (صافي الربح)</div>
+        <div class="v" id="kpiNetProfit">0.00</div>
+        <div class="s"><span>Compare</span><b id="kpiNetProfitCmp">—</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="net_profit" type="button">تفاصيل</button>
+        </div>
+      </div>
+
+      <div class="kpi">
+        <div class="t">Invoices / AOV</div>
+        <div class="v" id="kpiInvoices">0</div>
+        <div class="s"><span>AOV</span><b id="kpiAov">0.00</b></div>
+        <div class="miniActions noPrint">
+          <button class="btn secondary" data-drill="invoices" type="button">قائمة فواتير</button>
+        </div>
       </div>
     </div>
-    <div class="muted" style="margin-top:10px;line-height:1.8">
-      صافي (تقديري) = مبيعات - مشتريات - مصروفات (إلى أن نركّب منطق الأرباح/FIFO لاحقًا).
+
+    <div class="subnote">
+      الصيغ القياسية (ERP):
+      Net Sales = Gross Sales - Returns
+      — Gross Profit = Net Sales - COGS
+      — Net Profit = Gross Profit - Expenses
     </div>
   </div>
 
+  <!-- Charts -->
   <div class="card">
     <h2>الرسوم البيانية</h2>
 
@@ -486,35 +661,42 @@
       <div class="chartBox">
         <div class="chartHead">
           <div>
-            <div class="chartTitle">مبيعات / مشتريات / مصروفات (حسب التجميع)</div>
-            <div class="chartNote">Bar — يومي/أسبوعي/شهري</div>
+            <div class="chartTitle">Sales / Purchases / Expenses</div>
+            <div class="chartNote">حسب التجميع المحدد (Daily/Weekly/Monthly)</div>
           </div>
+          <div class="tag warn">Pending Data</div>
         </div>
         <canvas id="barCanvas" width="1200" height="420" aria-label="Bar chart"></canvas>
+        <div class="chartEmpty" id="barEmpty">لا توجد بيانات بعد. سيتم رسم الشارت بعد الربط.</div>
       </div>
 
       <div class="chartBox">
         <div class="chartHead">
           <div>
-            <div class="chartTitle">توزيع المصروفات حسب النوع</div>
-            <div class="chartNote">Pie — سيتم تغذيتها لاحقًا</div>
+            <div class="chartTitle">Expenses Breakdown</div>
+            <div class="chartNote">حسب النوع/الفئة</div>
           </div>
+          <div class="tag warn">Pending Data</div>
         </div>
         <canvas id="pieCanvas" width="800" height="420" aria-label="Pie chart"></canvas>
+        <div class="chartEmpty" id="pieEmpty">لا توجد بيانات بعد. سيتم رسم الشارت بعد الربط.</div>
       </div>
 
       <div class="chartBox" style="grid-column:1/-1">
         <div class="chartHead">
           <div>
-            <div class="chartTitle">صافي الفترة (تقديري)</div>
-            <div class="chartNote">Line — سيتم تغذيته لاحقًا</div>
+            <div class="chartTitle">Net Profit Trend</div>
+            <div class="chartNote">صافي الربح عبر الوقت</div>
           </div>
+          <div class="tag warn">Pending Data</div>
         </div>
         <canvas id="lineCanvas" width="1200" height="360" aria-label="Line chart"></canvas>
+        <div class="chartEmpty" id="lineEmpty">لا توجد بيانات بعد. سيتم رسم الشارت بعد الربط.</div>
       </div>
     </div>
   </div>
 
+  <!-- Item analytics -->
   <div class="card">
     <h2>تحليل الأصناف</h2>
 
@@ -522,8 +704,8 @@
       <div class="chartBox" style="padding:14px">
         <div class="chartHead" style="padding:0 0 10px">
           <div>
-            <div class="chartTitle">الأصناف الأكثر مبيعًا</div>
-            <div class="chartNote">Top Items — لاحقًا</div>
+            <div class="chartTitle">Top Items (الأكثر مبيعًا)</div>
+            <div class="chartNote">كمية + إجمالي + هامش (لاحقًا)</div>
           </div>
           <div class="tag ok">Top</div>
         </div>
@@ -533,9 +715,10 @@
             <thead>
               <tr>
                 <th style="width:60px">#</th>
-                <th style="min-width:240px">الصنف</th>
+                <th style="min-width:260px">الصنف</th>
                 <th style="min-width:160px">الكمية</th>
-                <th style="min-width:190px">إجمالي</th>
+                <th style="min-width:180px">إجمالي</th>
+                <th style="min-width:160px">هامش %</th>
               </tr>
             </thead>
             <tbody id="topItemsBody"></tbody>
@@ -543,15 +726,15 @@
         </div>
 
         <div id="topEmpty" class="empty" style="margin-top:10px">
-          لا توجد بيانات بعد.
+          لا توجد بيانات بعد — سيتم تغذيتها من Google Sheet.
         </div>
       </div>
 
       <div class="chartBox" style="padding:14px">
         <div class="chartHead" style="padding:0 0 10px">
           <div>
-            <div class="chartTitle">أصناف غير متحركة</div>
-            <div class="chartNote">Slow Moving — لاحقًا</div>
+            <div class="chartTitle">Slow / Dead Stock</div>
+            <div class="chartNote">أصناف غير متحركة + Reorder لاحقًا</div>
           </div>
           <div class="tag bad">Slow</div>
         </div>
@@ -563,6 +746,7 @@
                 <th style="width:60px">#</th>
                 <th style="min-width:260px">الصنف</th>
                 <th style="min-width:160px">المتاح</th>
+                <th style="min-width:200px">آخر بيع</th>
               </tr>
             </thead>
             <tbody id="deadItemsBody"></tbody>
@@ -570,44 +754,72 @@
         </div>
 
         <div id="deadEmpty" class="empty" style="margin-top:10px">
-          لا توجد بيانات بعد.
+          لا توجد بيانات بعد — سيتم تغذيتها من Google Sheet.
         </div>
       </div>
     </div>
   </div>
 
+  <!-- Breakdown table -->
   <div class="card">
-    <h2>تفاصيل (حسب التجميع)</h2>
+    <h2>تفاصيل حسب التجميع</h2>
+
     <div class="table-wrap" aria-live="polite">
       <table id="tbl" role="table" aria-label="تفاصيل">
         <thead>
           <tr>
             <th style="min-width:180px">الفترة</th>
-            <th style="min-width:180px">مبيعات</th>
-            <th style="min-width:180px">مشتريات</th>
-            <th style="min-width:180px">مصروفات</th>
-            <th style="min-width:180px">صافي (تقديري)</th>
+            <th style="min-width:160px">Gross Sales</th>
+            <th style="min-width:160px">Returns</th>
+            <th style="min-width:160px">Net Sales</th>
+            <th style="min-width:160px">COGS</th>
+            <th style="min-width:160px">Gross Profit</th>
+            <th style="min-width:160px">Expenses</th>
+            <th style="min-width:160px">Net Profit</th>
           </tr>
         </thead>
         <tbody id="tbody"></tbody>
       </table>
     </div>
+
     <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
       لا توجد بيانات في الفترة المحددة.
     </div>
   </div>
+</div>
 
-  <footer class="site-footer">
-    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-    <div class="line2">By Ahmed Hamouda</div>
+<footer class="site-footer">
+  <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+  <div class="line2">By Ahmed Hamouda</div>
+</footer>
 
-    <div class="qrBox">
-      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
-        <span class="qrText">Scan me</span>
-      </a>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- Drilldown Modal -->
+<div class="modal" id="drillModal" aria-hidden="true">
+  <div class="modalCard" role="dialog" aria-modal="true" aria-label="تفاصيل المؤشر">
+    <div class="modalHeader">
+      <div>
+        <strong id="drillTitle">تفاصيل</strong>
+        <div class="modalMeta" id="drillMeta">—</div>
+      </div>
+      <div class="modalActions">
+        <button class="btn secondary" id="drillExportBtn" type="button">📤 CSV</button>
+        <button class="btn danger" id="drillCloseBtn" type="button">✖ إغلاق</button>
+      </div>
     </div>
-  </footer>
+    <div class="modalBody">
+      <div class="empty" id="drillEmpty">
+        سيتم عرض التفاصيل هنا بعد ربط البيانات (Invoices / Rows / Items).
+      </div>
+      <div class="table-wrap" id="drillTblWrap" style="display:none">
+        <table id="drillTbl" role="table" aria-label="تفاصيل المؤشر">
+          <thead id="drillThead"></thead>
+          <tbody id="drillTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="config.js"></script>
@@ -620,34 +832,132 @@
 
   const $ = (id)=>document.getElementById(id);
 
-  // Toast (consistent)
+  // ===== Toast =====
   const toastEl = $("toast");
-  function showToast(msg){
+  function toast(msg){
     if(!toastEl) return alert(msg);
     toastEl.textContent = msg;
     toastEl.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(()=> toastEl.classList.remove("show"), 1800);
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=>toastEl.classList.remove("show"), 1900);
   }
 
-  // Logout
-  $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+  // ===== Logout =====
+  $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  // Print meta placeholders
-  function setPrintMeta(){
-    try{
-      const now = new Date();
-      const s = now.toLocaleString("ar-EG");
-      const el = $("printMeta");
-      if(el) el.textContent = "تم الإنشاء: " + s;
-    }catch(e){}
+  // ===== Dates helpers =====
+  function pad2(n){ return String(n).padStart(2,"0"); }
+  function toISO(d){
+    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
   }
-  setPrintMeta();
+  function startOfMonth(d){ return new Date(d.getFullYear(), d.getMonth(), 1); }
+  function startOfYear(d){ return new Date(d.getFullYear(), 0, 1); }
 
-  // Buttons placeholders (UI only for now)
-  $("pdfBtn")?.addEventListener("click", ()=> window.print());
-  $("exportBtn")?.addEventListener("click", ()=> showToast("واجهة فقط الآن — تصدير CSV بعد ربط الشيت."));
-  $("refreshBtn")?.addEventListener("click", ()=> showToast("واجهة فقط الآن — تحديث بعد ربط الشيت."));
+  function applyPreset(){
+    const p = $("preset")?.value || "30";
+    const now = new Date();
+    let from = null, to = null;
+
+    if(p === "custom"){
+      // leave as is
+      return;
+    }
+
+    to = new Date(now);
+    if(p === "mtd"){
+      from = startOfMonth(now);
+    }else if(p === "ytd"){
+      from = startOfYear(now);
+    }else{
+      const days = Number(p||30);
+      from = new Date(now.getTime() - (Math.max(1,days) * 86400000));
+    }
+
+    if($("fromDate")) $("fromDate").value = toISO(from);
+    if($("toDate")) $("toDate").value = toISO(to);
+  }
+
+  // Init preset dates
+  applyPreset();
+
+  $("preset")?.addEventListener("change", ()=>{
+    applyPreset();
+  });
+
+  // ===== Print meta =====
+  function updatePrintMeta(){
+    const from = $("fromDate")?.value || "—";
+    const to = $("toDate")?.value || "—";
+    const presetTxt = $("preset")?.options[$("preset")?.selectedIndex]?.textContent || "—";
+    const aggTxt = $("aggMode")?.options[$("aggMode")?.selectedIndex]?.textContent || "—";
+    const cmpTxt = $("compareMode")?.options[$("compareMode")?.selectedIndex]?.textContent || "—";
+
+    $("printMeta").textContent = `الفترة: ${from} → ${to} | التجميع: ${aggTxt} | المقارنة: ${cmpTxt}`;
+    $("printPreset").textContent = presetTxt;
+    $("printFrom").textContent = from;
+    $("printTo").textContent = to;
+  }
+  updatePrintMeta();
+  ["fromDate","toDate","aggMode","compareMode","preset"].forEach(id=>{
+    $(id)?.addEventListener("change", updatePrintMeta);
+    $(id)?.addEventListener("input", updatePrintMeta);
+  });
+
+  // ===== Buttons (placeholders for later) =====
+  $("refreshBtn")?.addEventListener("click", ()=>{
+    // لاحقًا: fetch reports data from Code.gs
+    $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
+    $("srcSales").textContent = "Pending";
+    $("srcPurch").textContent = "Pending";
+    $("srcExp").textContent = "Pending";
+    toast("✅ تم تحديث التقارير (واجهة فقط — الربط لاحقًا)");
+  });
+
+  $("exportBtn")?.addEventListener("click", ()=>{
+    toast("📤 تصدير CSV سيتم تفعيله بعد ربط البيانات");
+  });
+
+  $("pdfBtn")?.addEventListener("click", ()=>{
+    updatePrintMeta();
+    toast("🧾 سيتم فتح نافذة الطباعة");
+    setTimeout(()=>window.print(), 250);
+  });
+
+  // ===== Drilldown modal =====
+  const drillModal = $("drillModal");
+  function showDrill(title, meta){
+    $("drillTitle").textContent = title || "تفاصيل";
+    $("drillMeta").textContent = meta || "—";
+    drillModal.style.display = "flex";
+    drillModal.setAttribute("aria-hidden","false");
+  }
+  function hideDrill(){
+    drillModal.style.display = "none";
+    drillModal.setAttribute("aria-hidden","true");
+  }
+  $("drillCloseBtn")?.addEventListener("click", hideDrill);
+  drillModal?.addEventListener("click", (e)=>{
+    if(e.target === drillModal) hideDrill();
+  });
+
+  document.querySelectorAll("[data-drill]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const key = btn.getAttribute("data-drill") || "";
+      const from = $("fromDate")?.value || "—";
+      const to = $("toDate")?.value || "—";
+      showDrill(`تفاصيل: ${key}`, `الفترة: ${from} → ${to}`);
+    });
+  });
+
+  $("drillExportBtn")?.addEventListener("click", ()=>{
+    toast("📤 تصدير تفاصيل Drilldown سيتم بعد ربط البيانات");
+  });
+
+  // ===== Initial sources placeholders =====
+  $("lastSyncTxt").textContent = "—";
+  $("srcSales").textContent = "—";
+  $("srcPurch").textContent = "—";
+  $("srcExp").textContent = "—";
 
 })();
 </script>
