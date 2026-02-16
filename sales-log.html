@@ -310,7 +310,6 @@
 
     <div class="topActions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
-      <a class="btn secondary" href="deleted.html">🗑️ المحذوفات</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
@@ -831,27 +830,17 @@
     tbody.querySelectorAll("[data-edit]").forEach(btn=>{
       btn.addEventListener("click", ()=>{
         const inv = btn.getAttribute("data-edit") || "";
-        if(!inv){ showToast("⚠️ رقم الفاتورة غير صحيح"); return; }
-        location.href = "Sales-invoice.html?mode=edit&invoice=" + encodeURIComponent(inv);
+        const row = RAW.find(x => String(x.invNo||"") === String(inv));
+        if(!row){ showToast("⚠️ لم يتم العثور على الفاتورة"); return; }
+        showEditModal(row);
       });
     });
     tbody.querySelectorAll("[data-del]").forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
+      btn.addEventListener("click", ()=>{
         const inv = btn.getAttribute("data-del") || "";
-        if(!inv){ showToast("⚠️ رقم الفاتورة غير صحيح"); return; }
-        if(!confirm("تأكيد نقل الفاتورة إلى المحذوفات؟\n(سيتم عكس تأثيرها على المخزون)") ) return;
-        try{
-          showToast("⏳ جاري الحذف...");
-          await AxentroApi.softDeleteSaleInvoice(inv);
-          RAW = RAW.filter(r => String(r.invNo||"") !== String(inv));
-          saveCache(RAW);
-          setLastSync(Date.now());
-          applyFiltersAndRender();
-          showToast("✅ تم نقل الفاتورة إلى المحذوفات");
-        }catch(e){
-          console.warn(e);
-          showToast("⚠️ فشل الحذف.\n" + (e && e.message ? e.message : String(e)));
-        }
+        const row = RAW.find(x => String(x.invNo||"") === String(inv));
+        if(!row){ showToast("⚠️ لم يتم العثور على الفاتورة"); return; }
+        showEditModal(row);
       });
     });
   }

@@ -274,7 +274,6 @@
 
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
       <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
-      <a class="btn secondary" href="deleted.html">🗑️ المحذوفات</a>
       <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
     </div>
   </div>
@@ -347,7 +346,6 @@
             <th style="min-width:160px">الإجمالي</th>
             <th style="min-width:160px">طريقة السداد</th>
             <th style="min-width:260px">ملاحظة</th>
-            <th style="min-width:180px">إجراءات</th>
           </tr>
         </thead>
         <tbody id="logBody"></tbody>
@@ -602,42 +600,8 @@
         <td data-label="الإجمالي"><span class="tag">${fmtMoney(r.finalTotal)}</span></td>
         <td data-label="طريقة السداد">${pay}</td>
         <td data-label="ملاحظة" class="left">${notes || "—"}</td>
-        <td data-label="إجراءات">
-          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-            <button class="btn secondary" type="button" data-edit="${inv}">✏️ تعديل</button>
-            <button class="btn danger" type="button" data-del="${inv}">🗑️ حذف</button>
-          </div>
-        </td>
       `;
       tbody.appendChild(tr);
-    });
-
-    tbody.querySelectorAll('[data-edit]').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        const inv = btn.getAttribute('data-edit') || '';
-        if(!inv){ showToast('⚠️ رقم الفاتورة غير صحيح'); return; }
-        location.href = 'Purchase-invoice.html?mode=edit&invoice=' + encodeURIComponent(inv);
-      });
-    });
-
-    tbody.querySelectorAll('[data-del]').forEach(btn=>{
-      btn.addEventListener('click', async ()=>{
-        const inv = btn.getAttribute('data-del') || '';
-        if(!inv){ showToast('⚠️ رقم الفاتورة غير صحيح'); return; }
-        if(!confirm('تأكيد نقل فاتورة المشتريات إلى المحذوفات؟\n(ممنوع الحذف إذا تم استهلاكها FIFO)')) return;
-        try{
-          showToast('⏳ جاري الحذف...');
-          await AxentroApi.softDeletePurchaseInvoice(inv);
-          RAW = RAW.filter(r => String(r.invNo||'') !== String(inv));
-          saveCache(RAW);
-          setLastSync(Date.now());
-          applyFiltersAndRender();
-          showToast('✅ تم نقل الفاتورة إلى المحذوفات');
-        }catch(e){
-          console.warn(e);
-          showToast('⚠️ فشل الحذف.\n' + (e && e.message ? e.message : String(e)));
-        }
-      });
     });
   }
 
