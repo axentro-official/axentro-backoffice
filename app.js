@@ -174,6 +174,21 @@
     // ===== Expenses =====
     async getExpenses(){ return apiCall("get_expenses", {}); },
     async createExpense(payload){ return apiCall("create_expense", payload); },
+
+    // ===== Full invoice view/edit/delete/restore/purge =====
+    async getSaleInvoice(invoice_no){ return apiCall("get_sale_invoice", { invoice_no }); },
+    async updateSaleInvoice(payload){ return apiCall("update_sale_invoice", payload); },
+    async softDeleteSaleInvoice(invoice_no){ return apiCall("soft_delete_sale_invoice", { invoice_no }); },
+    async listDeletedSales(){ return apiCall("list_deleted_sales", {}); },
+    async restoreSaleInvoice(invoice_no){ return apiCall("restore_sale_invoice", { invoice_no }); },
+    async purgeSaleInvoice(invoice_no){ return apiCall("purge_sale_invoice", { invoice_no }); },
+
+    async getPurchaseInvoice(invoice_no){ return apiCall("get_purchase_invoice", { invoice_no }); },
+    async updatePurchaseInvoice(payload){ return apiCall("update_purchase_invoice", payload); },
+    async softDeletePurchaseInvoice(invoice_no){ return apiCall("soft_delete_purchase_invoice", { invoice_no }); },
+    async listDeletedPurchases(){ return apiCall("list_deleted_purchases", {}); },
+    async restorePurchaseInvoice(invoice_no){ return apiCall("restore_purchase_invoice", { invoice_no }); },
+    async purgePurchaseInvoice(invoice_no){ return apiCall("purge_purchase_invoice", { invoice_no }); },
   };
 
   // Expose globally

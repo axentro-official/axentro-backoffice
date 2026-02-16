@@ -501,6 +501,7 @@
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
       <button class="btn" id="saveBtn" type="button">💾 حفظ في النظام</button>
+      <button class="btn danger" id="deleteBtn" type="button" style="display:none">🗑️ نقل للمحذوفات</button>
       <button class="btn secondary" id="printA4Btn" type="button">🖨️ طباعة وحفظ A4</button>
       <button class="btn secondary" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
       <button class="btn secondary" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
@@ -885,6 +886,12 @@
   }, true);
 
   // ===== Items state =====
+  // ===== Edit mode (full page) =====
+  const qp = new URLSearchParams(location.search || '');
+  const PAGE_MODE = String(qp.get('mode') || 'create').toLowerCase();
+  const EDIT_INVOICE_NO = String(qp.get('invoice') || '').trim();
+  const IS_EDIT = (PAGE_MODE === 'edit' && !!EDIT_INVOICE_NO);
+
   let items = []; // {barcode, name, qty, unit_cost, isNew}
 
   const itemsBody = document.getElementById('itemsBody');
@@ -980,13 +987,8 @@
       outBarcode = String(p.barcode||"").trim();
       outName = String(p.name||"").trim();
     }else{
-      // جديد:
-      // - لو الإدخال كان Barcode (Scanner) نخزنه كـ EXTERNAL بدل ما نسيبه فاضي (الذي ينتج INTERNAL بالخطأ)
-      // - لو الإدخال كان اسم فقط، نسيبه فاضي عشان السيرفر يولّد INTERNAL barcode
-      const rawLookup = String(lookup || "").trim();
-      const isLikelyBarcode = (v) => /^[0-9]{8,}$/.test(String(v || "").trim());
-      outBarcode = isLikelyBarcode(rawLookup) ? rawLookup : "";
-
+      // جديد: السيرفر يولّد Barcode + SKU => نرسل barcode فاضي
+      outBarcode = "";
       outName = nameManual || lookup;
       if(!outName) return toast('اكتب اسم المنتج للصنف الجديد');
     }
@@ -1036,6 +1038,7 @@
       }
 
       const payload = {
+        invoice_no: document.getElementById('invNo').value,
         supplier,
         invoice_date,
         discount: Math.max(0, toNum(document.getElementById('discount').value)),
@@ -1055,13 +1058,13 @@
         }))
       };
 
-      const out = await AxentroApi.createPurchase(payload);
+      const out = IS_EDIT ? await AxentroApi.updatePurchaseInvoice(payload) : await AxentroApi.createPurchase(payload);
 
       const invNo = (out && (out.purchase_invoice_no || out.invoice_no || out.invNo)) ? (out.purchase_invoice_no || out.invoice_no || out.invNo) : "";
       if(invNo) document.getElementById('invNo').value = invNo;
 
       if(out && (out.ok || invNo)){
-        showMsg("ok", `✅ تم حفظ فاتورة المشتريات بنجاح${invNo ? ("\nرقم الفاتورة: " + invNo) : ""}`);
+        showMsg("ok", IS_EDIT ? `✅ تم حفظ التعديلات بنجاح${invNo ? ("\nرقم الفاتورة: " + invNo) : ""}` : `✅ تم حفظ فاتورة المشتريات بنجاح${invNo ? ("\nرقم الفاتورة: " + invNo) : ""}`);
       }else{
         showMsg("bad", (out && (out.error||out.message)) ? (out.error||out.message) : "فشل الحفظ");
         return;
@@ -1333,12 +1336,59 @@
   document.getElementById('thermal80Btn').addEventListener('click', ()=> printThermal(80));
   document.getElementById('thermal58Btn').addEventListener('click', ()=> printThermal(58));
 
-  (async function initInvoiceNo(){
+  (async function initInvoice(){
     try{
-      const fallback = "PU001";
       const el = document.getElementById('invNo');
-      if(!el.value) el.value = fallback;
-    }catch(e){}
+      if(IS_EDIT){
+        el.value = EDIT_INVOICE_NO;
+        document.getElementById('saveBtn').textContent = '💾 حفظ التعديلات';
+        const delBtn = document.getElementById('deleteBtn');
+        delBtn.style.display = '';
+
+        const out = await AxentroApi.getPurchaseInvoice(EDIT_INVOICE_NO);
+        const inv = out.invoice || {};
+        const its = Array.isArray(out.items) ? out.items : [];
+
+        document.getElementById('supplier').value = inv.supplier || '';
+        document.getElementById('supplierPhone').value = inv.supplier_phone || '';
+        document.getElementById('invDate').value = inv.invoice_date ? new Date(inv.invoice_date).toISOString().slice(0,10) : '';
+        document.getElementById('discount').value = Number(inv.discount||0) || 0;
+        document.getElementById('tax').value = Number(inv.tax||0) || 0;
+        document.getElementById('notes').value = inv.notes || '';
+        document.getElementById('payMethod').value = inv.pay_method || inv.payment_method || '';
+
+        // build product name map
+        let prodByBarcode = new Map();
+        try{
+          const pro = await AxentroApi.getProducts();
+          (pro.products||[]).forEach(p=>{ if(p.barcode) prodByBarcode.set(String(p.barcode), p.name||''); });
+        }catch(e){}
+
+        items = its.map(x=>({
+          barcode: String(x.barcode||'').trim(),
+          name: prodByBarcode.get(String(x.barcode||'')) || String(x.name||'') || '',
+          qty: Number(x.qty||0),
+          unit_cost: Number(x.unit_cost||0),
+          isNew: false
+        }));
+        render();
+
+        delBtn.addEventListener('click', async ()=>{
+          if(!confirm('تأكيد نقل فاتورة المشتريات إلى المحذوفات؟\n(ممنوع الحذف إذا تم استهلاكها FIFO)')) return;
+          try{
+            showMsg('warn','⏳ جاري الحذف...');
+            await AxentroApi.softDeletePurchaseInvoice(EDIT_INVOICE_NO);
+            showMsg('ok','✅ تم نقل الفاتورة إلى المحذوفات');
+            setTimeout(()=> location.href = 'purchases-log.html', 500);
+          }catch(e){
+            showMsg('bad', e && e.message ? e.message : String(e));
+          }
+        });
+      }else{
+        const fallback = 'PU001';
+        if(!el.value) el.value = fallback;
+      }
+    }catch(e){ console.warn(e); }
   })();
 
   // ===== Scanner =====

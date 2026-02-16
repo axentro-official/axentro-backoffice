@@ -497,6 +497,7 @@
 
     <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
       <button class="btn" id="saveBtn" type="button">💾 حفظ في النظام</button>
+      <button class="btn danger" id="deleteBtn" type="button" style="display:none">🗑️ نقل للمحذوفات</button>
       <button class="btn secondary" id="printA4Btn" type="button">🖨️ طباعة وحفظ A4</button>
       <button class="btn secondary" id="thermal80Btn" type="button">🧾 طباعة حراري 80mm</button>
       <button class="btn secondary" id="thermal58Btn" type="button">🧾 طباعة حراري 58mm</button>
@@ -685,6 +686,12 @@
   }
 
   // ===== Items state =====
+  // ===== Edit mode (full page) =====
+  const qp = new URLSearchParams(location.search || '');
+  const PAGE_MODE = String(qp.get('mode') || 'create').toLowerCase();
+  const EDIT_INVOICE_NO = String(qp.get('invoice') || '').trim();
+  const IS_EDIT = (PAGE_MODE === 'edit' && !!EDIT_INVOICE_NO);
+
   let items = []; // {barcode, product_id, name, qty, unit_price}
 
   const barcodeInp = document.getElementById('barcode');
@@ -1053,9 +1060,9 @@
           unit_price: toNum(it.unit_price),
         }))
       };
-      const out = await AxentroApi.createSale(payload);
+      const out = IS_EDIT ? await AxentroApi.updateSaleInvoice(payload) : await AxentroApi.createSale(payload);
       if(out && out.ok){
-        showMsg("ok", "✅ تم حفظ الفاتورة بنجاح");
+        showMsg("ok", IS_EDIT ? "✅ تم حفظ التعديلات بنجاح" : "✅ تم حفظ الفاتورة بنجاح");
       }else{
         showMsg("bad", (out && (out.error||out.message)) ? (out.error||out.message) : "فشل الحفظ");
       }
@@ -1335,13 +1342,59 @@
   document.getElementById('thermal80Btn').addEventListener('click', ()=> printThermal(80));
   document.getElementById('thermal58Btn').addEventListener('click', ()=> printThermal(58));
 
-  // ===== Invoice number SA001 =====
-  (async function initInvoiceNo(){
+  // ===== Invoice init (Create / Edit) =====
+  (async function initInvoice(){
     try{
-      const fallback = "SA001";
       const el = document.getElementById('invNo');
-      if(!el.value) el.value = fallback;
-    }catch(e){}
+      if(IS_EDIT){
+        el.value = EDIT_INVOICE_NO;
+        document.getElementById('saveBtn').textContent = '💾 حفظ التعديلات';
+        const delBtn = document.getElementById('deleteBtn');
+        delBtn.style.display = '';
+
+        // Load invoice + items
+        const out = await AxentroApi.getSaleInvoice(EDIT_INVOICE_NO);
+        const inv = out.invoice || {};
+        const its = Array.isArray(out.items) ? out.items : [];
+
+        // header fields
+        document.getElementById('invDate').value = inv.invoice_date ? new Date(inv.invoice_date).toISOString().slice(0,10) : '';
+        document.getElementById('customerName').value = inv.customer || '';
+        document.getElementById('customerPhone').value = inv.customer_phone || '';
+        document.getElementById('customerAddress').value = inv.customer_address || '';
+        document.getElementById('payMethod').value = inv.payment_method || '';
+        document.getElementById('discount').value = Number(inv.discount||0) || 0;
+        document.getElementById('shipping').value = Number(inv.shipping||0) || 0;
+
+        // items
+        items = its.map(x=>({
+          barcode: String(x.barcode||'').trim(),
+          product_id: String(x.product_id||'').trim(),
+          name: String(x.name||'').trim(),
+          qty: Number(x.qty||0),
+          unit_price: Number(x.unit_price||0)
+        }));
+        render();
+
+        // Delete (soft)
+        delBtn.addEventListener('click', async ()=>{
+          if(!confirm('تأكيد نقل الفاتورة إلى المحذوفات؟\n(سيتم عكس تأثيرها على المخزون)')) return;
+          try{
+            showMsg('warn','⏳ جاري الحذف...');
+            await AxentroApi.softDeleteSaleInvoice(EDIT_INVOICE_NO);
+            showMsg('ok','✅ تم نقل الفاتورة إلى المحذوفات');
+            setTimeout(()=> location.href = 'sales-log.html', 500);
+          }catch(e){
+            showMsg('bad', e && e.message ? e.message : String(e));
+          }
+        });
+      }else{
+        const fallback = 'SA001';
+        if(!el.value) el.value = fallback;
+      }
+    }catch(e){
+      console.warn(e);
+    }
   })();
 
   // ===== Scanner (Barcode) =====
