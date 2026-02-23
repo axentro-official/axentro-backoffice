@@ -451,7 +451,6 @@
 
       <div>
         <label for="productName">اسم المنتج (تلقائي لو موجود / يدوي لو جديد)</label>
-        <!-- ✅ هنا الفرق: مش readonly -->
         <input id="productName" placeholder="لو الصنف جديد اكتب الاسم هنا" />
       </div>
     </div>
@@ -557,6 +556,38 @@
     setTimeout(()=>toastEl.classList.remove('show'), 2200);
   }
 
+  // ===== ✅ نفس منطق الصوت بتاع Sales بالظبط =====
+  const _scanAudio = new Audio("assets/scan.mp3");
+  _scanAudio.preload = "auto";
+  _scanAudio.volume = 1;
+
+  function primeScanAudio(){
+    try{
+      _scanAudio.volume = 1;
+      _scanAudio.currentTime = 0;
+      const p = _scanAudio.play();
+      if(p && typeof p.then === "function"){
+        p.then(()=>{
+          _scanAudio.pause();
+          _scanAudio.currentTime = 0;
+        }).catch(()=>{});
+      }else{
+        _scanAudio.pause();
+        _scanAudio.currentTime = 0;
+      }
+    }catch(e){}
+  }
+
+  function playScanSound(){
+    try{
+      _scanAudio.volume = 1;
+      _scanAudio.pause();
+      _scanAudio.currentTime = 0;
+      const p = _scanAudio.play();
+      if(p && typeof p.catch === "function") p.catch(()=>{});
+    }catch(e){}
+  }
+
   const elMsg = {
     ok: document.getElementById('msgOk'),
     warn: document.getElementById('msgWarn'),
@@ -591,37 +622,6 @@
   function escapeHtml(str){
     return String(str||"")
       .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
-  }
-
-  // ===== ✅ Scan Sound (file) =====
-  const SCAN_SOUND_SRC = "assets/scan.mp3"; // غيّر الاسم لو مختلف
-  let scanAudio = null;
-
-  async function initScanAudio(){
-    try{
-      if(!scanAudio){
-        scanAudio = new Audio(SCAN_SOUND_SRC);
-        scanAudio.preload = "auto";
-        scanAudio.volume = 1.0;
-        scanAudio.playsInline = true;
-      }
-      scanAudio.muted = true;
-      const p = scanAudio.play();
-      if(p && typeof p.then === "function") await p.catch(()=>{});
-      scanAudio.pause();
-      scanAudio.currentTime = 0;
-      scanAudio.muted = false;
-    }catch(e){}
-  }
-
-  function playScanSound(){
-    try{
-      if(!scanAudio) return;
-      scanAudio.volume = 1.0;
-      scanAudio.currentTime = 0;
-      const p = scanAudio.play();
-      if(p && typeof p.catch === "function") p.catch(()=>{});
-    }catch(e){}
   }
 
   // ===== Invoice date default =====
@@ -730,29 +730,20 @@
 
   function fillKnownProductIfExists(){
     const raw = String(barcodeInp.value||'').trim();
-    if(!raw){
-      // سيب الاسم زي ما هو (ممكن المستخدم كاتبه)
-      return;
-    }
+    if(!raw) return;
 
-    // 1) match by barcode
     const p = productsByBarcode.get(raw);
     if(p){
       productNameInp.value = p.name || '';
       return;
     }
 
-    // 2) match by name typed in barcode field (user writes name)
     const byName = findByName(raw);
     if(byName){
       productNameInp.value = byName.name || '';
-      // لو المستخدم اختار اسم موجود، ممكن نخلي الباركود الحقيقي يظهر بدل الاسم
       if(byName.barcode) barcodeInp.value = byName.barcode;
       return;
     }
-
-    // not found: خليه يكتب اسم المنتج يدوي في productNameInp
-    // (متعملش مسح للاسم عشان لو كان كاتب)
   }
 
   function selectSuggested(i){
@@ -764,7 +755,6 @@
 
     barcodeInp.value = "";
     requestAnimationFrame(()=>{
-      // نفضّل الباركود الحقيقي
       barcodeInp.value = p.barcode || "";
       productNameInp.value = p.name || "";
       unitCostInp.focus();
@@ -826,7 +816,6 @@
     suggestIndex = list.length ? 0 : -1;
     renderSuggest();
 
-    // في نفس الوقت جرّب يملأ الاسم تلقائي لو match قوي
     fillKnownProductIfExists();
   }
 
@@ -886,14 +875,12 @@
   }, true);
 
   // ===== Items state =====
-  // ===== Edit mode (full page) =====
   const qp = new URLSearchParams(location.search || '');
   const PAGE_MODE = String(qp.get('mode') || 'create').toLowerCase();
   const EDIT_INVOICE_NO = String(qp.get('invoice') || '').trim();
   const IS_EDIT = (PAGE_MODE === 'edit' && !!EDIT_INVOICE_NO);
 
   let items = []; // {barcode, name, qty, unit_cost, isNew}
-
   const itemsBody = document.getElementById('itemsBody');
 
   function calcLineTotal(it){
@@ -960,18 +947,16 @@
   document.getElementById('discount').addEventListener('input', render);
   document.getElementById('tax').addEventListener('input', render);
 
-  // ✅ منطق إضافة صنف مشتريات
+  // ✅ منطق إضافة صنف مشتريات (internal/external بدون تغيير)
   document.getElementById('addItemBtn').addEventListener('click', ()=>{
-    const lookup = String(barcodeInp.value||'').trim();      // باركود أو اسم
-    const nameManual = String(productNameInp.value||'').trim(); // اسم يدوي
+    const lookup = String(barcodeInp.value||'').trim();
+    const nameManual = String(productNameInp.value||'').trim();
     const qty = toNum(qtyInp.value);
     const unit_cost = toNum(unitCostInp.value);
 
     if(!lookup && !nameManual) return toast('اكتب/امسح الباركود أو اكتب اسم المنتج');
     if(qty <= 0) return toast('الكمية غير صحيحة');
     if(unit_cost <= 0) return toast('اكتب سعر الشراء');
-
-    // حاول يحدد لو المنتج موجود
 
     let p = null;
     if (lookup) {
@@ -980,27 +965,21 @@
       p = findByName(nameManual);
     }
 
-    let outBarcode = \"\";
-    let outName = \"\";
+    let outBarcode = "";
+    let outName = "";
 
     if (p) {
-      // ✅ موجود
-      outBarcode = String(p.barcode || \"\").trim();
-      outName = String(p.name || \"\").trim();
+      outBarcode = String(p.barcode || "").trim();
+      outName = String(p.name || "").trim();
     } else {
-      // 🆕 جديد
-      // لو المستخدم مسح/كتب Barcode في خانة البحث + كتب اسم المنتج => اعتبره Barcode خارجي
       const lookupLooksLikeBarcode = !!(lookup && nameManual && !/\s/.test(lookup));
-
       if (lookupLooksLikeBarcode) {
         outBarcode = lookup;
         outName = nameManual;
       } else {
-        // بدون Barcode خارجي: السيرفر يولّد Barcode داخلي + SKU
-        outBarcode = \"\";
-        outName = (nameManual || lookup || \"\").trim();
+        outBarcode = "";
+        outName = (nameManual || lookup || "").trim();
       }
-
       if (!outName) return toast('اكتب اسم المنتج للصنف الجديد');
 
       if (outBarcode) {
@@ -1011,7 +990,7 @@
     }
 
     items.push({
-      barcode: outBarcode,     // لو جديد: ""
+      barcode: outBarcode,
       name: outName,
       qty,
       unit_cost,
@@ -1038,7 +1017,7 @@
     render();
   });
 
-  // ===== Save to system (createPurchase) =====
+  // ===== Save to system (createPurchase / updatePurchaseInvoice) =====
   document.getElementById('saveBtn').addEventListener('click', async ()=>{
     try{
       showMsg("warn", "جاري الحفظ...");
@@ -1069,7 +1048,6 @@
         supplier_address: String(document.getElementById('supplierAddress').value||'').trim(),
         pay_method: String(document.getElementById('payMethod').value||'').trim(),
         items: items.map(it=>({
-          // ✅ لو الصنف جديد: barcode فاضي => السيرفر يولّد Barcode + SKU
           barcode: String(it.barcode||'').trim(),
           name: String(it.name||'').trim(),
           qty: toNum(it.qty),
@@ -1091,7 +1069,6 @@
         return;
       }
 
-      // clear items only
       items = [];
       render();
       barcodeInp.value = "";
@@ -1298,7 +1275,6 @@
   .item .name{font-weight:900;font-size:12px;line-height:1.5}
   .item .meta{display:flex;justify-content:space-between;gap:8px;font-weight:700;font-size:11px;line-height:1.6;margin-top:2px}
   .item .meta .l,.item .meta .r{direction:ltr;text-align:left;unicode-bidi:embed}
-
   .logoWrap{display:flex;justify-content:center;margin-bottom:6px; page-break-inside: avoid; break-inside: avoid;}
   .logoWrap img{width:34px;height:34px;object-fit:contain}
   .qrWrap{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:10px; page-break-inside: avoid; break-inside: avoid;}
@@ -1357,10 +1333,9 @@
   document.getElementById('thermal80Btn').addEventListener('click', ()=> printThermal(80));
   document.getElementById('thermal58Btn').addEventListener('click', ()=> printThermal(58));
 
+  // ===== Init invoice (Create / Edit) =====
   (async function initInvoice(){
     try{
-      // Role guardrails
-      if(!window.AxentroRoles){ console.warn('AxentroRoles missing'); }
       const role = window.AxentroRoles ? window.AxentroRoles.axRole() : (localStorage.getItem('ax_role')||'viewer');
       const canCreate = window.AxentroRoles ? window.AxentroRoles.axCanCreate() : (role==='admin' || role==='sales');
       const canEdit = window.AxentroRoles ? window.AxentroRoles.axCanEdit() : (role==='admin');
@@ -1377,13 +1352,6 @@
         if(saveBtn) saveBtn.style.display = 'none';
         const addItemBtn = document.getElementById('addItemBtn');
         if(addItemBtn) addItemBtn.style.display = 'none';
-        const pA4 = document.getElementById('printA4Btn');
-        if(pA4) pA4.dataset.allowReadonly = '1';
-        const t80 = document.getElementById('thermal80Btn');
-        if(t80) t80.dataset.allowReadonly = '1';
-        const t58 = document.getElementById('thermal58Btn');
-        if(t58) t58.dataset.allowReadonly = '1';
-
         if(window.AxentroRoles) window.AxentroRoles.axSetReadOnly(document.body);
       }
 
@@ -1398,15 +1366,16 @@
         const inv = out.invoice || {};
         const its = Array.isArray(out.items) ? out.items : [];
 
-        document.getElementById('supplier').value = inv.supplier || '';
+        // ✅ FIX: supplierName بدل supplier
+        document.getElementById('supplierName').value = inv.supplier || '';
         document.getElementById('supplierPhone').value = inv.supplier_phone || '';
+        document.getElementById('supplierAddress').value = inv.supplier_address || '';
         document.getElementById('invDate').value = inv.invoice_date ? new Date(inv.invoice_date).toISOString().slice(0,10) : '';
         document.getElementById('discount').value = Number(inv.discount||0) || 0;
         document.getElementById('tax').value = Number(inv.tax||0) || 0;
         document.getElementById('notes').value = inv.notes || '';
         document.getElementById('payMethod').value = inv.pay_method || inv.payment_method || '';
 
-        // build product name map
         let prodByBarcode = new Map();
         try{
           const pro = await AxentroApi.getProducts();
@@ -1440,7 +1409,7 @@
     }catch(e){ console.warn(e); }
   })();
 
-  // ===== Scanner =====
+  // ===== Scanner (مطابق لـ Sales) =====
   const scanModal = document.getElementById('scanModal');
   const scanBtn = document.getElementById('scanBtn');
   const closeScanBtn = document.getElementById('closeScanBtn');
@@ -1508,8 +1477,6 @@
               await stopCamera();
               hideModal();
 
-              // لو المنتج معروف: focus على السعر
-              // لو مش معروف: focus على الاسم عشان يكتبه
               const known = productsByBarcode.get(raw);
               if(known){
                 unitCostInp.focus();
@@ -1530,7 +1497,7 @@
 
   scanBtn.addEventListener('click', async ()=>{
     try{
-      await initScanAudio();
+      primeScanAudio(); // ✅ نفس سلوك Sales
       showModal();
       await startCamera();
     }catch(e){
