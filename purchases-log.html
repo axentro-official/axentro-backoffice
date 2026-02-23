@@ -604,7 +604,7 @@
         <td data-label="ملاحظة" class="left">${notes || "—"}</td>
         <td data-label="إجراءات">
           <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-            <button class="btn secondary" type="button" data-edit="${inv}">✏️ تعديل</button>
+            ${CAN_EDIT ? `<button class="btn secondary" type="button" data-edit="${inv}">✏️ تعديل</button>` : `<a class="btn secondary" href="Purchase-invoice.html?edit=${encodeURIComponent(inv)}">👁️ عرض</a>`}
             <button class="btn danger" type="button" data-del="${inv}">🗑️ حذف</button>
           </div>
         </td>
@@ -612,7 +612,7 @@
       tbody.appendChild(tr);
     });
 
-    tbody.querySelectorAll('[data-edit]').forEach(btn=>{
+    if(CAN_EDIT) tbody.querySelectorAll('[data-edit]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const inv = btn.getAttribute('data-edit') || '';
         if(!inv){ showToast('⚠️ رقم الفاتورة غير صحيح'); return; }

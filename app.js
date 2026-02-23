@@ -191,6 +191,46 @@
     async purgePurchaseInvoice(invoice_no){ return apiCall("purge_purchase_invoice", { invoice_no }); },
   };
 
+  // ===== Role helpers (UI guardrails) =====
+  function axRole(){ return (localStorage.getItem("ax_role") || "viewer").toLowerCase(); }
+  function axIsAdmin(){ return axRole() === "admin"; }
+  function axIsSales(){ return axRole() === "sales"; }
+  function axIsViewer(){ return axRole() === "viewer"; }
+  function axCanCreate(){ return axIsAdmin() || axIsSales(); }
+  function axCanEdit(){ return axIsAdmin(); }
+
+  function axRequire(allowedRoles, redirectTo){
+    const role = axRole();
+    const ok = Array.isArray(allowedRoles) ? allowedRoles.includes(role) : (role === allowedRoles);
+    if(ok) return true;
+    alert('Unauthorized: role="' + role + '"');
+    window.location.href = redirectTo || "dashboard.html";
+    return false;
+  }
+
+  function axSetReadOnly(root){
+    const el = (typeof root === "string") ? document.querySelector(root) : root;
+    if(!el) return;
+
+    // Disable inputs/selects/textareas/buttons except navigation and logout
+    el.querySelectorAll("input, select, textarea, button").forEach((n)=>{
+      const id = (n.id||"").toLowerCase();
+      const cls = (n.className||"").toLowerCase();
+      const keep = id.includes("logout") || cls.includes("logout") || n.dataset.allowReadonly === "1";
+      if(keep) return;
+      n.disabled = true;
+    });
+
+    // Prevent add/remove row buttons implemented as links
+    el.querySelectorAll("a").forEach((a)=>{
+      if(a.dataset.allowReadonly === "1") return;
+      if((a.getAttribute("href")||"").toLowerCase().endsWith(".html")) return;
+      a.addEventListener("click", (e)=> e.preventDefault());
+    });
+  }
+
+  window.AxentroRoles = { axRole, axIsAdmin, axIsSales, axIsViewer, axCanCreate, axCanEdit, axRequire, axSetReadOnly };
+
   // Expose globally
   window.AxentroAuth = AxentroAuth;
   window.AxentroApi = AxentroApi;

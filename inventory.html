@@ -616,6 +616,10 @@
         sheetMeta: document.getElementById("sheetMeta"),
       };
 
+      // Role guardrails
+      const role = (window.AxentroRoles ? window.AxentroRoles.axRole() : (localStorage.getItem('ax_role')||'viewer')).toLowerCase();
+      const CAN_EDIT = window.AxentroRoles ? window.AxentroRoles.axCanEdit() : (role === 'admin');
+
       function showMsg(type, text){
         el.msgOk.style.display = "none";
         el.msgWarn.style.display = "none";
@@ -800,6 +804,7 @@
         }).join("");
 
         // handlers (both views use same attribute)
+        if(CAN_EDIT)
         document.querySelectorAll("[data-edit-min]").forEach(btn => {
           btn.addEventListener("click", () => {
             const pid = btn.getAttribute("data-edit-min");
