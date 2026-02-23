@@ -116,12 +116,15 @@
       const data = await apiCall("auth_login", { id_token: idToken });
       // When approved, server returns session_token + expires_in
       if(data.status === "APPROVED" && data.session_token){
+        const role = data.role || "viewer";
         setSession({
           token: data.session_token,
           email: data.email,
-          role: data.role || "user",
+          role,
           expiresAt: nowMs() + (Number(data.expires_in || 3600) * 1000)
         });
+        // Keep legacy localStorage role key in sync for pages that still read it.
+        try { localStorage.setItem("ax_role", role); } catch(e) {}
       }
       return data;
     },
@@ -192,7 +195,13 @@
   };
 
   // ===== Role helpers (UI guardrails) =====
-  function axRole(){ return (localStorage.getItem("ax_role") || "viewer").toLowerCase(); }
+  function axRole(){
+    // 'admin' | 'sales' | 'viewer'
+    // Prefer role from session (set during login); fallback to legacy localStorage.
+    const s = getSession();
+    const r = (s && s.role) || localStorage.getItem("ax_role") || "viewer";
+    return String(r).toLowerCase();
+  }
   function axIsAdmin(){ return axRole() === "admin"; }
   function axIsSales(){ return axRole() === "sales"; }
   function axIsViewer(){ return axRole() === "viewer"; }
