@@ -416,6 +416,11 @@
         </select>
       </div>
     </div>
+
+    <div style="margin-top:10px">
+      <label for="notes">ملاحظة / مرجع</label>
+      <textarea id="notes" rows="2" placeholder="مثال: طلب واتساب / رقم طلب / ملاحظات..."></textarea>
+    </div>
   </div>
 
   <div class="card">
@@ -1049,6 +1054,7 @@
         customer_name: document.getElementById('customerName').value,
         customer_phone: document.getElementById('customerPhone').value,
         customer_address: document.getElementById('customerAddress').value,
+        notes: (document.getElementById('notes')?.value || '').trim(),
         pay_method: document.getElementById('payMethod').value,
         discount: toNum(document.getElementById('discount').value),
         shipping: toNum(document.getElementById('shipping').value),
@@ -1098,6 +1104,7 @@
     const custName = document.getElementById('customerName').value || "";
     const custPhone = document.getElementById('customerPhone').value || "";
     const custAddress = document.getElementById('customerAddress').value || "";
+    const notes = (document.getElementById('notes')?.value || "");
     const payMethod = document.getElementById('payMethod').value || "";
 
     const discount = Math.max(0, toNum(document.getElementById('discount').value));
@@ -1117,6 +1124,7 @@
     return {
       invNo, invDate, invTime,
       custName, custPhone, custAddress,
+      notes,
       payMethod,
       discount, shipping,
       items: itemsOut,
@@ -1205,6 +1213,7 @@
       <div class="custLine"><strong>الاسم:</strong> ${escapeHtml(d.custName)}</div>
       <div class="custLine"><strong>الرقم:</strong> ${escapeHtml(d.custPhone)}</div>
       <div class="custLine"><strong>العنوان:</strong> ${escapeHtml(d.custAddress)}</div>
+      ${d.notes ? `<div class="custLine"><strong>ملاحظة:</strong> ${escapeHtml(d.notes)}</div>` : ``}
     </div>
   </div>
 
@@ -1308,6 +1317,7 @@
   <div class="m">الاسم: ${escapeHtml(d.custName)}</div>
   <div class="m">الرقم: ${escapeHtml(d.custPhone)}</div>
   <div class="m">العنوان: ${escapeHtml(d.custAddress)}</div>
+  ${d.notes ? `<div class="m">ملاحظة: ${escapeHtml(d.notes)}</div>` : ``}
 
   <div class="sep"></div>
   <div class="b">الأصناف</div>
@@ -1392,6 +1402,7 @@
         document.getElementById('customerName').value = inv.customer || '';
         document.getElementById('customerPhone').value = inv.customer_phone || '';
         document.getElementById('customerAddress').value = inv.customer_address || '';
+        if(document.getElementById('notes')) document.getElementById('notes').value = inv.notes || '';
         document.getElementById('payMethod').value = inv.payment_method || '';
         document.getElementById('discount').value = Number(inv.discount||0) || 0;
         document.getElementById('shipping').value = Number(inv.shipping||0) || 0;

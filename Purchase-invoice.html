@@ -972,25 +972,42 @@
     if(unit_cost <= 0) return toast('اكتب سعر الشراء');
 
     // حاول يحدد لو المنتج موجود
+
     let p = null;
-    if(lookup){
+    if (lookup) {
       p = productsByBarcode.get(lookup) || findByName(lookup);
-    }else if(nameManual){
+    } else if (nameManual) {
       p = findByName(nameManual);
     }
 
-    let outBarcode = "";
-    let outName = "";
+    let outBarcode = \"\";
+    let outName = \"\";
 
-    if(p){
-      // موجود
-      outBarcode = String(p.barcode||"").trim();
-      outName = String(p.name||"").trim();
-    }else{
-      // جديد: السيرفر يولّد Barcode + SKU => نرسل barcode فاضي
-      outBarcode = "";
-      outName = nameManual || lookup;
-      if(!outName) return toast('اكتب اسم المنتج للصنف الجديد');
+    if (p) {
+      // ✅ موجود
+      outBarcode = String(p.barcode || \"\").trim();
+      outName = String(p.name || \"\").trim();
+    } else {
+      // 🆕 جديد
+      // لو المستخدم مسح/كتب Barcode في خانة البحث + كتب اسم المنتج => اعتبره Barcode خارجي
+      const lookupLooksLikeBarcode = !!(lookup && nameManual && !/\s/.test(lookup));
+
+      if (lookupLooksLikeBarcode) {
+        outBarcode = lookup;
+        outName = nameManual;
+      } else {
+        // بدون Barcode خارجي: السيرفر يولّد Barcode داخلي + SKU
+        outBarcode = \"\";
+        outName = (nameManual || lookup || \"\").trim();
+      }
+
+      if (!outName) return toast('اكتب اسم المنتج للصنف الجديد');
+
+      if (outBarcode) {
+        toast('🆕 صنف جديد بباركود خارجي: سيتم إنشاء المنتج وربطه بهذا الباركود عند حفظ الفاتورة');
+      } else {
+        toast('🆕 صنف جديد بدون باركود: سيتم توليد باركود داخلي + SKU تلقائياً عند الحفظ');
+      }
     }
 
     items.push({
@@ -1009,7 +1026,11 @@
     barcodeInp.focus();
 
     if(!p){
-      showMsg("warn", "🆕 تم إضافة صنف جديد بدون باركود.\nعند حفظ الفاتورة: النظام سيولّد Barcode + SKU تلقائيًا.");
+      if(outBarcode){
+        showMsg("warn", "🆕 تم إضافة صنف جديد بباركود خارجي.\nعند حفظ الفاتورة: سيتم إنشاء المنتج وربطه بهذا الباركود + توليد SKU تلقائيًا.");
+      }else{
+        showMsg("warn", "🆕 تم إضافة صنف جديد بدون باركود.\nعند حفظ الفاتورة: النظام سيولّد Barcode داخلي + SKU تلقائيًا.");
+      }
     }else{
       showMsg("ok", "✅ تمت إضافة الصنف الموجود من النظام.");
     }
