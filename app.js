@@ -172,7 +172,6 @@
     async getPurchasesLog(){ return apiCall("get_purchases_log", {}); },
     async getSalesLog(){ return apiCall("get_sales_log", {}); },
     async getProfitSummary(){ return apiCall("get_profit_summary", {}); },
-    async getFinancialReport(payload){ return apiCall("get_financial_report", payload||{}); },
     async getDashboardSummary(){ return apiCall("get_dashboard_summary", {}); },
 
     // ===== Expenses =====

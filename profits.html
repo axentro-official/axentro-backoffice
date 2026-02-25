@@ -453,116 +453,91 @@
 
   $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
 
-  const fmt=(n)=> {
-    const x = Number(n||0);
-    const v = Math.round((isFinite(x)?x:0)*100)/100;
-    return v.toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
-  };
+  const fmt=(n)=> (Math.round((Number(n||0))*100)/100).toString();
 
-  function readFilters_(){
-    const from = $("fromDate").value ? $("fromDate").value : "";
-    const to = $("toDate").value ? $("toDate").value : "";
-    const mode = $("mode").value || "estimate";
-    return { from, to, mode };
-  }
+  let sales=[], purchases=[], expenses=[];
+  function parseDate(x){ const d=new Date(x); return isNaN(d)? null:d; }
+  function inRange(d,from,to){ if(!d) return false; if(from && d<from) return false; if(to && d>to) return false; return true; }
 
-  function render_(rep){
-    const grossSales = Number(rep.gross_sales||0);
-    const totalPurch = Number(rep.total_purchases||0);
-    const cogs = Number(rep.cogs||0);
-    const totalExp = Number(rep.total_expenses||0);
-    const grossProfit = Number(rep.gross_profit||0);
-    const netProfit = Number(rep.net_profit||0);
+  function apply(){
+    const from=$("fromDate").value? new Date($("fromDate").value+"T00:00:00"):null;
+    const to=$("toDate").value? new Date($("toDate").value+"T23:59:59"):null;
 
-    $("kpiSales").textContent = fmt(grossSales);
-    $("kpiPurch").textContent = fmt(rep.mode === "fifo" ? cogs : totalPurch);
-    $("kpiExp").textContent = fmt(totalExp);
-    $("kpiProfit").textContent = fmt(netProfit);
+    const s=sales.filter(it=>inRange(parseDate(it.invoice_date),from,to));
+    const p=purchases.filter(it=>inRange(parseDate(it.invoice_date),from,to));
+    const e=expenses.filter(it=>inRange(parseDate(it.expense_date),from,to));
 
-    $("kpiProfitHint").textContent =
-      rep.mode === "fifo"
-        ? `ربح إجمالي: ${fmt(grossProfit)} (مبيعات - COGS) ثم صافي: ${fmt(netProfit)} بعد المصروفات`
-        : `ربح إجمالي: ${fmt(grossProfit)} (مبيعات - مشتريات) ثم صافي: ${fmt(netProfit)} بعد المصروفات`;
+    const revenue=s.reduce((a,x)=>a+Number(x.total||0),0);
+    const purchTotal=p.reduce((a,x)=>a+Number(x.total||0),0);
+    const expTotal=e.reduce((a,x)=>a+Number(x.amount||0),0);
+    const profit=s.reduce((a,x)=>a+Number(x.profit_total||0),0);
+    const net=profit-expTotal;
 
-    $("salesCount").textContent = `${Number(rep.sales_count||0)} فاتورة`;
-    $("purchCount").textContent = `${Number(rep.purchase_count||0)} فاتورة`;
-    $("expCount").textContent = `${Number(rep.expense_count||0)} بند`;
+    $("kpiSales").textContent=fmt(revenue);
+    $("kpiPurch").textContent=fmt(purchTotal);
+    $("kpiExp").textContent=fmt(expTotal);
+    $("kpiProfit").textContent=fmt(net);
+    $("kpiProfitHint").textContent = `ربح: ${fmt(profit)} - مصروفات: ${fmt(expTotal)}`;
+
+    $("salesCount").textContent = `${s.length} فاتورة`;
+    $("purchCount").textContent = `${p.length} فاتورة`;
+    $("expCount").textContent = `${e.length} بند`;
     $("lastSyncTxt").textContent = `${new Date().toLocaleString("ar-EG")}`;
 
-    // Summary
-    const sb = $("summaryBody"); sb.innerHTML = "";
-    const rows = rep.mode === "fifo"
-      ? [
-          ["إجمالي المبيعات", grossSales],
-          ["إجمالي COGS (FIFO)", cogs],
-          ["إجمالي المصروفات", totalExp],
-          ["الربح الإجمالي", grossProfit],
-          ["صافي الربح", netProfit],
-        ]
-      : [
-          ["إجمالي المبيعات", grossSales],
-          ["إجمالي المشتريات", totalPurch],
-          ["إجمالي المصروفات", totalExp],
-          ["الربح الإجمالي", grossProfit],
-          ["صافي الربح", netProfit],
-        ];
-
+    const sb=$("summaryBody"); sb.innerHTML="";
+    const rows=[
+      ["إجمالي المبيعات", revenue],
+      ["إجمالي المشتريات", purchTotal],
+      ["إجمالي المصروفات", expTotal],
+      ["إجمالي الربح من المبيعات", profit],
+      ["صافي الربح", net],
+    ];
     for(const r of rows){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${r[0]}</td><td class="mono">${fmt(r[1])}</td>`;
+      const tr=document.createElement("tr");
+      tr.innerHTML=`<td>${r[0]}</td><td class="mono">${fmt(r[1])}</td>`;
       sb.appendChild(tr);
     }
 
-    // Details (Sales)
-    const details = Array.isArray(rep.sales_details) ? rep.sales_details : [];
-    const db = $("detailsBody"); db.innerHTML = "";
-    if(details.length === 0){
-      $("emptyBox").style.display = "block";
-      return;
-    }
-    $("emptyBox").style.display = "none";
+    const db=$("detailsBody"); db.innerHTML="";
+    if(s.length===0){ $("emptyBox").style.display="block"; return; }
+    $("emptyBox").style.display="none";
 
-    for(const it of details){
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td data-label="رقم فاتورة" class="mono">${it.invoice_no||""}</td>
+    for(const it of s){
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td data-label="رقم فاتورة" class="mono">${it.sale_invoice_no||""}</td>
         <td data-label="العميل">${it.customer||""}</td>
-        <td data-label="التاريخ" class="mono">${it.invoice_date||""}</td>
-        <td data-label="الإجمالي" class="mono">${fmt(it.total||0)}</td>
-        <td data-label="الربح" class="mono">—</td>
+        <td data-label="التاريخ" class="mono">${it.invoice_date ? new Date(it.invoice_date).toLocaleDateString("ar-EG") : ""}</td>
+        <td data-label="الإجمالي" class="mono">${fmt(it.total)}</td>
+        <td data-label="الربح" class="mono">${fmt(it.profit_total||0)}</td>
       `;
       db.appendChild(tr);
     }
   }
 
-  async function loadReport_(){
+  async function load(){
     try{
-      const f = readFilters_();
-      const rep = await AxentroApi.getFinancialReport({
-        from_date: f.from,
-        to_date: f.to,
-        mode: f.mode
-      });
-      render_(rep);
+      const [slog, plog, ex] = await Promise.all([
+        AxentroApi.getSalesLog(),
+        AxentroApi.getPurchasesLog(),
+        AxentroApi.getExpenses()
+      ]);
+      sales = Array.isArray(slog.items)?slog.items:[];
+      purchases = Array.isArray(plog.items)?plog.items:[];
+      expenses = Array.isArray(ex.items)?ex.items:[];
+      apply();
       toast("✅ تم تحديث الأرباح");
     }catch(e){
-      toast(e.message || "فشل تحميل بيانات الأرباح");
+      toast(e.message||"فشل تحميل بيانات الأرباح");
     }
   }
 
-  ["fromDate","toDate","mode"].forEach(id=>{
-    $(id)?.addEventListener("change", loadReport_);
-  });
-  $("refreshBtn")?.addEventListener("click", loadReport_);
-  $("clearFiltersBtn")?.addEventListener("click", ()=>{
-    $("fromDate").value = "";
-    $("toDate").value = "";
-    loadReport_();
-  });
+  ["fromDate","toDate","mode"].forEach(id=>{ $(id)?.addEventListener("change",apply); });
+  $("refreshBtn")?.addEventListener("click",load);
+  $("clearFiltersBtn")?.addEventListener("click",()=>{ $("fromDate").value=""; $("toDate").value=""; apply(); });
 
-  loadReport_();
+  load();
 })();
-</script>
 </script>
 </body>
 </html>
