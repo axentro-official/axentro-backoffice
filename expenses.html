@@ -3,8 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>( Expenses ) المصروفات — B.S Medical &amp; Aesthetic</title>
-
+  <title>المحذوفات — Axentro Backoffice</title>
   <style>
     :root{
       --bg:#f7f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
@@ -18,7 +17,8 @@
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
-      margin:0; font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
+      margin:0;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
@@ -26,11 +26,12 @@
         linear-gradient(180deg, #fff, var(--bg));
       padding:18px;
       min-height:100vh;
-      display:flex; flex-direction:column;
+      display:flex;
+      flex-direction:column;
+      overflow-x:hidden;
     }
 
     .wrap{max-width:var(--container-max); margin:0 auto; width:100%; flex:1}
-
     .topbar{
       display:flex; align-items:center; justify-content:space-between; gap:12px;
       padding:12px 14px;
@@ -62,40 +63,6 @@
       padding:16px;
       margin-bottom:16px;
     }
-    h2{margin:0 0 10px;font-weight:900}
-    label{font-size:12px;color:var(--muted);font-weight:800}
-    input, select, textarea{
-      width:100%;
-      padding:10px;
-      border-radius:12px;
-      border:1px solid rgba(15,23,42,.14);
-      background:#fff;
-      color:var(--text);
-      outline:none;
-    }
-    input::placeholder, textarea::placeholder{color:#94a3b8}
-    textarea{resize:vertical; min-height:44px}
-
-    .row{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
-    .row2{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
-    .row1{display:grid; grid-template-columns:1fr; gap:10px}
-
-    @media (max-width:920px){
-      .row{grid-template-columns:repeat(2,1fr);}
-      .row2{grid-template-columns:repeat(1,1fr);}
-    }
-    @media (max-width:720px){
-      .topbar{flex-direction:column;align-items:stretch}
-      .topbar a,.topbar button{width:100%}
-
-      /* ✅ التعديل الوحيد: خلي أزرار الداشبورد والخروج يفضلوا جنب بعض */
-      .topbar .topActions a,
-      .topbar .topActions button{ width:auto; }
-    }
-    @media (max-width:520px){
-      .row{grid-template-columns:repeat(1,1fr);}
-      input, select, textarea{ font-size:16px; }
-    }
 
     .btn{
       padding:12px;
@@ -107,109 +74,35 @@
       cursor:pointer;
       touch-action: manipulation;
       white-space:nowrap;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
     }
-    .btn:hover{filter:brightness(1.02)}
-    .btn.secondary{
-      border-color: rgba(15,23,42,.14);
-      background:#fff;
-      opacity:.95;
-    }
-    .btn.danger{
-      border-color: rgba(220,38,38,.22);
-      background: rgba(220,38,38,.06);
-      color:#991b1b;
-    }
+    .btn.secondary{ border-color: rgba(15,23,42,.14); background:#fff; opacity:.95; }
+    .btn.danger{ border-color: rgba(220,38,38,.22); background: rgba(220,38,38,.06); color:#991b1b; }
 
-    .pillRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px; }
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      border:1px solid rgba(15,23,42,.10);
-      background:#fff; border-radius:999px;
-      padding:8px 10px;
-      font-weight:900;
-      color:#334155;
-      white-space:nowrap;
-    }
-    .pill .k{color:var(--muted);font-weight:900}
-
-    .msg{
-      margin-top:10px;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(15,23,42,.03);
-      font-weight:900;
-      font-size:12px;
-      line-height:1.7;
-      display:none;
-      white-space:pre-line;
-      word-break:break-word;
-    }
-    .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
-    .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
-    .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
+    .seg{ display:flex; gap:8px; flex-wrap:wrap; }
 
     .table-wrap{overflow:auto;margin-top:10px;border-radius:12px}
-    table{
-      width:100%;
-      border-collapse:collapse;
-      font-size:13px;
-      min-width:980px;
-      background:#fff;
-      border-radius:12px;
-      overflow:hidden;
-    }
-    th, td{
-      border:1px solid rgba(15,23,42,.10);
-      padding:8px;
-      text-align:center;
-      vertical-align:middle;
-      white-space:nowrap;
-    }
-    th{
-      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
-      font-weight:900;
-    }
+    table{ width:100%; border-collapse:collapse; font-size:13px; min-width:1120px; background:#fff; border-radius:12px; overflow:hidden; }
+    th, td{ border:1px solid rgba(15,23,42,.10); padding:8px; text-align:center; vertical-align:middle; white-space:nowrap; }
+    th{ background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06)); font-weight:900; }
     td.left{ text-align:right; white-space:normal; }
-    td.money{ direction:ltr; text-align:left; unicode-bidi:embed; font-weight:900; }
 
-    .empty{
-      margin-top:10px;
-      padding:14px;
-      border:1px dashed rgba(15,23,42,.18);
-      border-radius:14px;
-      background:rgba(255,255,255,.75);
-      color:var(--muted);
+    .toast{
+      position:fixed; left:18px; bottom:18px;
+      background: rgba(255,255,255,.95);
+      border:1px solid rgba(15,23,42,.10);
+      box-shadow: 0 18px 50px rgba(2,6,23,.18);
+      padding:12px 14px;
+      border-radius:16px;
       font-weight:900;
-      text-align:center;
-      line-height:1.8;
+      max-width: min(520px, 92vw);
       display:none;
-    }
-
-    @media (max-width: 820px){
-      .table-wrap{ overflow:visible; }
-      table{ min-width:0; }
-      table, thead, tbody, th, td, tr{ display:block; width:100%; }
-      thead{ display:none; }
-      tbody tr{
-        border:1px solid rgba(15,23,42,.12);
-        background: #fff;
-        border-radius: 16px;
-        padding:10px;
-        margin-bottom:10px;
-        box-shadow: 0 10px 28px rgba(2,6,23,.06);
-      }
-      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
-      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
-      tbody td[data-label]::before{
-        content: attr(data-label);
-        display:block;
-        font-size:12px;
-        color: var(--muted);
-        font-weight:900;
-        margin-bottom:6px;
-      }
-      td.money{ text-align:left; }
+      z-index: 50;
+      line-height:1.7;
     }
 
     .site-footer{
@@ -228,505 +121,266 @@
     .site-footer .line1{ font-weight:900; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
-    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
-    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
-    .qrLink img{
-      width:132px; height:132px; max-width:60vw;
-      border-radius:14px;
-      border:1px solid rgba(15,23,42,.12);
-      background:#fff;
-      padding:10px;
-      box-shadow: 0 10px 26px rgba(2,6,23,.08);
-      object-fit:contain;
-      transition:transform .15s ease, box-shadow .15s ease;
+    @media (max-width: 820px){
+      .table-wrap{ overflow:visible; }
+      table{ min-width:0; }
+      table, thead, tbody, th, td, tr{ display:block; width:100%; }
+      thead{ display:none; }
+      tbody tr{ border:1px solid rgba(15,23,42,.12); background: #fff; border-radius: 16px; padding:10px; margin-bottom:10px; box-shadow: 0 10px 28px rgba(2,6,23,.06); }
+      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
+      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
+      tbody td[data-label]::before{ content: attr(data-label); display:block; font-size:12px; color: var(--muted); font-weight:900; margin-bottom:6px; }
+      tbody button{ width:100%; }
     }
-    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
-    .qrText{ font-size:12px; font-weight:900; color:#334155; }
-
-    .toast{
-      position:fixed;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:22px;
-      padding:12px 14px;
-      background:#0f172a;
-      color:#fff;
-      border-radius:14px;
-      font-weight:900;
-      box-shadow:0 16px 40px rgba(2,6,23,.25);
-      opacity:0;
-      pointer-events:none;
-      transition: opacity .18s ease, transform .18s ease;
-      z-index:9999;
-      max-width:min(92vw, 720px);
-      text-align:center;
-      white-space:pre-line;
-      line-height:1.7;
-    }
-    .toast.show{ opacity:1; transform:translateX(-50%) translateY(-2px); }
-
-    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
   </style>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+  <script>AxentroAuth.requireAuth();</script>
 </head>
-
 <body>
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<div class="wrap" id="app">
-  <div class="topbar">
-    <div class="brand">
-      <div class="logo">
-        <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"><img src="assets/logo.png" alt="Logo" onerror="this.style.display='none'"></div>
+        <div>
+          <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+          <div class="brandSub">🗑️ المحذوفات (مبيعات + مشتريات)</div>
+        </div>
       </div>
-      <div>
-        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
-        <div class="brandSub">( Expenses ) المصروفات</div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+        <a class="btn secondary" href="sales-log.html">سجل المبيعات</a>
+        <a class="btn secondary" href="purchases-log.html">سجل المشتريات</a>
+        <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
       </div>
     </div>
 
-    <div class="topActions" style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
-      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
-      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
+    <div class="card">
+      <div class="seg">
+        <button class="btn secondary" id="tabSales" type="button">محذوفات المبيعات</button>
+        <button class="btn secondary" id="tabPurch" type="button">محذوفات المشتريات</button>
+        <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+      </div>
+
+      <div class="table-wrap" style="margin-top:12px">
+        <table>
+          <thead id="thead"></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div id="emptyBox" style="display:none;margin-top:10px;padding:14px;border:1px dashed rgba(15,23,42,.18);border-radius:14px;background:rgba(255,255,255,.75);color:var(--muted);font-weight:900;text-align:center;line-height:1.8;">
+        لا توجد بيانات في المحذوفات.
+      </div>
     </div>
+
+    <footer class="site-footer">
+      <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+      <div class="line2">By Ahmed Hamouda</div>
+      <div style="margin-top:10px">
+        <a class="btn secondary" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">QR / Links</a>
+      </div>
+    </footer>
   </div>
-
-  <div class="card">
-    <h2>إضافة مصروف</h2>
-
-    <div class="row" role="region" aria-label="إضافة مصروف">
-      <div>
-        <label for="exNo">رقم المصروف (تلقائي حسب النوع)</label>
-        <input id="exNo" readonly />
-      </div>
-
-      <div>
-        <label for="exDate">التاريخ</label>
-        <input id="exDate" type="date" />
-      </div>
-
-      <div>
-        <label for="exCat">النوع</label>
-        <select id="exCat">
-          <option value="إيجار">إيجار</option>
-          <option value="مرتبات">مرتبات</option>
-          <option value="فواتير">فواتير (كهرباء/مياه/إنترنت)</option>
-          <option value="نثريات">نثريات</option>
-          <option value="شحن/نقل">شحن/نقل</option>
-          <option value="تسويق">تسويق</option>
-          <option value="صيانة">صيانة</option>
-          <option value="أخرى">أخرى</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="exAmount">المبلغ (جنيه)</label>
-        <input id="exAmount" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-    </div>
-
-    <div class="row1" style="margin-top:10px">
-      <div>
-        <label for="exDetails">تفاصيل المصروف (خانة واحدة)</label>
-        <textarea id="exDetails" rows="2" placeholder="مثال: دفع كاش | مرجع: إيصال 123 | إيجار شهر فبراير"></textarea>
-      </div>
-    </div>
-
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">
-      <button class="btn" id="addBtn" type="button">＋ إضافة</button>
-      <button class="btn secondary" id="refreshBtn" type="button">🔄 تحديث</button>
-    </div>
-
-    <div class="msg" id="msg"></div>
-
-    <div class="pillRow">
-      <div class="pill"><span class="k">عدد البنود:</span> <span id="countTxt">0</span></div>
-      <div class="pill"><span class="k">إجمالي المصروفات:</span> <span id="sumTxt">0.00</span></div>
-      <div class="pill"><span class="k">آخر تحديث:</span> <span id="lastSyncTxt">—</span></div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>بحث وفلترة</h2>
-
-    <div class="row" role="region" aria-label="فلترة المصروفات">
-      <div>
-        <label for="q">بحث سريع</label>
-        <input id="q" placeholder="ابحث بالنوع / التفاصيل..." autocomplete="off" />
-      </div>
-      <div>
-        <label for="fromDate">من تاريخ</label>
-        <input id="fromDate" type="date" />
-      </div>
-      <div>
-        <label for="toDate">إلى تاريخ</label>
-        <input id="toDate" type="date" />
-      </div>
-      <div>
-        <label for="sortBy">ترتيب</label>
-        <select id="sortBy">
-          <option value="date_desc">الأحدث أولاً</option>
-          <option value="date_asc">الأقدم أولاً</option>
-          <option value="amount_desc">المبلغ: الأعلى</option>
-          <option value="amount_asc">المبلغ: الأقل</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row2" style="margin-top:10px">
-      <div>
-        <label for="catFilter">فلتر النوع</label>
-        <select id="catFilter">
-          <option value="all">الكل</option>
-          <option value="إيجار">إيجار</option>
-          <option value="مرتبات">مرتبات</option>
-          <option value="فواتير">فواتير</option>
-          <option value="نثريات">نثريات</option>
-          <option value="شحن/نقل">شحن/نقل</option>
-          <option value="تسويق">تسويق</option>
-          <option value="صيانة">صيانة</option>
-          <option value="أخرى">أخرى</option>
-        </select>
-      </div>
-      <div>
-        <label for="minAmount">مبلغ من</label>
-        <input id="minAmount" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-    </div>
-
-    <div class="row2" style="margin-top:10px">
-      <div>
-        <label for="maxAmount">مبلغ إلى</label>
-        <input id="maxAmount" type="number" min="0" step="0.01" placeholder="0.00" />
-      </div>
-      <div style="display:flex;align-items:end;gap:10px">
-        <button class="btn secondary" id="clearFiltersBtn" type="button" style="width:100%">مسح الفلاتر</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
-    <h2>سجل المصروفات</h2>
-
-    <div class="table-wrap" aria-live="polite">
-      <table id="tbl" role="table" aria-label="جدول المصروفات">
-        <thead>
-          <tr>
-            <th style="width:60px">#</th>
-            <th style="min-width:140px">التاريخ</th>
-            <th style="min-width:220px">النوع</th>
-            <th style="min-width:420px">التفاصيل</th>
-            <th style="min-width:160px">المبلغ</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
-
-    <div id="emptyBox" class="empty">لا توجد نتائج مطابقة للفلترة الحالية.</div>
-  </div>
-
-  <footer class="site-footer">
-    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-    <div class="line2">By Ahmed Hamouda</div>
-
-    <div class="qrBox">
-      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
-        <span class="qrText">Scan me</span>
-      </a>
-    </div>
-  </footer>
-</div>
-
-<script src="config.js"></script>
-<script src="app.js"></script>
-<script>AxentroAuth.requireAuth();</script>
 
 <script>
-(function(){
-  "use strict";
+  // Role guardrails: Admin only
+  if(window.AxentroRoles){
+    if(!window.AxentroRoles.axRequire('admin')){ /* redirected */ }
+  }else{
+    const r=(localStorage.getItem('ax_role')||'viewer').toLowerCase();
+    if(r!=='admin'){ alert('غير مصرح'); window.location.href='dashboard.html'; }
+  }
 
-  const $ = (id)=>document.getElementById(id);
-
-  const toastEl = $("toast");
+  const $ = (id)=> document.getElementById(id);
   function toast(msg){
-    if(!toastEl) return alert(msg);
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(toast._t);
-    toast._t = setTimeout(()=>toastEl.classList.remove("show"), 2200);
+    const t = $('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    clearTimeout(window.__t);
+    window.__t = setTimeout(()=> t.style.display='none', 2600);
+  }
+  function escapeHtml(str){
+    return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  const msgEl = $("msg");
-  function showMsg(type, text){
-    if(!msgEl) return;
-    msgEl.className = "msg " + (type || "");
-    msgEl.textContent = text || "";
-    msgEl.style.display = text ? "block" : "none";
-  }
+  let activeTab = 'sales';
 
-  $("logoutBtn")?.addEventListener("click", (e)=>{ e.preventDefault(); AxentroAuth.logout(); });
-
-  function toNum(v){
-    const n = Number(v);
-    return Number.isFinite(n) ? n : 0;
-  }
-  function money(n){ return (Number(n||0)).toFixed(2); }
-  function pad2(n){ return String(n).padStart(2,"0"); }
-  function todayISO(){
-    const d = new Date();
-    return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-  }
-  function esc(s){
-    return String(s||"")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-  function parseDateSafe(x){
-    const d = new Date(String(x||"").slice(0,10));
-    return isNaN(d) ? null : d;
-  }
-
-  // ========= Auto Ref Per Category (RE001 / HR001 / BI001...) =========
-  // تقدر تغيّر الـ Prefixes هنا بسهولة
-  const CAT_PREFIX = {
-    "إيجار": "RE",        // Rent
-    "مرتبات": "HR",       // Payroll/HR
-    "فواتير": "BI",       // Bills
-    "فواتير (كهرباء/مياه/إنترنت)": "BI",
-    "نثريات": "ST",       // Stationery/Misc
-    "شحن/نقل": "TR",      // Transport
-    "تسويق": "MK",        // Marketing
-    "صيانة": "MT",        // Maintenance
-    "أخرى": "OT"          // Other
-  };
-
-  function getPrefixForCategory(cat){
-    const key = String(cat||"").trim();
-    return CAT_PREFIX[key] || "EX";
-  }
-
-  function seqKey(prefix){
-    return "AX_EXP_SEQ_" + String(prefix||"EX").toUpperCase() + "_V1";
-  }
-
-  function peekNextNo(prefix){
-    const k = seqKey(prefix);
-    const last = Number(localStorage.getItem(k) || "0");
-    const next = last + 1;
-    return String(prefix).toUpperCase() + String(next).padStart(3,"0");
-  }
-
-  function commitNextNo(prefix){
-    const k = seqKey(prefix);
-    const last = Number(localStorage.getItem(k) || "0");
-    const next = last + 1;
-    localStorage.setItem(k, String(next));
-    return String(prefix).toUpperCase() + String(next).padStart(3,"0");
-  }
-
-  function updateExpenseNoPreview(){
-    const cat = $("exCat")?.value || "";
-    const prefix = getPrefixForCategory(cat);
-    $("exNo").value = peekNextNo(prefix);
-  }
-
-  // ===== state =====
-  let raw = []; // normalized records: {expense_date, category, amount, notes}
-
-  function normalizeItems(list){
-    return (Array.isArray(list)? list : []).map((it, idx)=>{
-      const expense_date = String(it.expense_date || it.date || "").slice(0,10);
-      const category = String(it.category || it.cat || "").trim();
-      const amount = toNum(it.amount);
-      const notes = String(it.notes || it.note || it.memo || "").trim();
-      return { _idx: idx+1, expense_date, category, amount, notes };
-    }).filter(x=> x.expense_date || x.category || x.amount || x.notes);
-  }
-
-  function apply(){
-    const q = String($("q")?.value || "").trim().toLowerCase();
-    const from = $("fromDate")?.value ? new Date($("fromDate").value + "T00:00:00") : null;
-    const to   = $("toDate")?.value ? new Date($("toDate").value + "T23:59:59") : null;
-    const sort = String($("sortBy")?.value || "date_desc");
-    const cat  = String($("catFilter")?.value || "all");
-
-    const minAActive = $("minAmount")?.value !== "";
-    const maxAActive = $("maxAmount")?.value !== "";
-    const minA = toNum($("minAmount")?.value);
-    const maxA = toNum($("maxAmount")?.value);
-
-    let items = raw.slice();
-
-    if(q){
-      items = items.filter(it=>{
-        return String(it.category||"").toLowerCase().includes(q)
-          || String(it.notes||"").toLowerCase().includes(q);
-      });
-    }
-
-    if(cat && cat !== "all"){
-      const catN = cat.trim().toLowerCase();
-      items = items.filter(it => String(it.category||"").trim().toLowerCase() === catN);
-    }
-
-    items = items.filter(it=>{
-      const d = parseDateSafe(it.expense_date);
-      if(from && (!d || d < from)) return false;
-      if(to && (!d || d > to)) return false;
-      const amt = toNum(it.amount);
-      if(minAActive && amt < minA) return false;
-      if(maxAActive && amt > maxA) return false;
-      return true;
-    });
-
-    if(sort==="amount_desc") items.sort((a,b)=> toNum(b.amount)-toNum(a.amount));
-    else if(sort==="amount_asc") items.sort((a,b)=> toNum(a.amount)-toNum(b.amount));
-    else if(sort==="date_asc") items.sort((a,b)=> (parseDateSafe(a.expense_date)||0) - (parseDateSafe(b.expense_date)||0));
-    else items.sort((a,b)=> (parseDateSafe(b.expense_date)||0) - (parseDateSafe(a.expense_date)||0));
-
-    render(items);
-  }
-
-  function render(items){
-    const body = $("tbody");
-    const empty = $("emptyBox");
-    if(body) body.innerHTML = "";
-
-    let sum = 0;
-    for(const it of items) sum += toNum(it.amount);
-
-    $("countTxt").textContent = String(items.length);
-    $("sumTxt").textContent = money(sum);
-    $("lastSyncTxt").textContent = new Date().toLocaleString("ar-EG");
-
-    if(!items.length){
-      if(empty) empty.style.display = "block";
-      return;
-    }
-    if(empty) empty.style.display = "none";
-
-    items.forEach((it, idx)=>{
-      const tr = document.createElement("tr");
-      const d = it.expense_date ? new Date(it.expense_date) : null;
-      const dateTxt = d && !isNaN(d) ? d.toLocaleDateString("ar-EG") : (it.expense_date || "—");
-
-      tr.innerHTML = `
-        <td data-label="#" style="font-weight:900">${idx+1}</td>
-        <td data-label="التاريخ" class="money">${esc(dateTxt)}</td>
-        <td data-label="النوع" class="left">${esc(it.category || "—")}</td>
-        <td data-label="التفاصيل" class="left">${esc(it.notes || "—")}</td>
-        <td data-label="المبلغ" class="money">${money(it.amount)} EGP</td>
-      `;
-      body.appendChild(tr);
-    });
+  function setTab(tab){
+    activeTab = tab;
+    $('tabSales').style.opacity = tab==='sales' ? '1' : '.75';
+    $('tabPurch').style.opacity = tab==='purch' ? '1' : '.75';
+    load();
   }
 
   async function load(){
     try{
-      showMsg("warn", "جاري تحميل المصروفات...");
-      const res = await AxentroApi.getExpenses();
-      const items = (res && res.items) ? res.items : [];
-      raw = normalizeItems(items);
-      showMsg("", "");
+      $('emptyBox').style.display = 'none';
+      $('tbody').innerHTML = '';
+      $('thead').innerHTML = '';
 
-      // rebuild category list from data (keep "all")
-      const cats = Array.from(new Set(raw.map(x=>String(x.category||"").trim()).filter(Boolean)));
-      cats.sort((a,b)=> a.localeCompare(b,"ar"));
-      const catSel = $("catFilter");
-      if(catSel){
-        const cur = catSel.value || "all";
-        catSel.innerHTML = `<option value="all">الكل</option>` + cats.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join("");
-        catSel.value = cats.some(c=>c===cur) ? cur : "all";
-      }
-
-      apply();
-    }catch(e){
-      showMsg("bad", (e && e.message) ? e.message : String(e||"فشل تحميل المصروفات"));
-      toast("❌ فشل تحميل المصروفات");
-    }
-  }
-
-  async function addExpense(){
-    try{
-      const expense_date = String($("exDate").value || "").trim();
-      const category = String($("exCat").value || "").trim();
-      const amountStr = String($("exAmount").value || "").trim();
-      const amount = toNum(amountStr);
-      const details = String($("exDetails").value || "").trim();
-
-      if(!expense_date) return toast("اختر التاريخ");
-      if(!category) return toast("اختر النوع");
-      if(!amountStr || amount <= 0) return toast("أدخل مبلغ صحيح");
-
-      const prefix = getPrefixForCategory(category);
-      const expense_no = commitNextNo(prefix); // ✅ هنا بنثبت الرقم (ونزود العداد)
-
-      // ✅ كل شيء في خانة واحدة داخل notes
-      const notes = details ? `${expense_no} | ${details}` : `${expense_no}`;
-
-      showMsg("warn", "جاري الإضافة...");
-      const out = await AxentroApi.createExpense({ expense_date, category, amount, notes });
-
-      if(out && out.ok){
-        showMsg("ok", "✅ تم إضافة المصروف");
-        toast("✅ تم الإضافة");
-
-        $("exAmount").value = "";
-        $("exDetails").value = "";
-
-        // جهّز رقم جديد (Preview) لنفس النوع الحالي
-        updateExpenseNoPreview();
-
-        await load();
+      if(activeTab==='sales'){
+        const out = await AxentroApi.listDeletedSales();
+        const rows = Array.isArray(out.items) ? out.items : [];
+        renderSales(rows);
       }else{
-        // ⚠️ لو فشل الحفظ، العداد كان اتزاد بالفعل (LocalStorage)
-        // ده مقبول كبساطة، ولو عايز rollback هنحتاج نعمله بحذر.
-        const m = (out && (out.error || out.message)) ? (out.error || out.message) : "فشل الإضافة";
-        showMsg("bad", m);
-        toast("❌ " + m);
+        const out = await AxentroApi.listDeletedPurchases();
+        const rows = Array.isArray(out.items) ? out.items : [];
+        renderPurch(rows);
       }
     }catch(e){
-      const m = (e && e.message) ? e.message : String(e||"فشل الإضافة");
-      showMsg("bad", m);
-      toast("❌ " + m);
+      console.warn(e);
+      toast('⚠️ ' + (e && e.message ? e.message : String(e)));
     }
   }
 
-  // ===== Bind =====
-  $("addBtn")?.addEventListener("click", addExpense);
-  $("refreshBtn")?.addEventListener("click", load);
+  function renderSales(rows){
+    $('thead').innerHTML = `
+      <tr>
+        <th style="width:60px">#</th>
+        <th style="min-width:200px">رقم الفاتورة</th>
+        <th style="min-width:140px">التاريخ</th>
+        <th style="min-width:220px">العميل</th>
+        <th style="min-width:160px">الهاتف</th>
+        <th style="min-width:160px">الإجمالي</th>
+        <th style="min-width:200px">حذف بواسطة / وقت</th>
+        <th style="min-width:220px">إجراءات</th>
+      </tr>
+    `;
 
-  $("exCat")?.addEventListener("change", updateExpenseNoPreview);
+    if(!rows.length){ $('emptyBox').style.display = 'block'; return; }
 
-  ["q","fromDate","toDate","sortBy","catFilter","minAmount","maxAmount"].forEach(id=>{
-    $(id)?.addEventListener("input", apply);
-    $(id)?.addEventListener("change", apply);
-  });
+    const tb = $('tbody');
+    tb.innerHTML = '';
+    rows.forEach((r, i)=>{
+      const inv = escapeHtml(r.sale_invoice_no || r.invoice_no || '');
+      const d = r.invoice_date ? new Date(r.invoice_date).toISOString().slice(0,10) : '—';
+      const delAt = r.deleted_at ? new Date(r.deleted_at).toLocaleString() : '—';
+      const delBy = escapeHtml(r.deleted_by || '—');
+      const total = Number(r.total||0).toFixed(2);
 
-  $("clearFiltersBtn")?.addEventListener("click", ()=>{
-    $("q").value = "";
-    $("fromDate").value = "";
-    $("toDate").value = "";
-    $("minAmount").value = "";
-    $("maxAmount").value = "";
-    $("sortBy").value = "date_desc";
-    $("catFilter").value = "all";
-    apply();
-  });
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="#" style="font-weight:900">${i+1}</td>
+        <td data-label="رقم الفاتورة" class="left"><div style="font-weight:900">${inv}</div></td>
+        <td data-label="التاريخ">${d}</td>
+        <td data-label="العميل" class="left">${escapeHtml(r.customer||'—')}</td>
+        <td data-label="الهاتف">${escapeHtml(r.customer_phone||'—')}</td>
+        <td data-label="الإجمالي">${total}</td>
+        <td data-label="حذف">${delBy}<div style="font-size:12px;color:#64748b;font-weight:900;margin-top:4px">${delAt}</div></td>
+        <td data-label="إجراءات">
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button class="btn" data-restore="${inv}" type="button">♻️ استرجاع</button>
+            <button class="btn danger" data-purge="${inv}" type="button">🧨 حذف نهائي</button>
+          </div>
+        </td>
+      `;
+      tb.appendChild(tr);
+    });
 
-  // defaults
-  $("exDate").value = todayISO();
-  updateExpenseNoPreview();
+    tb.querySelectorAll('[data-restore]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const inv = b.getAttribute('data-restore');
+        if(!confirm('تأكيد استرجاع الفاتورة؟')) return;
+        try{
+          toast('⏳ جاري الاسترجاع...');
+          await AxentroApi.restoreSaleInvoice(inv);
+          toast('✅ تم الاسترجاع');
+          load();
+        }catch(e){ toast('⚠️ ' + (e && e.message ? e.message : String(e))); }
+      });
+    });
+    tb.querySelectorAll('[data-purge]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const inv = b.getAttribute('data-purge');
+        if(!confirm('تأكيد الحذف النهائي؟\nلن يمكن استرجاعها بعد ذلك.')) return;
+        try{
+          toast('⏳ جاري الحذف النهائي...');
+          await AxentroApi.purgeSaleInvoice(inv);
+          toast('✅ تم الحذف النهائي');
+          load();
+        }catch(e){ toast('⚠️ ' + (e && e.message ? e.message : String(e))); }
+      });
+    });
+  }
 
-  // boot
-  load();
+  function renderPurch(rows){
+    $('thead').innerHTML = `
+      <tr>
+        <th style="width:60px">#</th>
+        <th style="min-width:200px">رقم الفاتورة</th>
+        <th style="min-width:140px">التاريخ</th>
+        <th style="min-width:220px">المورد</th>
+        <th style="min-width:160px">الإجمالي</th>
+        <th style="min-width:200px">حذف بواسطة / وقت</th>
+        <th style="min-width:220px">إجراءات</th>
+      </tr>
+    `;
 
-})();
+    if(!rows.length){ $('emptyBox').style.display = 'block'; return; }
+
+    const tb = $('tbody');
+    tb.innerHTML = '';
+    rows.forEach((r, i)=>{
+      const inv = escapeHtml(r.purchase_invoice_no || r.invoice_no || '');
+      const d = r.invoice_date ? new Date(r.invoice_date).toISOString().slice(0,10) : '—';
+      const delAt = r.deleted_at ? new Date(r.deleted_at).toLocaleString() : '—';
+      const delBy = escapeHtml(r.deleted_by || '—');
+      const total = Number(r.total||0).toFixed(2);
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td data-label="#" style="font-weight:900">${i+1}</td>
+        <td data-label="رقم الفاتورة" class="left"><div style="font-weight:900">${inv}</div></td>
+        <td data-label="التاريخ">${d}</td>
+        <td data-label="المورد" class="left">${escapeHtml(r.supplier||'—')}</td>
+        <td data-label="الإجمالي">${total}</td>
+        <td data-label="حذف">${delBy}<div style="font-size:12px;color:#64748b;font-weight:900;margin-top:4px">${delAt}</div></td>
+        <td data-label="إجراءات">
+          <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
+            <button class="btn" data-restore="${inv}" type="button">♻️ استرجاع</button>
+            <button class="btn danger" data-purge="${inv}" type="button">🧨 حذف نهائي</button>
+          </div>
+        </td>
+      `;
+      tb.appendChild(tr);
+    });
+
+    tb.querySelectorAll('[data-restore]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const inv = b.getAttribute('data-restore');
+        if(!confirm('تأكيد استرجاع الفاتورة؟')) return;
+        try{
+          toast('⏳ جاري الاسترجاع...');
+          await AxentroApi.restorePurchaseInvoice(inv);
+          toast('✅ تم الاسترجاع');
+          load();
+        }catch(e){ toast('⚠️ ' + (e && e.message ? e.message : String(e))); }
+      });
+    });
+    tb.querySelectorAll('[data-purge]').forEach(b=>{
+      b.addEventListener('click', async ()=>{
+        const inv = b.getAttribute('data-purge');
+        if(!confirm('تأكيد الحذف النهائي؟\nلن يمكن استرجاعها بعد ذلك.')) return;
+        try{
+          toast('⏳ جاري الحذف النهائي...');
+          await AxentroApi.purgePurchaseInvoice(inv);
+          toast('✅ تم الحذف النهائي');
+          load();
+        }catch(e){ toast('⚠️ ' + (e && e.message ? e.message : String(e))); }
+      });
+    });
+  }
+
+  $('logoutBtn').addEventListener('click', ()=> AxentroAuth.logout());
+  $('refreshBtn').addEventListener('click', load);
+  $('tabSales').addEventListener('click', ()=> setTab('sales'));
+  $('tabPurch').addEventListener('click', ()=> setTab('purch'));
+
+  setTab('sales');
 </script>
-
 </body>
 </html>
