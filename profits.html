@@ -1,185 +1,269 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>تسجيل دخول الإدارة — Axentro</title>
+  <title>الأرباح — B.S Medical &amp; Aesthetic</title>
+
   <style>
     :root{
-      --bg:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --stroke:#e6e8ee;
-      --shadow:0 18px 50px rgba(15,23,42,.10);
-      --radius:18px;
+      --bg:#f7f7fb; --card:#ffffff; --text:#0f172a; --muted:#64748b;
+      --stroke:rgba(15,23,42,.10); --shadow:0 18px 50px rgba(2,6,23,.12);
+      --radius:18px; --gold:#b08d57; --gold2:#d7b97a;
+      --container-max:1100px;
 
-      --gold1:#D4AF37;
-      --gold2:#B8860B;
-      --goldSoft: rgba(212,175,55,.18);
-      --goldSoft2: rgba(184,134,11,.12);
-
-      --bad:#dc2626;
-      --badSoft: rgba(220,38,38,.07);
+      --ok:#16a34a; --okSoft: rgba(22,163,74,.10);
+      --warn:#f59e0b; --warnSoft: rgba(245,158,11,.12);
+      --bad:#dc2626; --badSoft: rgba(220,38,38,.10);
     }
 
     *{box-sizing:border-box}
-    html,body{height:100%}
+    html,body{
+      height:100%;
+      width:100%;
+      max-width:100%;
+      overflow-x:hidden;
+    }
     body{
       margin:0;
-      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+      font-family: system-ui,-apple-system,"Segoe UI",Tahoma,Arial;
       color:var(--text);
       background:
-        radial-gradient(900px 480px at 10% 10%, var(--goldSoft), transparent 60%),
-        radial-gradient(760px 520px at 90% 20%, rgba(15,23,42,.05), transparent 60%),
-        linear-gradient(180deg, var(--bg), #f7f8fb);
-      min-height:100vh;
+        radial-gradient(900px 500px at 10% 10%, rgba(176,141,87,.18), transparent 55%),
+        radial-gradient(700px 500px at 90% 20%, rgba(215,185,122,.18), transparent 55%),
+        linear-gradient(180deg, #fff, var(--bg));
+      min-height:100%;
       display:flex;
       flex-direction:column;
-      justify-content:center;      /* ✅ رفع الفوتر لفوق (نخلي المحتوى متوازن) */
-      align-items:center;          /* ✅ */
+      padding:18px;
       -webkit-font-smoothing:antialiased;
-      padding: 18px;
-      padding-bottom: calc(18px + env(safe-area-inset-bottom));
     }
 
     .wrap{
-      width:min(980px, 92vw);
+      max-width:var(--container-max);
       margin:0 auto;
-      padding:18px;
-      display:grid;
-      place-items:center;
+      width:100%;
+      flex:1;
     }
 
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 14px;
+      border:1px solid var(--stroke);
+      border-radius:18px;
+      background:rgba(255,255,255,.88);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+    .brand{display:flex; align-items:center; gap:12px; min-width:220px;}
+    .logo{
+      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(176,141,87,.22), rgba(215,185,122,.18));
+      border:1px solid rgba(176,141,87,.35);
+      box-shadow: 0 10px 24px rgba(2,6,23,.10);
+      overflow:hidden; padding:6px; flex:0 0 auto;
+    }
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    .brandTitle{font-weight:900}
+    .brandSub{font-size:12px;color:var(--muted);margin-top:2px;font-weight:800}
+
     .card{
-      width:min(520px, 100%);
       background:rgba(255,255,255,.92);
       border:1px solid var(--stroke);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:16px;
+      margin-bottom:16px;
+      max-width:100%;
     }
 
-    .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .brand{display:flex;align-items:center;gap:12px}
-    .logo{
-      width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
-      background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
-      border:1px solid rgba(212,175,55,.35);
-      box-shadow: 0 10px 26px rgba(15,23,42,.10);
-      overflow:hidden; padding:7px; flex:0 0 auto;
-    }
-    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+    h2{margin:0 0 10px;font-weight:900}
 
-    .title{margin:0;font-weight:1000;font-size:18px;line-height:1.2}
-    .sub{margin:2px 0 0;font-weight:900;color:var(--muted);font-size:12px}
-
-    label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
-
-    .field{
-      display:flex;
-      gap:10px;
-      align-items:stretch;
-    }
-
-    input{
+    label{font-size:12px;color:var(--muted);font-weight:800}
+    input, textarea, select{
       width:100%;
+      padding:10px;
+      border-radius:12px;
+      border:1px solid rgba(15,23,42,.14);
+      background:#fff;
+      color:var(--text);
+      outline:none;
+      max-width:100%;
+    }
+    input::placeholder, textarea::placeholder{color:#94a3b8}
+
+    .row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .row2{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+    .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+    @media (max-width:920px){
+      .row{grid-template-columns:repeat(2,1fr);}
+      .row2{grid-template-columns:repeat(1,1fr);}
+      .row3{grid-template-columns:repeat(1,1fr);}
+    }
+    @media (max-width:520px){
+      .row{grid-template-columns:repeat(1,1fr);}
+      input, textarea, select{ font-size:16px; }
+    }
+
+    .btn{
       padding:12px;
       border-radius:14px;
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.95);
-      outline:none;
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
-      font-size:14px;
-    }
-    /* منع Zoom على iOS */
-    @media (max-width:720px){ input{font-size:16px;} }
-
-    input:focus{
-      border-color: rgba(212,175,55,.65);
-      box-shadow:0 10px 22px rgba(212,175,55,.14);
-    }
-
-    .iconBtn{
-      width:52px;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(255,255,255,.92);
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
-      cursor:pointer;
-      font-weight:1000;
-      touch-action: manipulation;
-    }
-    .iconBtn:active{transform:translateY(1px)}
-    .iconBtn:focus{outline:3px solid rgba(212,175,55,.25); outline-offset:3px;}
-
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    button.primary{
-      flex:1;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid rgba(212,175,55,.55);
-      background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
-      color:#0f172a;
-      font-weight:1000;
-      cursor:pointer;
-      box-shadow:0 12px 22px rgba(212,175,55,.14);
-      touch-action: manipulation;
-    }
-    button.primary:active{transform:translateY(1px)}
-    button.primary[disabled]{opacity:.6;cursor:not-allowed;transform:none}
-
-    .hint{
-      margin-top:10px;
-      font-size:12px;
-      color:var(--muted);
+      border:1px solid rgba(176,141,87,.35);
+      background:linear-gradient(135deg, rgba(176,141,87,.18), rgba(215,185,122,.14));
+      color:var(--text);
       font-weight:900;
-      line-height:1.7;
+      cursor:pointer;
+      touch-action: manipulation;
+      user-select:none;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      white-space:nowrap;
+    }
+    .btn:hover{filter:brightness(1.02)}
+    .btn.secondary{
+      border-color: rgba(15,23,42,.14);
+      background:#fff;
+      opacity:.95;
+    }
+    .btn.danger{
+      border-color: rgba(220,38,38,.22);
+      background: rgba(220,38,38,.06);
+      color:#991b1b;
     }
 
-    .err{
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;border-radius:999px;
+      padding:8px 10px;font-weight:1000;
+      color:#334155;
+      white-space:nowrap;
+      max-width:100%;
+    }
+    .pill b{color:var(--text)}
+    .muted{color:var(--muted);font-weight:900}
+
+    .mono{
+      direction:ltr;
+      unicode-bidi:embed;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum" 1;
+      font-weight:900;
+    }
+
+    .grid4{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
       margin-top:10px;
-      display:none;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid rgba(220,38,38,.22);
-      background:var(--badSoft);
-      color:#991b1b;
-      font-weight:1000;
-      line-height:1.7;
+    }
+    @media (max-width:1000px){ .grid4{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){ .grid4{grid-template-columns:1fr} }
+
+    .kpi{
+      border:1px solid rgba(15,23,42,.10);
+      background:#fff;
+      border-radius:16px;
+      padding:14px;
+      box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      overflow:hidden;
+    }
+    .kpi .t{font-size:12px;color:var(--muted);font-weight:1000}
+    .kpi .v{font-size:22px;font-weight:1000;margin-top:6px}
+    .kpi .v.ok{color:#166534}
+    .kpi .v.bad{color:#991b1b}
+
+    .table-wrap{
+      overflow:auto;
+      margin-top:10px;
+      border-radius:12px;
+      max-width:100%;
+      -webkit-overflow-scrolling:touch;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:980px;
+      background:#fff;
+      border-radius:12px;
+      overflow:hidden;
+      max-width:100%;
+    }
+    th, td{
+      border:1px solid rgba(15,23,42,.10);
+      padding:8px;
+      text-align:center;
+      vertical-align:middle;
       word-break:break-word;
+      white-space:nowrap;
+    }
+    th{
+      background: linear-gradient(180deg, rgba(176,141,87,.10), rgba(215,185,122,.06));
+      font-weight:900;
+    }
+
+    .empty{
+      padding:14px;
+      border:1px dashed rgba(15,23,42,.18);
+      border-radius:14px;
+      background:rgba(255,255,255,.75);
+      color:var(--muted);
+      font-weight:1000;
+      text-align:center;
+      line-height:1.8;
+    }
+
+    @media (max-width: 820px){
+      .table-wrap{ overflow:visible; }
+      table{ min-width:0; }
+      table, thead, tbody, th, td, tr{ display:block; width:100%; }
+      thead{ display:none; }
+      tbody tr{
+        border:1px solid rgba(15,23,42,.12);
+        background:#fff;
+        border-radius:16px;
+        padding:10px;
+        margin-bottom:10px;
+        box-shadow: 0 10px 28px rgba(2,6,23,.06);
+      }
+      tbody td{ border:none; padding:8px 0; text-align:right; white-space:normal; }
+      tbody td + td{ border-top:1px dashed rgba(15,23,42,.12); }
+      tbody td[data-label]::before{
+        content: attr(data-label);
+        display:block;
+        font-size:12px;color: var(--muted);
+        font-weight:900;margin-bottom:6px;
+      }
+      tbody td.center{ text-align:center; }
     }
 
     .site-footer{
-      margin-top:14px; /* ✅ بدل margin-top:auto */
+      margin-top:auto;
       padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border-top:1px solid var(--stroke);
+      border:1px solid rgba(15,23,42,.10);
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
       border-radius:16px;
-      width:min(520px, 92vw);
+      width:min(520px, 94vw);
+      margin-inline:auto;
+      box-shadow: var(--shadow);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
-    /* ✅ QR clickable + Scan me */
-    .qrBox{
-      margin-top:14px;
-      display:flex;
-      justify-content:center;
-    }
-    .qrLink{
-      text-decoration:none;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:10px;
-    }
+    .qrBox{ margin-top:14px; display:flex; justify-content:center; }
+    .qrLink{ text-decoration:none; display:flex; flex-direction:column; align-items:center; gap:10px; }
     .qrLink img{
-      width:132px;
-      height:132px;
-      max-width:60vw;
+      width:132px; height:132px; max-width:60vw;
       border-radius:14px;
       border:1px solid rgba(15,23,42,.12);
       background:#fff;
@@ -188,164 +272,297 @@
       object-fit:contain;
       transition:transform .15s ease, box-shadow .15s ease;
     }
-    .qrLink:hover img,
-    .qrLink:active img{
-      transform:scale(1.03);
-      box-shadow:0 14px 34px rgba(2,6,23,.12);
-    }
-    .qrText{
-      font-size:12px;
-      font-weight:1000;
-      color:#334155;
-    }
+    .qrLink:hover img,.qrLink:active img{ transform:scale(1.03); box-shadow:0 14px 34px rgba(2,6,23,.12); }
+    .qrText{ font-size:12px; font-weight:1000; color:#334155; }
 
-    :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
+    :focus{ outline:3px solid rgba(176,141,87,.22); outline-offset:3px; }
 
-    .mini{
-      margin-top:8px;
-      font-size:12px;
-      color:#334155;
+    .toast{
+      position:fixed;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:22px;
+      padding:12px 14px;
+      background:#0f172a;
+      color:#fff;
+      border-radius:14px;
       font-weight:900;
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      box-shadow:0 16px 40px rgba(2,6,23,.25);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity .18s ease, transform .18s ease;
+      z-index:9999;
+      max-width:min(92vw, 520px);
+      text-align:center;
+      white-space:pre-line;
     }
-    .mini span{color:var(--muted); font-weight:900;}
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(-2px);
+    }
   </style>
 </head>
+
 <body>
-  <main class="wrap">
-    <section class="card" aria-label="Login card">
-      <div class="head">
-        <div class="brand">
-          <!-- ✅ اللوجو بدل AX -->
-          <div class="logo">
-            <img src="assets/logo.png" alt="Logo">
-          </div>
-          <div>
-            <h1 class="title">Axentro Backoffice</h1>
-            <p class="sub">تسجيل دخول الإدارة — عبر حساب Google</p>
-          </div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="wrap" id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">
+        <!-- ✅ توحيد مسار اللوجو زي باقي الصفحات -->
+        <img src="assets/logo.png" alt="BS Logo" onerror="this.style.display='none'">
+      </div>
+      <div>
+        <div class="brandTitle">B.S Medical &amp; Aesthetic</div>
+        <div class="brandSub">( Profits ) الأرباح</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+      <a class="btn secondary" href="dashboard.html">← رجوع للداش بورد</a>
+      <button class="btn danger" id="logoutBtn" type="button">تسجيل خروج</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>فلترة</h2>
+
+    <div class="row" role="region" aria-label="فلترة الأرباح">
+      <div>
+        <label for="fromDate">من تاريخ</label>
+        <input id="fromDate" type="date" />
+      </div>
+      <div>
+        <label for="toDate">إلى تاريخ</label>
+        <input id="toDate" type="date" />
+      </div>
+      <div>
+        <label for="mode">وضع الحساب</label>
+        <select id="mode">
+          <option value="estimate">تقديري (مبيعات - مشتريات - مصروفات)</option>
+          <option value="fifo" disabled>FIFO (قريبًا بعد بناء المخزون)</option>
+        </select>
+      </div>
+      <div>
+        <label>&nbsp;</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn" id="refreshBtn" type="button">🔄 تحديث</button>
+          <button class="btn secondary" id="clearFiltersBtn" type="button">مسح</button>
         </div>
       </div>
+    </div>
 
-      <div class="body">
-        <div id="errMsg" class="msg err" style="display:none"></div>
-        <div id="statusMsg" class="msg ok" style="display:none"></div>
-
-        <div class="googleArea">
-          <div id="googleBtnWrap"></div>
-          <p class="hint">لو دي أول مرة تسجّل دخول، هيتم إرسال طلب موافقة تلقائيًا للإدارة.</p>
-        </div>
-
-        <div class="note">
-          <span class="warn">⚠️</span>
-          <span>هذه الصفحة للإدارة فقط وليست للعملاء.</span>
-        </div>
+    <div class="grid4">
+      <div class="kpi">
+        <div class="t">إجمالي المبيعات</div>
+        <div class="v mono" id="kpiSales">0.00</div>
       </div>
-    </section>
-  </main>
+      <div class="kpi">
+        <div class="t">إجمالي المشتريات</div>
+        <div class="v mono" id="kpiPurch">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">إجمالي المصروفات</div>
+        <div class="v mono" id="kpiExp">0.00</div>
+      </div>
+      <div class="kpi">
+        <div class="t">صافي الربح (تقديري)</div>
+        <div class="v mono" id="kpiProfit">0.00</div>
+        <div class="t" id="kpiProfitHint" style="margin-top:6px">—</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center">
+      <div class="pill"><span class="muted">عدد عمليات البيع:</span> <b id="salesCount">0</b></div>
+      <div class="pill"><span class="muted">عدد عمليات الشراء:</span> <b id="purchCount">0</b></div>
+      <div class="pill"><span class="muted">عدد المصروفات:</span> <b id="expCount">0</b></div>
+      <div class="pill"><span class="muted">آخر تحديث:</span> <b id="lastSyncTxt">—</b></div>
+    </div>
+  </div>
+
+  <!-- ✅ شيلنا Import/Export المحلي لأنه غير مُفعّل وبيقلل احترافية الصفحة -->
+
+  <div class="card">
+    <h2>ملخص</h2>
+    <div class="table-wrap" aria-live="polite">
+      <table id="summaryTable" role="table" aria-label="ملخص الأرباح">
+        <thead>
+          <tr>
+            <th style="min-width:240px">البند</th>
+            <th style="min-width:220px">القيمة</th>
+          </tr>
+        </thead>
+        <tbody id="summaryBody"></tbody>
+      </table>
+    </div>
+    <div id="emptyBox" class="empty" style="display:none;margin-top:10px">
+      لا توجد بيانات في الفترة المحددة.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>تفاصيل (آخر 200 عملية بعد الفلترة)</h2>
+    <div class="table-wrap" aria-live="polite">
+      <table id="detailsTable" role="table" aria-label="تفاصيل العمليات">
+        <thead>
+          <tr>
+            <th style="width:120px">رقم فاتورة</th>
+            <th style="min-width:220px">العميل</th>
+            <th style="min-width:160px">التاريخ</th>
+            <th style="min-width:180px">الإجمالي</th>
+            <th style="min-width:180px">الربح</th>
+          </tr>
+        </thead>
+        <tbody id="detailsBody"></tbody>
+      </table>
+    </div>
+  </div>
 
   <footer class="site-footer">
     <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
     <div class="line2">By Ahmed Hamouda</div>
 
-    <!-- ✅ QR تحت الفوتر + clickable + Scan me -->
     <div class="qrBox">
       <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-        <img src="assets/qr.png" alt="QR Code">
+        <img src="assets/qr.png" alt="QR Code" onerror="this.style.display='none'">
         <span class="qrText">Scan me</span>
       </a>
     </div>
   </footer>
+</div>
 
-  <script src="config.js"></script>
-  <script src="app.js"></script>
-  <!-- Google Identity Services -->
-  <script src="https://accounts.google.com/gsi/client"></script>
-  <script>
-  (async function(){
-    "use strict";
-    const statusEl = document.getElementById("statusMsg");
-    const errEl = document.getElementById("errMsg");
-    const btnWrap = document.getElementById("googleBtnWrap");
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>AxentroAuth.requireAuth();</script>
 
-    function getNext(){
-      try{ return new URLSearchParams(location.search).get("next") || "dashboard.html"; }
-      catch(e){ return "dashboard.html"; }
+<script>
+(function(){
+  "use strict";
+
+  const $=(id)=>document.getElementById(id);
+
+  function toast(msg){
+    const el = $("toast");
+    if(!el) return alert(msg);
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(()=> el.classList.remove("show"), 2200);
+  }
+
+  $("logoutBtn")?.addEventListener("click",(e)=>{ e.preventDefault(); AxentroAuth.logout(); });
+
+  const fmt=(n)=> {
+    const x = Number(n||0);
+    const v = Math.round((isFinite(x)?x:0)*100)/100;
+    return v.toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 });
+  };
+
+  function readFilters_(){
+    const from = $("fromDate").value ? $("fromDate").value : "";
+    const to = $("toDate").value ? $("toDate").value : "";
+    const mode = $("mode").value || "estimate";
+    return { from, to, mode };
+  }
+
+  function render_(rep){
+    const grossSales = Number(rep.gross_sales||0);
+    const totalPurch = Number(rep.total_purchases||0);
+    const cogs = Number(rep.cogs||0);
+    const totalExp = Number(rep.total_expenses||0);
+    const grossProfit = Number(rep.gross_profit||0);
+    const netProfit = Number(rep.net_profit||0);
+
+    $("kpiSales").textContent = fmt(grossSales);
+    $("kpiPurch").textContent = fmt(rep.mode === "fifo" ? cogs : totalPurch);
+    $("kpiExp").textContent = fmt(totalExp);
+    $("kpiProfit").textContent = fmt(netProfit);
+
+    $("kpiProfitHint").textContent =
+      rep.mode === "fifo"
+        ? `ربح إجمالي: ${fmt(grossProfit)} (مبيعات - COGS) ثم صافي: ${fmt(netProfit)} بعد المصروفات`
+        : `ربح إجمالي: ${fmt(grossProfit)} (مبيعات - مشتريات) ثم صافي: ${fmt(netProfit)} بعد المصروفات`;
+
+    $("salesCount").textContent = `${Number(rep.sales_count||0)} فاتورة`;
+    $("purchCount").textContent = `${Number(rep.purchase_count||0)} فاتورة`;
+    $("expCount").textContent = `${Number(rep.expense_count||0)} بند`;
+    $("lastSyncTxt").textContent = `${new Date().toLocaleString("ar-EG")}`;
+
+    // Summary
+    const sb = $("summaryBody"); sb.innerHTML = "";
+    const rows = rep.mode === "fifo"
+      ? [
+          ["إجمالي المبيعات", grossSales],
+          ["إجمالي COGS (FIFO)", cogs],
+          ["إجمالي المصروفات", totalExp],
+          ["الربح الإجمالي", grossProfit],
+          ["صافي الربح", netProfit],
+        ]
+      : [
+          ["إجمالي المبيعات", grossSales],
+          ["إجمالي المشتريات", totalPurch],
+          ["إجمالي المصروفات", totalExp],
+          ["الربح الإجمالي", grossProfit],
+          ["صافي الربح", netProfit],
+        ];
+
+    for(const r of rows){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${r[0]}</td><td class="mono">${fmt(r[1])}</td>`;
+      sb.appendChild(tr);
     }
-    function showStatus(t){ if(statusEl){ statusEl.textContent=t||""; statusEl.style.display=t? "block":"none"; } }
-    function showErr(t){ if(errEl){ errEl.textContent=t||""; errEl.style.display=t? "block":"none"; } }
 
-    if (window.AxentroAuth && AxentroAuth.isAuthed()) {
-      location.replace(getNext());
+    // Details (Sales)
+    const details = Array.isArray(rep.sales_details) ? rep.sales_details : [];
+    const db = $("detailsBody"); db.innerHTML = "";
+    if(details.length === 0){
+      $("emptyBox").style.display = "block";
       return;
     }
+    $("emptyBox").style.display = "none";
 
-    const cfg = (window.AxentroAuth && AxentroAuth.cfg) ? AxentroAuth.cfg : (window.AXENTRO_CONFIG||{});
-    if(!cfg.GAS_WEB_APP_URL || !cfg.GOOGLE_CLIENT_ID){
-      showErr("⚠️ لازم تضيف GAS_WEB_APP_URL و GOOGLE_CLIENT_ID داخل ملف config.js (إعداد مرة واحدة).");
-      return;
+    for(const it of details){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td data-label="رقم فاتورة" class="mono">${it.invoice_no||""}</td>
+        <td data-label="العميل">${it.customer||""}</td>
+        <td data-label="التاريخ" class="mono">${it.invoice_date||""}</td>
+        <td data-label="الإجمالي" class="mono">${fmt(it.total||0)}</td>
+        <td data-label="الربح" class="mono">—</td>
+      `;
+      db.appendChild(tr);
     }
+  }
 
-    async function waitForGIS(timeoutMs){
-      const start = Date.now();
-      while(Date.now() - start < timeoutMs){
-        if(window.google && google.accounts && google.accounts.id) return true;
-        await new Promise(r=>setTimeout(r, 120));
-      }
-      return false;
-    }
-
-    const gisOk = await waitForGIS(4000);
-    if(!gisOk){
-      showErr("تعذر تحميل Google Login. جرّب تحديث الصفحة أو افتحها من متصفح Chrome (وتأكد أن الإضافات مثل AdBlock لا تمنع accounts.google.com).");
-      return;
-    }
-
-    window.handleCredential = async function(resp){
-      try{
-        showErr("");
-        showStatus("جاري تسجيل الدخول...");
-        const out = await AxentroAuth.loginWithGoogleIdToken(resp.credential);
-        if(out.status === "APPROVED"){
-          showStatus("");
-          location.replace(getNext());
-        } else if(out.status === "PENDING") {
-          showStatus("");
-          showErr("تم تسجيل طلبك للموافقة. انتظر موافقة الإدارة.");
-        } else {
-          showStatus("");
-          showErr(out.message || "تم رفض الدخول.");
-        }
-      } catch(e) {
-        showStatus("");
-        showErr(e && e.message ? e.message : String(e));
-      }
-    };
-
-    // Render Google button
+  async function loadReport_(){
     try{
-      google.accounts.id.initialize({
-        client_id: cfg.GOOGLE_CLIENT_ID,
-        callback: window.handleCredential,
-        auto_select: false,
-        cancel_on_tap_outside: true
+      const f = readFilters_();
+      const rep = await AxentroApi.getFinancialReport({
+        from_date: f.from,
+        to_date: f.to,
+        mode: f.mode
       });
-      google.accounts.id.renderButton(btnWrap, {
-        type: "standard",
-        theme: "outline",
-        size: "large",
-        text: "continue_with",
-        shape: "pill",
-        width: 320
-      });
+      render_(rep);
+      toast("✅ تم تحديث الأرباح");
     }catch(e){
-      showErr("Google Login لم يبدأ. راجع GOOGLE_CLIENT_ID في config.js (لازم ينتهي بـ apps.googleusercontent.com).\n" + (e && e.message ? e.message : String(e)));
-      return;
+      toast(e.message || "فشل تحميل بيانات الأرباح");
     }
-  })();
-  </script>
+  }
+
+  ["fromDate","toDate","mode"].forEach(id=>{
+    $(id)?.addEventListener("change", loadReport_);
+  });
+  $("refreshBtn")?.addEventListener("click", loadReport_);
+  $("clearFiltersBtn")?.addEventListener("click", ()=>{
+    $("fromDate").value = "";
+    $("toDate").value = "";
+    loadReport_();
+  });
+
+  loadReport_();
+})();
+</script>
+</script>
 </body>
 </html>

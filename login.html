@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>المخزون — Axentro Backoffice</title>
-
+  <title>تسجيل دخول الإدارة — Axentro</title>
   <style>
     :root{
       --bg:#ffffff;
@@ -14,16 +13,13 @@
       --shadow:0 18px 50px rgba(15,23,42,.10);
       --radius:18px;
 
+      --gold1:#D4AF37;
+      --gold2:#B8860B;
       --goldSoft: rgba(212,175,55,.18);
-
-      --ok:#16a34a;
-      --okSoft: rgba(22,163,74,.10);
-
-      --warn:#f59e0b;
-      --warnSoft: rgba(245,158,11,.12);
+      --goldSoft2: rgba(184,134,11,.12);
 
       --bad:#dc2626;
-      --badSoft: rgba(220,38,38,.10);
+      --badSoft: rgba(220,38,38,.07);
     }
 
     *{box-sizing:border-box}
@@ -37,114 +33,57 @@
         radial-gradient(760px 520px at 90% 20%, rgba(15,23,42,.05), transparent 60%),
         linear-gradient(180deg, var(--bg), #f7f8fb);
       min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;      /* ✅ رفع الفوتر لفوق (نخلي المحتوى متوازن) */
+      align-items:center;          /* ✅ */
       -webkit-font-smoothing:antialiased;
       padding: 18px;
       padding-bottom: calc(18px + env(safe-area-inset-bottom));
-      overflow-x:hidden; /* ✅ يمنع أي انزياح عرضي على الموبايل */
     }
 
-    .container{
-      width:min(1180px, 94vw);
-      margin-inline:auto;
-      display:flex;
-      flex-direction:column;
-      gap:14px;
-    }
-
-    .topbar{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      background:rgba(255,255,255,.92);
-      border:1px solid var(--stroke);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      padding:12px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      min-width: 220px;
-    }
-    .logo{
-      width:44px;height:44px;border-radius:999px;display:grid;place-items:center;
-      background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
-      border:1px solid rgba(212,175,55,.35);
-      box-shadow: 0 10px 26px rgba(15,23,42,.10);
-      overflow:hidden; padding:6px; flex:0 0 auto;
-    }
-    .logo img{width:100%;height:100%;object-fit:contain;display:block}
-    .brand h1{margin:0;font-size:14px;font-weight:1000;line-height:1.1}
-    .brand p{margin:2px 0 0;font-size:12px;color:var(--muted);font-weight:900}
-
-    .actions{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .btn{
-      appearance:none;
-      border:1px solid var(--stroke);
-      background:rgba(255,255,255,.92);
-      box-shadow:0 8px 18px rgba(15,23,42,.06);
-      padding:10px 12px;
-      border-radius:14px;
-      font-weight:1000;
-      cursor:pointer;
-      touch-action: manipulation;
-      color:var(--text);
-      font-size:13px;
-      line-height:1;
-      white-space:nowrap;
-    }
-    .btn:active{transform:translateY(1px)}
-    .btn.primary{
-      border-color: rgba(212,175,55,.55);
-      background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
-      box-shadow:0 12px 22px rgba(212,175,55,.14);
-    }
-    .btn.danger{
-      border-color: rgba(220,38,38,.25);
-      background: rgba(220,38,38,.06);
-      color:#991b1b;
-    }
-
-    .grid{
+    .wrap{
+      width:min(980px, 92vw);
+      margin:0 auto;
+      padding:18px;
       display:grid;
-      gap:14px;
-      grid-template-columns: 1fr;
-      align-items:start;
-    }
-    @media (min-width: 980px){
-      .grid{ grid-template-columns: 380px 1fr; }
+      place-items:center;
     }
 
     .card{
+      width:min(520px, 100%);
       background:rgba(255,255,255,.92);
       border:1px solid var(--stroke);
       border-radius:var(--radius);
       box-shadow:var(--shadow);
-      padding:12px;
+      padding:16px;
     }
 
-    .card h2{
-      margin:0 0 10px 0;
-      font-size:14px;
-      font-weight:1000;
+    .head{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{
+      width:54px;height:54px;border-radius:999px;display:grid;place-items:center;
+      background: linear-gradient(135deg, rgba(212,175,55,.18), rgba(184,134,11,.12));
+      border:1px solid rgba(212,175,55,.35);
+      box-shadow: 0 10px 26px rgba(15,23,42,.10);
+      overflow:hidden; padding:7px; flex:0 0 auto;
     }
-    .muted{color:var(--muted); font-weight:900; font-size:12px}
+    .logo img{width:100%;height:100%;object-fit:contain;display:block}
+
+    .title{margin:0;font-weight:1000;font-size:18px;line-height:1.2}
+    .sub{margin:2px 0 0;font-weight:900;color:var(--muted);font-size:12px}
 
     label{display:block;font-size:12px;color:var(--muted);margin:10px 0 6px;font-weight:900}
 
-    input, select{
+    .field{
+      display:flex;
+      gap:10px;
+      align-items:stretch;
+    }
+
+    input{
       width:100%;
-      padding:11px 12px;
+      padding:12px;
       border-radius:14px;
       border:1px solid var(--stroke);
       background:rgba(255,255,255,.95);
@@ -152,177 +91,79 @@
       box-shadow:0 8px 18px rgba(15,23,42,.06);
       font-size:14px;
     }
-    @media (max-width:720px){ input,select{font-size:16px;} }
-    input:focus, select:focus{
+    /* منع Zoom على iOS */
+    @media (max-width:720px){ input{font-size:16px;} }
+
+    input:focus{
       border-color: rgba(212,175,55,.65);
       box-shadow:0 10px 22px rgba(212,175,55,.14);
     }
 
-    .filters{
-      display:grid;
-      gap:10px;
-      grid-template-columns: 1fr;
+    .iconBtn{
+      width:52px;
+      border-radius:14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.92);
+      box-shadow:0 8px 18px rgba(15,23,42,.06);
+      cursor:pointer;
+      font-weight:1000;
+      touch-action: manipulation;
     }
-    @media (min-width: 520px){
-      .filters{ grid-template-columns: 1fr 1fr; }
+    .iconBtn:active{transform:translateY(1px)}
+    .iconBtn:focus{outline:3px solid rgba(212,175,55,.25); outline-offset:3px;}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button.primary{
+      flex:1;
+      padding:12px 14px;
+      border-radius:16px;
+      border:1px solid rgba(212,175,55,.55);
+      background: linear-gradient(135deg, rgba(212,175,55,.22), rgba(184,134,11,.18));
+      color:#0f172a;
+      font-weight:1000;
+      cursor:pointer;
+      box-shadow:0 12px 22px rgba(212,175,55,.14);
+      touch-action: manipulation;
     }
-    @media (min-width: 980px){
-      .filters{ grid-template-columns: 1fr; }
+    button.primary:active{transform:translateY(1px)}
+    button.primary[disabled]{opacity:.6;cursor:not-allowed;transform:none}
+
+    .hint{
+      margin-top:10px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:900;
+      line-height:1.7;
     }
 
-    .toolbar{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
+    .err{
       margin-top:10px;
-    }
-
-    .msg{
-      margin-top:10px;
+      display:none;
       padding:10px 12px;
       border-radius:14px;
-      border:1px solid var(--stroke);
-      background: rgba(15,23,42,.03);
+      border:1px solid rgba(220,38,38,.22);
+      background:var(--badSoft);
+      color:#991b1b;
       font-weight:1000;
-      font-size:12px;
       line-height:1.7;
-      display:none;
       word-break:break-word;
     }
-    .msg.ok{border-color: rgba(22,163,74,.22); background: var(--okSoft); color:#14532d;}
-    .msg.warn{border-color: rgba(245,158,11,.25); background: var(--warnSoft); color:#7c2d12;}
-    .msg.bad{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
 
-    .miniBar{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-      font-size:12px;
-      font-weight:1000;
-      color:#334155;
-    }
-    .miniBar span{color:var(--muted); font-weight:900;}
-
-    /* ===== Desktop table ===== */
-    .tableWrap{
-      overflow:auto;
-      border-radius:14px;
-      border:1px solid var(--stroke);
-      background:#fff;
-      -webkit-overflow-scrolling: touch;
-    }
-    table{
-      width:100%;
-      border-collapse:separate;
-      border-spacing:0;
-      min-width: 820px;
-    }
-    th, td{
-      padding:10px 10px;
-      border-bottom:1px solid #eef1f6;
-      font-size:13px;
-      vertical-align:middle;
-      white-space:nowrap;
-    }
-    th{
-      position:sticky;
-      top:0;
-      background:#fbfbfd;
-      font-weight:1000;
-      z-index:1;
-    }
-    tr:last-child td{border-bottom:none}
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid var(--stroke);
-      font-weight:1000;
-      font-size:12px;
-    }
-    .pill.ok{border-color: rgba(22,163,74,.25); background: var(--okSoft); color:#14532d;}
-    .pill.low{border-color: rgba(245,158,11,.28); background: var(--warnSoft); color:#7c2d12;}
-    .pill.out{border-color: rgba(220,38,38,.22); background: var(--badSoft); color:#991b1b;}
-
-    /* ===== Mobile cards ===== */
-    .mobileList{ display:none; }
-    @media (max-width: 720px){
-      .tableWrap{ display:none; }
-      .mobileList{ display:grid; gap:10px; }
-
-      .itemCard{
-        background:#fff;
-        border:1px solid var(--stroke);
-        border-radius:16px;
-        box-shadow:0 10px 26px rgba(2,6,23,.06);
-        padding:12px;
-      }
-      .itemHead{
-        display:flex;
-        align-items:flex-start;
-        justify-content:space-between;
-        gap:10px;
-      }
-      .itemTitle{
-        margin:0;
-        font-weight:1000;
-        font-size:14px;
-        line-height:1.5;
-      }
-      .itemSku{
-        margin-top:4px;
-        font-size:12px;
-        color:var(--muted);
-        font-weight:900;
-        direction:ltr;
-        text-align:left;
-      }
-      .itemGrid{
-        margin-top:10px;
-        display:grid;
-        grid-template-columns: 1fr 1fr;
-        gap:8px;
-      }
-      .kv{
-        border:1px solid #eef1f6;
-        background:#fbfbfd;
-        border-radius:14px;
-        padding:10px;
-      }
-      .kv .k{ font-size:11px; color:var(--muted); font-weight:900; }
-      .kv .v{ margin-top:4px; font-size:13px; font-weight:1000; }
-      .itemActions{
-        margin-top:10px;
-        display:flex;
-        gap:10px;
-        justify-content:flex-start;
-        flex-wrap:wrap;
-      }
-      .itemActions .btn{ flex:1; }
-    }
-
-    /* ===== Footer ===== */
     .site-footer{
-      margin-top:14px;
+      margin-top:14px; /* ✅ بدل margin-top:auto */
       padding:16px 16px 18px;
       text-align:center;
       color:var(--muted);
-      border:1px solid var(--stroke);
+      border-top:1px solid var(--stroke);
       background: rgba(255,255,255,.78);
       backdrop-filter: blur(10px);
       border-radius:16px;
-      width:min(520px, 94vw);
-      margin-inline:auto;
-      box-shadow: var(--shadow);
+      width:min(520px, 92vw);
     }
     .site-footer .line1{ font-weight:1000; color:#0f172a; }
     .site-footer .line2{ margin-top:6px; font-weight:900; }
 
+    /* ✅ QR clickable + Scan me */
     .qrBox{
       margin-top:14px;
       display:flex;
@@ -360,618 +201,151 @@
 
     :focus{ outline:3px solid rgba(212,175,55,.25); outline-offset:3px; }
 
-    /* ===== Bottom Sheet (Edit Min) ===== */
-    .sheetOverlay{
-      position:fixed;
-      inset:0;
-      background: rgba(15,23,42,.45);
-      display:none;
-      align-items:flex-end;
-      justify-content:center;
-      padding: 14px;
-      padding-bottom: calc(14px + env(safe-area-inset-bottom));
-      z-index: 9999;
-    }
-    .sheetOverlay.show{ display:flex; }
-
-    .sheet{
-      width:min(560px, 100%);
-      background: rgba(255,255,255,.96);
-      border:1px solid var(--stroke);
-      border-radius: 20px;
-      box-shadow: 0 24px 70px rgba(2,6,23,.22);
-      overflow:hidden;
-      transform: translateY(10px);
-      animation: sheetIn .18s ease-out forwards;
-    }
-    @keyframes sheetIn{
-      to { transform: translateY(0); }
-    }
-    .sheetTop{
+    .mini{
+      margin-top:8px;
+      font-size:12px;
+      color:#334155;
+      font-weight:900;
       display:flex;
-      align-items:center;
       justify-content:space-between;
       gap:10px;
-      padding:12px 14px;
-      background:#fbfbfd;
-      border-bottom:1px solid #eef1f6;
+      flex-wrap:wrap;
     }
-    .sheetTop h3{
-      margin:0;
-      font-size:14px;
-      font-weight:1000;
-    }
-    .sheetClose{
-      border:1px solid var(--stroke);
-      background:#fff;
-      border-radius:12px;
-      padding:8px 10px;
-      cursor:pointer;
-      font-weight:1000;
-    }
-    .sheetBody{
-      padding:14px;
-    }
-    .sheetMeta{
-      font-size:12px;
-      color:var(--muted);
-      font-weight:900;
-      line-height:1.7;
-      margin-bottom:10px;
-    }
-    .sheetActions{
-      display:flex;
-      gap:10px;
-      padding: 12px 14px;
-      border-top:1px solid #eef1f6;
-      background:#fbfbfd;
-    }
-    .sheetActions .btn{ flex:1; }
+    .mini span{color:var(--muted); font-weight:900;}
   </style>
 </head>
-
 <body>
-  <div class="container">
-
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">
-          <img src="assets/logo.png" alt="BS Logo">
-        </div>
-        <div>
-          <h1>B.S Medical & Aesthetic</h1>
-          <p>(Inventory) المخزون</p>
+  <main class="wrap">
+    <section class="card" aria-label="Login card">
+      <div class="head">
+        <div class="brand">
+          <!-- ✅ اللوجو بدل AX -->
+          <div class="logo">
+            <img src="assets/logo.png" alt="Logo">
+          </div>
+          <div>
+            <h1 class="title">Axentro Backoffice</h1>
+            <p class="sub">تسجيل دخول الإدارة — عبر حساب Google</p>
+          </div>
         </div>
       </div>
 
-      <div class="actions">
-        <button class="btn" type="button" id="btnBack">← رجوع للداش بورد</button>
-        <button class="btn danger" type="button" id="btnLogout">تسجيل خروج</button>
+      <div class="body">
+        <div id="errMsg" class="msg err" style="display:none"></div>
+        <div id="statusMsg" class="msg ok" style="display:none"></div>
+
+        <div class="googleArea">
+          <div id="googleBtnWrap"></div>
+          <p class="hint">لو دي أول مرة تسجّل دخول، هيتم إرسال طلب موافقة تلقائيًا للإدارة.</p>
+        </div>
+
+        <div class="note">
+          <span class="warn">⚠️</span>
+          <span>هذه الصفحة للإدارة فقط وليست للعملاء.</span>
+        </div>
       </div>
-    </header>
-
-    <section class="grid">
-      <!-- Filters -->
-      <aside class="card">
-        <h2>بحث وفلترة</h2>
-
-        <div class="filters">
-          <div>
-            <label for="q">بحث (SKU / الاسم / الباركود)</label>
-            <input id="q" type="text" placeholder="ابحث..." autocomplete="off" />
-          </div>
-
-          <div>
-            <label for="status">الحالة</label>
-            <select id="status">
-              <option value="ALL">الكل</option>
-              <option value="OK">متوفر</option>
-              <option value="LOW">مخزون منخفض</option>
-              <option value="OUT">غير متوفر</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="minQty">كمية من</label>
-            <input id="minQty" type="number" min="0" step="1" value="0" />
-          </div>
-
-          <div>
-            <label for="sort">ترتيب</label>
-            <select id="sort">
-              <option value="NAME_ASC">الاسم (أ-ي)</option>
-              <option value="NAME_DESC">الاسم (ي-أ)</option>
-              <option value="QTY_DESC">الكمية (الأكبر أولاً)</option>
-              <option value="QTY_ASC">الكمية (الأصغر أولاً)</option>
-              <option value="MIN_DESC">Min (الأكبر أولاً)</option>
-              <option value="MIN_ASC">Min (الأصغر أولاً)</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="toolbar">
-          <button class="btn primary" id="btnRefresh" type="button">تحديث</button>
-          <button class="btn" id="btnRebuild" type="button">مسح الكاش</button>
-          <button class="btn" id="btnCsv" type="button">تصدير CSV</button>
-        </div>
-
-        <div id="msgOk" class="msg ok"></div>
-        <div id="msgWarn" class="msg warn"></div>
-        <div id="msgBad" class="msg bad"></div>
-
-        <div class="miniBar" style="margin-top:12px">
-          <div><span>عدد النتائج:</span> <strong id="statCount">0</strong></div>
-          <div><span>إجمالي الكمية:</span> <strong id="statQty">0</strong></div>
-        </div>
-
-        <div class="miniBar">
-          <div><span>آخر تحديث:</span> <strong id="statUpdated">—</strong></div>
-        </div>
-      </aside>
-
-      <!-- Data -->
-      <main class="card">
-        <h2>قائمة المخزون</h2>
-        <p class="muted">الحالة محسوبة حسب الكمية: 0 غير متوفر، 1-10 مخزون منخفض، أكثر من 10 متوفر.</p>
-
-        <!-- Desktop Table -->
-        <div class="tableWrap" aria-label="Inventory table container">
-          <table aria-label="Inventory">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>SKU</th>
-                <th>اسم المنتج</th>
-                <th>الكمية</th>
-                <th>Min</th>
-                <th>الحالة</th>
-                <th>إجراء</th>
-              </tr>
-            </thead>
-            <tbody id="tbody">
-              <tr><td colspan="7">جاري التحميل…</td></tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Mobile Cards -->
-        <div id="mobileList" class="mobileList" aria-label="Inventory mobile list"></div>
-      </main>
     </section>
+  </main>
 
-    <footer class="site-footer">
-      <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
-      <div class="line2">By Ahmed Hamouda</div>
+  <footer class="site-footer">
+    <div class="line1">Axentro – All Rights Reserved 2024 ©</div>
+    <div class="line2">By Ahmed Hamouda</div>
 
-      <div class="qrBox">
-        <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
-          <img src="assets/qr.png" alt="QR Code">
-          <span class="qrText">Scan me</span>
-        </a>
-      </div>
-    </footer>
-
-  </div>
-
-  <!-- Bottom Sheet: Edit Min -->
-  <div id="sheetOverlay" class="sheetOverlay" aria-hidden="true">
-    <div class="sheet" role="dialog" aria-modal="true" aria-label="Edit Min">
-      <div class="sheetTop">
-        <h3 id="sheetTitle">تعديل Min</h3>
-        <button class="sheetClose" type="button" id="sheetCloseBtn">إغلاق</button>
-      </div>
-
-      <div class="sheetBody">
-        <div id="sheetMeta" class="sheetMeta"></div>
-
-        <label for="sheetMinInput">Min الجديد (رقم صحيح ≥ 0)</label>
-        <input id="sheetMinInput" type="number" min="0" step="1" inputmode="numeric" />
-
-        <div class="sheetMeta" style="margin-top:10px">
-          <div>ملاحظة: تركه فارغًا يعني إزالة Min.</div>
-        </div>
-      </div>
-
-      <div class="sheetActions">
-        <button class="btn" type="button" id="sheetCancel">إلغاء</button>
-        <button class="btn primary" type="button" id="sheetSave">حفظ</button>
-      </div>
+    <!-- ✅ QR تحت الفوتر + clickable + Scan me -->
+    <div class="qrBox">
+      <a class="qrLink" href="https://axentro-official.github.io/axentro-website/links.html" target="_blank" rel="noopener">
+        <img src="assets/qr.png" alt="QR Code">
+        <span class="qrText">Scan me</span>
+      </a>
     </div>
-  </div>
+  </footer>
 
   <script src="config.js"></script>
   <script src="app.js"></script>
-
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client"></script>
   <script>
-    (function(){
-      "use strict";
+  (async function(){
+    "use strict";
+    const statusEl = document.getElementById("statusMsg");
+    const errEl = document.getElementById("errMsg");
+    const btnWrap = document.getElementById("googleBtnWrap");
 
-      if (window.AxentroAuth && AxentroAuth.requireAuth) AxentroAuth.requireAuth();
+    function getNext(){
+      try{ return new URLSearchParams(location.search).get("next") || "dashboard.html"; }
+      catch(e){ return "dashboard.html"; }
+    }
+    function showStatus(t){ if(statusEl){ statusEl.textContent=t||""; statusEl.style.display=t? "block":"none"; } }
+    function showErr(t){ if(errEl){ errEl.textContent=t||""; errEl.style.display=t? "block":"none"; } }
 
-      const el = {
-        q: document.getElementById("q"),
-        status: document.getElementById("status"),
-        minQty: document.getElementById("minQty"),
-        sort: document.getElementById("sort"),
-        tbody: document.getElementById("tbody"),
-        mobileList: document.getElementById("mobileList"),
-        statCount: document.getElementById("statCount"),
-        statQty: document.getElementById("statQty"),
-        statUpdated: document.getElementById("statUpdated"),
-        msgOk: document.getElementById("msgOk"),
-        msgWarn: document.getElementById("msgWarn"),
-        msgBad: document.getElementById("msgBad"),
-        btnRefresh: document.getElementById("btnRefresh"),
-        btnRebuild: document.getElementById("btnRebuild"),
-        btnCsv: document.getElementById("btnCsv"),
-        btnLogout: document.getElementById("btnLogout"),
-        btnBack: document.getElementById("btnBack"),
+    if (window.AxentroAuth && AxentroAuth.isAuthed()) {
+      location.replace(getNext());
+      return;
+    }
 
-        sheetOverlay: document.getElementById("sheetOverlay"),
-        sheetCloseBtn: document.getElementById("sheetCloseBtn"),
-        sheetCancel: document.getElementById("sheetCancel"),
-        sheetSave: document.getElementById("sheetSave"),
-        sheetMinInput: document.getElementById("sheetMinInput"),
-        sheetTitle: document.getElementById("sheetTitle"),
-        sheetMeta: document.getElementById("sheetMeta"),
-      };
+    const cfg = (window.AxentroAuth && AxentroAuth.cfg) ? AxentroAuth.cfg : (window.AXENTRO_CONFIG||{});
+    if(!cfg.GAS_WEB_APP_URL || !cfg.GOOGLE_CLIENT_ID){
+      showErr("⚠️ لازم تضيف GAS_WEB_APP_URL و GOOGLE_CLIENT_ID داخل ملف config.js (إعداد مرة واحدة).");
+      return;
+    }
 
-      // Role guardrails
-      const role = (window.AxentroRoles ? window.AxentroRoles.axRole() : (localStorage.getItem('ax_role')||'viewer')).toLowerCase();
-      const CAN_EDIT = window.AxentroRoles ? window.AxentroRoles.axCanEdit() : (role === 'admin');
-
-      function showMsg(type, text){
-        el.msgOk.style.display = "none";
-        el.msgWarn.style.display = "none";
-        el.msgBad.style.display = "none";
-        if(!text) return;
-        const box = type === "ok" ? el.msgOk : (type === "warn" ? el.msgWarn : el.msgBad);
-        box.textContent = text;
-        box.style.display = "block";
+    async function waitForGIS(timeoutMs){
+      const start = Date.now();
+      while(Date.now() - start < timeoutMs){
+        if(window.google && google.accounts && google.accounts.id) return true;
+        await new Promise(r=>setTimeout(r, 120));
       }
+      return false;
+    }
 
-      function esc(s){
-        return String(s ?? "").replace(/[&<>"']/g, c => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-        }[c]));
-      }
+    const gisOk = await waitForGIS(4000);
+    if(!gisOk){
+      showErr("تعذر تحميل Google Login. جرّب تحديث الصفحة أو افتحها من متصفح Chrome (وتأكد أن الإضافات مثل AdBlock لا تمنع accounts.google.com).");
+      return;
+    }
 
-      function fmtNum(n){
-        const x = Number(n||0);
-        return (Number.isFinite(x) ? x : 0);
-      }
-
-      // ✅ الحالة حسب طلبك: 0 OUT / 1-10 LOW / 11+ OK
-      function computeStatus(qty){
-        const q = fmtNum(qty);
-        if(q <= 0) return "OUT";
-        if(q <= 10) return "LOW";
-        return "OK";
-      }
-
-      function statusPill(status){
-        if(status === "OK")  return '<span class="pill ok">متوفر</span>';
-        if(status === "LOW") return '<span class="pill low">مخزون منخفض</span>';
-        if(status === "OUT") return '<span class="pill out">غير متوفر</span>';
-        return '<span class="pill">'+esc(status)+'</span>';
-      }
-
-      let rawItems = [];
-
-      // ===== Bottom Sheet logic =====
-      let sheetCurrentProductId = null;
-
-      function openSheet(item){
-        sheetCurrentProductId = String(item.product_id || "");
-        const sku = String(item.sku || "");
-        const name = String(item.name || "");
-        const qty = fmtNum(item.on_hand_qty);
-        const minEff = (item.min_effective == null ? "" : String(fmtNum(item.min_effective)));
-
-        el.sheetTitle.textContent = "تعديل Min";
-        el.sheetMeta.innerHTML =
-          "المنتج: <strong>" + esc(name) + "</strong><br>" +
-          "SKU: <span style='direction:ltr;display:inline-block'>" + esc(sku) + "</span> · " +
-          "الكمية الحالية: <strong>" + esc(qty) + "</strong>";
-
-        el.sheetMinInput.value = minEff;
-        el.sheetOverlay.classList.add("show");
-        el.sheetOverlay.setAttribute("aria-hidden", "false");
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
-
-        setTimeout(()=> { try{ el.sheetMinInput.focus(); }catch(e){} }, 0);
-      }
-
-      function closeSheet(){
-        el.sheetOverlay.classList.remove("show");
-        el.sheetOverlay.setAttribute("aria-hidden", "true");
-        document.documentElement.style.overflow = "";
-        document.body.style.overflow = "";
-        sheetCurrentProductId = null;
-      }
-
-      el.sheetCloseBtn.addEventListener("click", closeSheet);
-      el.sheetCancel.addEventListener("click", closeSheet);
-      el.sheetOverlay.addEventListener("click", (e) => {
-        if(e.target === el.sheetOverlay) closeSheet();
-      });
-
-      // ===== Filters/Render =====
-      function applyFilters(){
-        const q = (el.q.value || "").trim().toLowerCase();
-        const st = el.status.value || "ALL";
-        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
-        const sort = el.sort.value || "NAME_ASC";
-
-        let items = rawItems.slice();
-
-        if(q){
-          items = items.filter(it => {
-            const hay = [it.sku, it.name, it.barcode]
-              .map(v => String(v||"").toLowerCase())
-              .join(" ");
-            return hay.includes(q);
-          });
-        }
-
-        if(st !== "ALL"){
-          items = items.filter(it => String(it._status||"") === st);
-        }
-
-        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
-
-        items.sort((a,b) => {
-          const an = String(a.name||"");
-          const bn = String(b.name||"");
-          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
-          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
-          switch(sort){
-            case "NAME_DESC": return bn.localeCompare(an, "ar");
-            case "QTY_DESC": return bq - aq;
-            case "QTY_ASC": return aq - bq;
-            case "MIN_DESC": return bmin - amin;
-            case "MIN_ASC": return amin - bmin;
-            default: return an.localeCompare(bn, "ar");
-          }
-        });
-
-        render(items);
-      }
-
-      function render(items){
-        const totalQty = items.reduce((acc,it)=> acc + fmtNum(it.on_hand_qty), 0);
-        el.statCount.textContent = String(items.length);
-        el.statQty.textContent = String(totalQty);
-
-        if(!items.length){
-          el.tbody.innerHTML = '<tr><td colspan="7">لا توجد نتائج.</td></tr>';
-          el.mobileList.innerHTML = '<div class="itemCard">لا توجد نتائج.</div>';
-          return;
-        }
-
-        // Desktop table
-        el.tbody.innerHTML = items.map((it, idx) => {
-          const sku = esc(it.sku || "");
-          const name = esc(it.name || "");
-          const qty = fmtNum(it.on_hand_qty);
-          const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
-          const st = String(it._status || "");
-          const pid = esc(it.product_id || "");
-          return `
-            <tr>
-              <td>${idx+1}</td>
-              <td>${sku}</td>
-              <td>${name}</td>
-              <td>${qty}</td>
-              <td>${minEff}</td>
-              <td>${statusPill(st)}</td>
-              <td>
-                <button class="btn" type="button" data-edit-min="${pid}">تعديل</button>
-              </td>
-            </tr>
-          `;
-        }).join("");
-
-        // Mobile cards
-        el.mobileList.innerHTML = items.map((it) => {
-          const sku = esc(it.sku || "");
-          const name = esc(it.name || "");
-          const qty = fmtNum(it.on_hand_qty);
-          const minEff = (it.min_effective == null ? 0 : fmtNum(it.min_effective));
-          const st = String(it._status || "");
-          const pid = esc(it.product_id || "");
-          return `
-            <div class="itemCard">
-              <div class="itemHead">
-                <div>
-                  <div class="itemTitle">${name}</div>
-                  <div class="itemSku">${sku}</div>
-                </div>
-                <div>${statusPill(st)}</div>
-              </div>
-
-              <div class="itemGrid">
-                <div class="kv"><div class="k">الكمية</div><div class="v">${qty}</div></div>
-                <div class="kv"><div class="k">Min</div><div class="v">${minEff}</div></div>
-              </div>
-
-              <div class="itemActions">
-                <button class="btn" type="button" data-edit-min="${pid}">تعديل Min</button>
-              </div>
-            </div>
-          `;
-        }).join("");
-
-        // handlers (both views use same attribute)
-        if(CAN_EDIT)
-        document.querySelectorAll("[data-edit-min]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            const pid = btn.getAttribute("data-edit-min");
-            const row = rawItems.find(x => String(x.product_id) === String(pid));
-            if(!row) return;
-            openSheet(row);
-          }, { once:true });
-        });
-      }
-
-      async function loadData(){
-        try{
-          showMsg("warn", "جاري التحميل...");
-          el.tbody.innerHTML = '<tr><td colspan="7">جاري التحميل…</td></tr>';
-          el.mobileList.innerHTML = '<div class="itemCard">جاري التحميل…</div>';
-
-          const out = await AxentroApi.getInventoryView();
-          const items = (out && out.items) ? out.items : [];
-
-          rawItems = items.map(it => {
-            // ✅ status حسب الكمية فقط (حسب طلبك)
-            const st = computeStatus(it.on_hand_qty);
-            return Object.assign({}, it, { _status: st });
-          });
-
-          const last = out && out.updated_at ? out.updated_at : null;
-          el.statUpdated.textContent = last ? String(last) : "—";
-
-          showMsg("", "");
-          applyFilters();
-        }catch(e){
-          rawItems = [];
-          el.statUpdated.textContent = "—";
-          el.statCount.textContent = "0";
-          el.statQty.textContent = "0";
-          el.tbody.innerHTML = '<tr><td colspan="7">تعذر تحميل البيانات.</td></tr>';
-          el.mobileList.innerHTML = '<div class="itemCard">تعذر تحميل البيانات.</div>';
-          showMsg("bad", (e && e.message) ? e.message : String(e));
-        }
-      }
-
-      function exportCsv(){
-        const rows = [];
-        rows.push(["sku","name","barcode","on_hand_qty","min_effective","status"].join(","));
-
-        const q = (el.q.value || "").trim().toLowerCase();
-        const st = el.status.value || "ALL";
-        const minQ = Math.max(0, parseInt(el.minQty.value || "0", 10) || 0);
-        const sort = el.sort.value || "NAME_ASC";
-
-        let items = rawItems.slice();
-        if(q){
-          items = items.filter(it => {
-            const hay = [it.sku,it.name,it.barcode].map(v=>String(v||"").toLowerCase()).join(" ");
-            return hay.includes(q);
-          });
-        }
-        if(st !== "ALL") items = items.filter(it => String(it._status||"") === st);
-        items = items.filter(it => fmtNum(it.on_hand_qty) >= minQ);
-
-        items.sort((a,b) => {
-          const an = String(a.name||""), bn = String(b.name||"");
-          const aq = fmtNum(a.on_hand_qty), bq = fmtNum(b.on_hand_qty);
-          const amin = fmtNum(a.min_effective), bmin = fmtNum(b.min_effective);
-          switch(sort){
-            case "NAME_DESC": return bn.localeCompare(an, "ar");
-            case "QTY_DESC": return bq - aq;
-            case "QTY_ASC": return aq - bq;
-            case "MIN_DESC": return bmin - amin;
-            case "MIN_ASC": return amin - bmin;
-            default: return an.localeCompare(bn, "ar");
-          }
-        });
-
-        for(const it of items){
-          const line = [
-            JSON.stringify(String(it.sku||"")),
-            JSON.stringify(String(it.name||"")),
-            JSON.stringify(String(it.barcode||"")),
-            fmtNum(it.on_hand_qty),
-            fmtNum(it.min_effective),
-            JSON.stringify(String(it._status||""))
-          ].join(",");
-          rows.push(line);
-        }
-
-        const csv = rows.join("\n");
-        const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "inventory.csv";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      }
-
-      // ===== Events =====
-      ["input","change"].forEach(ev => {
-        el.q.addEventListener(ev, applyFilters);
-        el.status.addEventListener(ev, applyFilters);
-        el.minQty.addEventListener(ev, applyFilters);
-        el.sort.addEventListener(ev, applyFilters);
-      });
-
-      el.btnRefresh.addEventListener("click", loadData);
-
-      el.btnRebuild.addEventListener("click", async () => {
-        try{
-          showMsg("warn", "جاري إعادة بناء Inventory View...");
-          await AxentroApi.rebuildInventoryView();
-          showMsg("ok", "تم إعادة البناء. جاري التحميل...");
-          await loadData();
-        }catch(e){
-          showMsg("bad", (e && e.message) ? e.message : String(e));
-        }
-      });
-
-      el.btnCsv.addEventListener("click", exportCsv);
-
-      el.btnLogout.addEventListener("click", () => {
-        try{ AxentroAuth.logout(); }catch(e){ location.href="login.html"; }
-      });
-
-      el.btnBack.addEventListener("click", () => {
-        location.href = "dashboard.html";
-      });
-
-      // Save from sheet
-      el.sheetSave.addEventListener("click", async () => {
-        if(!sheetCurrentProductId) return;
-
-        let min_qty = (el.sheetMinInput.value ?? "").toString().trim();
-        if(min_qty === ""){
-          min_qty = "";
+    window.handleCredential = async function(resp){
+      try{
+        showErr("");
+        showStatus("جاري تسجيل الدخول...");
+        const out = await AxentroAuth.loginWithGoogleIdToken(resp.credential);
+        if(out.status === "APPROVED"){
+          showStatus("");
+          location.replace(getNext());
+        } else if(out.status === "PENDING") {
+          showStatus("");
+          showErr("تم تسجيل طلبك للموافقة. انتظر موافقة الإدارة.");
         } else {
-          const n = Math.floor(Number(min_qty));
-          if(!Number.isFinite(n) || n < 0){
-            alert("قيمة غير صحيحة.");
-            return;
-          }
-          min_qty = n;
+          showStatus("");
+          showErr(out.message || "تم رفض الدخول.");
         }
+      } catch(e) {
+        showStatus("");
+        showErr(e && e.message ? e.message : String(e));
+      }
+    };
 
-        try{
-          el.sheetSave.disabled = true;
-          showMsg("warn", "جاري تحديث Min...");
-          await AxentroApi.updateProductMinQty({ product_id: sheetCurrentProductId, min_qty });
-          showMsg("ok", "تم تحديث Min بنجاح.");
-          closeSheet();
-          await loadData();
-        }catch(e){
-          showMsg("bad", (e && e.message) ? e.message : String(e));
-        } finally {
-          el.sheetSave.disabled = false;
-        }
+    // Render Google button
+    try{
+      google.accounts.id.initialize({
+        client_id: cfg.GOOGLE_CLIENT_ID,
+        callback: window.handleCredential,
+        auto_select: false,
+        cancel_on_tap_outside: true
       });
-
-      // ESC to close
-      document.addEventListener("keydown", (e) => {
-        if(e.key === "Escape" && el.sheetOverlay.classList.contains("show")) closeSheet();
+      google.accounts.id.renderButton(btnWrap, {
+        type: "standard",
+        theme: "outline",
+        size: "large",
+        text: "continue_with",
+        shape: "pill",
+        width: 320
       });
-
-      // start
-      loadData();
-    })();
+    }catch(e){
+      showErr("Google Login لم يبدأ. راجع GOOGLE_CLIENT_ID في config.js (لازم ينتهي بـ apps.googleusercontent.com).\n" + (e && e.message ? e.message : String(e)));
+      return;
+    }
+  })();
   </script>
 </body>
 </html>
