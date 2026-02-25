@@ -10,9 +10,10 @@
   // ====== Config ======
   const DEFAULTS = {
     // ضع رابط Web App بعد ما تنشر Apps Script كـ Web App
-    // مثال: https://script.google.com/macros/s/XXXX/exec
+    // مثال: https://script.google.com/macros/s/AKfycbyuNcLgIgoSH3kNUjGo9wQ2P4w25ifQsSK5XdhPCU4A0QxtpwZ2NOdt-KrpscwcP-iYew/exec
     GAS_WEB_APP_URL: "",
-    // ضع Google OAuth Client ID الخاص بـ GIS
+ 778615894643-sbacc4bv7nlb6a11a1v5gj86i94lvb5f.apps.googleusercontent.com
+
     GOOGLE_CLIENT_ID: "",
     // أين تُرسل إشعارات طلبات الدخول (على السيرفر)
     // لا تحتاج هنا.
