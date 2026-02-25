@@ -10,10 +10,9 @@
   // ====== Config ======
   const DEFAULTS = {
     // ضع رابط Web App بعد ما تنشر Apps Script كـ Web App
-    // مثال: https://script.google.com/macros/s/AKfycbyuNcLgIgoSH3kNUjGo9wQ2P4w25ifQsSK5XdhPCU4A0QxtpwZ2NOdt-KrpscwcP-iYew/exec
+    // مثال: https://script.google.com/macros/s/XXXX/exec
     GAS_WEB_APP_URL: "",
- 778615894643-sbacc4bv7nlb6a11a1v5gj86i94lvb5f.apps.googleusercontent.com
-
+    // ضع Google OAuth Client ID الخاص بـ GIS
     GOOGLE_CLIENT_ID: "",
     // أين تُرسل إشعارات طلبات الدخول (على السيرفر)
     // لا تحتاج هنا.
@@ -173,7 +172,6 @@
     async getPurchasesLog(){ return apiCall("get_purchases_log", {}); },
     async getSalesLog(){ return apiCall("get_sales_log", {}); },
     async getProfitSummary(){ return apiCall("get_profit_summary", {}); },
-    async getFinancialReport(payload){ return apiCall("get_financial_report", payload||{}); },
     async getDashboardSummary(){ return apiCall("get_dashboard_summary", {}); },
 
     // ===== Expenses =====
@@ -183,16 +181,14 @@
     // ===== Full invoice view/edit/delete/restore/purge =====
     async getSaleInvoice(invoice_no){ return apiCall("get_sale_invoice", { invoice_no }); },
     async updateSaleInvoice(payload){ return apiCall("update_sale_invoice", payload); },
-    // Back-end uses purge_* actions (row-level hard delete). Keep method name for UI compatibility.
-    async softDeleteSaleInvoice(invoice_no){ return apiCall("purge_sale_invoice", { invoice_no }); },
+    async softDeleteSaleInvoice(invoice_no){ return apiCall("soft_delete_sale_invoice", { invoice_no }); },
     async listDeletedSales(){ return apiCall("list_deleted_sales", {}); },
     async restoreSaleInvoice(invoice_no){ return apiCall("restore_sale_invoice", { invoice_no }); },
     async purgeSaleInvoice(invoice_no){ return apiCall("purge_sale_invoice", { invoice_no }); },
 
     async getPurchaseInvoice(invoice_no){ return apiCall("get_purchase_invoice", { invoice_no }); },
     async updatePurchaseInvoice(payload){ return apiCall("update_purchase_invoice", payload); },
-    // Back-end uses purge_* actions (row-level hard delete). Keep method name for UI compatibility.
-    async softDeletePurchaseInvoice(invoice_no){ return apiCall("purge_purchase_invoice", { invoice_no }); },
+    async softDeletePurchaseInvoice(invoice_no){ return apiCall("soft_delete_purchase_invoice", { invoice_no }); },
     async listDeletedPurchases(){ return apiCall("list_deleted_purchases", {}); },
     async restorePurchaseInvoice(invoice_no){ return apiCall("restore_purchase_invoice", { invoice_no }); },
     async purgePurchaseInvoice(invoice_no){ return apiCall("purge_purchase_invoice", { invoice_no }); },
