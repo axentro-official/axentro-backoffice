@@ -684,9 +684,9 @@
   async function loadProducts() {
     try {
       const res = await AxentroApi.getProducts();
-      const productsArr = Array.isArray(res && res.products) ? res.products : (Array.isArray(res && res.items) ? res.items : []);
-      if(res && res.ok && productsArr.length) {
-        productsList = productsArr.map(p=>({
+      const list = (res && (res.products || res.items)) ? (res.products || res.items) : [];
+      if(res && res.ok && Array.isArray(list)) {
+        productsList = list.map(p=>({
           barcode: String(p.barcode||""),
           name: String(p.name||""),
           price: Number(p.price||0),
@@ -891,7 +891,7 @@
   function render(){
     itemsBody.innerHTML = items.map((it, idx)=>{
       const lineTotal = calcLineTotal(it);
-      const badge = "";
+      const badge = it.isNew ? " (NEW)" : "";
       return `
       <tr>
         <td data-label="#">${idx+1}</td>
@@ -1039,25 +1039,19 @@
       }
 
       const payload = {
-        invoice_no: document.getElementById('invNo').value,
+        purchase_invoice_no: document.getElementById('invNo').value,
         supplier,
         invoice_date,
         discount: Math.max(0, toNum(document.getElementById('discount').value)),
         tax: Math.max(0, toNum(document.getElementById('tax').value)),
         notes: String(document.getElementById('notes').value||'').trim(),
         supplier_phone: String(document.getElementById('supplierPhone').value||'').trim(),
-        supplier_address: String(document.getElementById('supplierAddress').value||'').trim(),
-        pay_method: String(document.getElementById('payMethod').value||'').trim(),
         payment_method: String(document.getElementById('payMethod').value||'').trim(),
-        items: items.map((it, idx)=>({
-          line_no: idx + 1,
-          product_id: String(it.product_id||'').trim(),
-          sku: String(it.sku||'').trim(),
+        items: items.map(it=>({
           barcode: String(it.barcode||'').trim(),
-          name: String(it.name||'').replace(/\s*\(NEW\)\s*$/i,'').trim(),
+          name: String(it.name||'').trim(),
           qty: toNum(it.qty),
           unit_cost: toNum(it.unit_cost),
-          warehouse_id: String(it.warehouse_id||'WH001').trim(),
           category: 'General',
           unit: 'PCS'
         }))
@@ -1375,12 +1369,11 @@
         // ✅ FIX: supplierName بدل supplier
         document.getElementById('supplierName').value = inv.supplier || '';
         document.getElementById('supplierPhone').value = inv.supplier_phone || '';
-        document.getElementById('supplierAddress').value = inv.supplier_address || '';
         document.getElementById('invDate').value = inv.invoice_date ? new Date(inv.invoice_date).toISOString().slice(0,10) : '';
         document.getElementById('discount').value = Number(inv.discount||0) || 0;
         document.getElementById('tax').value = Number(inv.tax||0) || 0;
         document.getElementById('notes').value = inv.notes || '';
-        document.getElementById('payMethod').value = inv.pay_method || inv.payment_method || '';
+        document.getElementById('payMethod').value = inv.payment_method || inv.pay_method || '';
 
         let prodByBarcode = new Map();
         try{

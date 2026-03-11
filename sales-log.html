@@ -498,10 +498,10 @@
   async function apiCall(action, payload){
     if(!GAS_WEB_APP_URL) throw new Error("Missing GAS_WEB_APP_URL");
     const session = getSession();
-    const body = JSON.stringify({ action, ...(payload||{}), session });
+    const body = JSON.stringify({ action, ...(payload||{}), session_token: (session && session.token) ? session.token : "" });
     const res = await fetch(GAS_WEB_APP_URL, {
       method:"POST",
-      headers:{ "Content-Type":"application/json" },
+      headers:{ "Content-Type":"text/plain;charset=UTF-8" },
       body
     });
     const data = await res.json().catch(()=> ({}));

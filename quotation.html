@@ -622,9 +622,9 @@
     try {
       // ✅ Read-only: get products فقط (لا يوجد أي createSale / تأثير على المخزن)
       const res = await AxentroApi.getProducts();
-      const productsArr = Array.isArray(res && res.products) ? res.products : (Array.isArray(res && res.items) ? res.items : []);
-      if(res && res.ok && productsArr.length) {
-        productsList = productsArr.map(p=>({
+      const list = (res && (res.products || res.items)) ? (res.products || res.items) : [];
+      if(res && res.ok && Array.isArray(list)) {
+        productsList = list.map(p=>({
           barcode: String(p.barcode||""),
           name: String(p.name||""),
           price: Number(p.price||0),

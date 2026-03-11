@@ -459,8 +459,25 @@
   }
 
   async function fetchPurchasesLog(){
+    if(window.AxentroApi && typeof AxentroApi.getPurchasesLog === "function"){
+      const out = await AxentroApi.getPurchasesLog({});
+      if(out && out.ok && Array.isArray(out.purchases)) return out.purchases;
+      if(out && Array.isArray(out.items)) return out.items;
+      if(Array.isArray(out)) return out;
+      if(out && Array.isArray(out.data)) return out.data;
+      return [];
+    }
+
     if(!PURCHASES_LOG_API_URL) throw new Error("GAS_WEB_APP_URL not set in config.js");
-    const res = await fetch(PURCHASES_LOG_API_URL, { cache:"no-store" });
+    const sessRaw = localStorage.getItem("axentro_session_v2");
+    let token = "";
+    try{ token = JSON.parse(sessRaw||"{}").token || ""; }catch(e){}
+    const res = await fetch(PURCHASES_LOG_API_URL, {
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=UTF-8"},
+      body: JSON.stringify({ action:"get_purchases_log", session_token: token }),
+      cache:"no-store"
+    });
     if(!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
