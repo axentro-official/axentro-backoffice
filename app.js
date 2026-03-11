@@ -137,7 +137,9 @@
   // ====== API facade ======
   const AxentroApi = {
     async getProducts(){
-      return apiCall("get_products", {});
+      const out = await apiCall("get_products", {});
+      if(out && Array.isArray(out.items) && !Array.isArray(out.products)) out.products = out.items;
+      return out;
     },
     async createPurchase(purchasePayload){
       return apiCall("create_purchase", purchasePayload);

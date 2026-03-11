@@ -684,8 +684,9 @@
   async function loadProducts() {
     try {
       const res = await AxentroApi.getProducts();
-      if(res && res.ok && Array.isArray(res.products)) {
-        productsList = res.products.map(p=>({
+      const productsArr = Array.isArray(res && res.products) ? res.products : (Array.isArray(res && res.items) ? res.items : []);
+      if(res && res.ok && productsArr.length) {
+        productsList = productsArr.map(p=>({
           barcode: String(p.barcode||""),
           name: String(p.name||""),
           price: Number(p.price||0),
@@ -890,7 +891,7 @@
   function render(){
     itemsBody.innerHTML = items.map((it, idx)=>{
       const lineTotal = calcLineTotal(it);
-      const badge = it.isNew ? " (NEW)" : "";
+      const badge = "";
       return `
       <tr>
         <td data-label="#">${idx+1}</td>
@@ -1047,11 +1048,16 @@
         supplier_phone: String(document.getElementById('supplierPhone').value||'').trim(),
         supplier_address: String(document.getElementById('supplierAddress').value||'').trim(),
         pay_method: String(document.getElementById('payMethod').value||'').trim(),
-        items: items.map(it=>({
+        payment_method: String(document.getElementById('payMethod').value||'').trim(),
+        items: items.map((it, idx)=>({
+          line_no: idx + 1,
+          product_id: String(it.product_id||'').trim(),
+          sku: String(it.sku||'').trim(),
           barcode: String(it.barcode||'').trim(),
-          name: String(it.name||'').trim(),
+          name: String(it.name||'').replace(/\s*\(NEW\)\s*$/i,'').trim(),
           qty: toNum(it.qty),
           unit_cost: toNum(it.unit_cost),
+          warehouse_id: String(it.warehouse_id||'WH001').trim(),
           category: 'General',
           unit: 'PCS'
         }))
